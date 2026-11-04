@@ -1,0 +1,412 @@
+m1:
+  yak_harness_commit: 9fe03a991dd7c44e078d574e4ffcd51a7606dd6a
+  eval_panel_config: third_party/yak-tokenizer/configs/eval_panel.yaml
+  artifacts_dir: third_party/yak-tokenizer/artifacts/eval
+  baseline_results: artifacts/eval/baseline_RESULTS.md
+  reproduction_tsv: artifacts/eval/m1_reproduction.tsv
+  validity_gate: 5/5
+  panel_name_mapping:
+    Yak v1 64k: yak-64k-v1
+    Yak v2 64k: yak-64k-v2.0
+    Yak v1 32k: yak-32k-v1
+    Yak v1 128k: yak-128k-v1
+    Yak v2 128k: yak-128k-v2.0
+    Yak v1 64k-phrase: yak-64k-v1-phrase
+    Yak v1 128k-phrase: yak-128k-v1-phrase
+    sidskarki-64k: sidskarki-64k
+  languages_of_nepal_note: 'Yak v2 64k languages-of-Nepal mean 1.843 and v2 128k 1.629
+    use 14 private held-out sets; not comparable. Harness can rerun FLORES+ for: npi_Deva,
+    mai_Deva, bho_Deva, awa_Deva, mag_Deva (plus hin/san/eng and non-Deva bod_Tibt,
+    sat_Olck).'
+  sanskrit_note: 'Harness san_Deva fertility: yak-64k-v1=2.346510 yak-64k-v2.0=2.329485
+    indicbert-v2=2.067040. PLAN/blog reported 2.126 (Yak) and 2.067 (IndicBERT v2);
+    IndicBERT matches; Yak blog figure differs from this harness measurement.'
+  yak_64k_phrase_nepali: 1.3739372226084166
+  failed_panel:
+  - airavata
+gate_a_bars:
+  vocab_size: 65536
+  nepali_fertility_below: 1.445
+  english_fertility_below: 1.42
+  hindi_fertility_below: 1.385
+  orphan_mark_npi_below: 0.0015639775951116607
+  zwj_probe_below: 1.5035649327028011
+  zwnj_probe_below: 1.691269552564569
+  byte_pieces_npi_at_most: 0.0005
+  newline_gap_at_most: 0.01
+  stretch_english_below: 1.388
+  stretch_hindi_below: 1.376
+  scoreboard_yak_names:
+  - yak-64k-v1
+  - yak-64k-v2.0
+baselines:
+  yak-64k-v1:
+    panel_name: yak-64k-v1
+    revision: 12b6d3010ec542b484ec3b673354852fe8bb85fb
+    vocab_size: 65536
+    source: ampixa/yak-tokenizer
+    kind: hf_json
+    fertility:
+      npi_Deva: 1.4568204908828404
+      eng_Latn: 1.388110131957445
+      hin_Deva: 1.375541083336583
+      san_Deva: 2.3465095729013257
+      aya_npi: 1.445907279971025
+    orphan_mark_rate:
+      npi_Deva: 0.09238731463808544
+      aya_npi: 0.07853537567476172
+    byte_piece_rate:
+      npi_Deva: 0.0007341065922771986
+    roundtrip_rate:
+      npi_Deva: 1.0
+    zwj_token_ratio: 1.6612334801762114
+    zwnj_token_ratio: 1.9652349486049927
+    coverage_devanagari_128: 1.0
+    all_fertilities:
+      flores_devtest/npi_Deva: 1.4568204908828404
+      flores_devtest/eng_Latn: 1.388110131957445
+      flores_devtest/hin_Deva: 1.375541083336583
+      flores_devtest/mai_Deva: 1.4490674901466825
+      flores_devtest/bho_Deva: 1.4670934499180264
+      flores_devtest/san_Deva: 2.3465095729013257
+      flores_devtest/awa_Deva: 1.4647482580797544
+      flores_devtest/mag_Deva: 1.4427407762338285
+      flores_devtest/bod_Tibt: 25.68135095447871
+      flores_devtest/sat_Olck: 3.0375420945412213
+      npi_latn_words: 3.945435092724679
+      npi_latn_words_deva: 3.1166191155492156
+      npi_everyday_aya: 1.445907279971025
+    all_orphan_mark_rates:
+      flores_devtest/npi_Deva: 0.09238731463808544
+      flores_devtest/eng_Latn: 0.0
+      flores_devtest/hin_Deva: 0.10041674935503075
+      flores_devtest/mai_Deva: 0.09774836665451589
+      flores_devtest/bho_Deva: 0.10797147722435078
+      flores_devtest/san_Deva: 0.2904699738903394
+      flores_devtest/awa_Deva: 0.10416834636781423
+      flores_devtest/mag_Deva: 0.09210671980515886
+      flores_devtest/bod_Tibt: 0.12560275982998836
+      flores_devtest/sat_Olck: 0.0
+      npi_latn_words: 0.0
+      npi_latn_words_deva: 0.347179311133997
+      npi_everyday_aya: 0.07853537567476172
+  yak-64k-v2.0:
+    panel_name: yak-64k-v2.0
+    revision: 12b6d3010ec542b484ec3b673354852fe8bb85fb
+    vocab_size: 65536
+    source: ampixa/yak-tokenizer
+    kind: hf_json
+    fertility:
+      npi_Deva: 1.4701887599593604
+      eng_Latn: 1.420254782886626
+      hin_Deva: 1.384861365674843
+      san_Deva: 2.3294845360824743
+      aya_npi: 1.4545726186164434
+    orphan_mark_rate:
+      npi_Deva: 0.0015639775951116607
+      aya_npi: 0.0026891928064092427
+    byte_piece_rate:
+      npi_Deva: 0.00021822943187604568
+    roundtrip_rate:
+      npi_Deva: 1.0
+    zwj_token_ratio: 1.5035649327028011
+    zwnj_token_ratio: 1.691269552564569
+    coverage_devanagari_128: 1.0
+    all_fertilities:
+      flores_devtest/npi_Deva: 1.4701887599593604
+      flores_devtest/eng_Latn: 1.420254782886626
+      flores_devtest/hin_Deva: 1.384861365674843
+      flores_devtest/mai_Deva: 1.4185933119336882
+      flores_devtest/bho_Deva: 1.4219689280974315
+      flores_devtest/san_Deva: 2.3294845360824743
+      flores_devtest/awa_Deva: 1.4145967011770264
+      flores_devtest/mag_Deva: 1.4298434754831497
+      flores_devtest/bod_Tibt: 24.03964757709251
+      flores_devtest/sat_Olck: 2.1333305616762983
+      npi_latn_words: 4.004636233951498
+      npi_latn_words_deva: 3.0028530670470754
+      npi_everyday_aya: 1.4545726186164434
+    all_orphan_mark_rates:
+      flores_devtest/npi_Deva: 0.0015639775951116607
+      flores_devtest/eng_Latn: 0.0
+      flores_devtest/hin_Deva: 0.012390177968010813
+      flores_devtest/mai_Deva: 0.006473233466044167
+      flores_devtest/bho_Deva: 0.007356978148676842
+      flores_devtest/san_Deva: 0.07465290949093392
+      flores_devtest/awa_Deva: 0.011270349241686378
+      flores_devtest/mag_Deva: 0.0076237817308497866
+      flores_devtest/bod_Tibt: 0.03854376641622381
+      flores_devtest/sat_Olck: 0.0
+      npi_latn_words: 0.0
+      npi_latn_words_deva: 0.007482185273159145
+      npi_everyday_aya: 0.0026891928064092427
+  sidskarki-64k:
+    panel_name: sidskarki-64k
+    revision: fc5773dcf7b9dc2272e8f595f99828969621a855
+    vocab_size: 64000
+    source: sidskarki/nepali-bpe-tokenizer
+    kind: sentencepiece
+    fertility:
+      npi_Deva: 1.4447890487139725
+      eng_Latn: 2.4086114789279027
+      hin_Deva: 1.6556955114456187
+      san_Deva: 2.5862150220913107
+      aya_npi: 1.406745744295545
+    orphan_mark_rate:
+      npi_Deva: 0.016506902550057368
+      aya_npi: 0.015467202193600711
+    byte_piece_rate:
+      npi_Deva: 0.005995780746881824
+    roundtrip_rate:
+      npi_Deva: 0.9950592885375494
+    zwj_token_ratio: 2.5600921191303327
+    zwnj_token_ratio: 2.5600921191303327
+    coverage_devanagari_128: 0.796875
+    all_fertilities:
+      flores_devtest/npi_Deva: 1.4447890487139725
+      flores_devtest/eng_Latn: 2.4086114789279027
+      flores_devtest/hin_Deva: 1.6556955114456187
+      flores_devtest/mai_Deva: 1.7969200763886066
+      flores_devtest/bho_Deva: 1.7191818252791007
+      flores_devtest/san_Deva: 2.5862150220913107
+      flores_devtest/awa_Deva: 1.668739912608747
+      flores_devtest/mag_Deva: 1.7046797636160358
+      flores_devtest/bod_Tibt: 79.42094958394517
+      flores_devtest/sat_Olck: 15.380160478942337
+      npi_latn_words: 5.3323823109843085
+      npi_latn_words_deva: 2.3684022824536375
+      npi_everyday_aya: 1.406745744295545
+    all_orphan_mark_rates:
+      flores_devtest/npi_Deva: 0.016506902550057368
+      flores_devtest/eng_Latn: 0.0
+      flores_devtest/hin_Deva: 0.08262477330004475
+      flores_devtest/mai_Deva: 0.06912536179450073
+      flores_devtest/bho_Deva: 0.06593706007901548
+      flores_devtest/san_Deva: 0.17626022186282772
+      flores_devtest/awa_Deva: 0.06624047557264513
+      flores_devtest/mag_Deva: 0.05876979293544458
+      flores_devtest/bod_Tibt: 0.21918314772244032
+      flores_devtest/sat_Olck: 0.0
+      npi_latn_words: 0.0
+      npi_latn_words_deva: 0.06941725643728354
+      npi_everyday_aya: 0.015467202193600711
+  yak-32k-v1:
+    panel_name: yak-32k-v1
+    revision: 12b6d3010ec542b484ec3b673354852fe8bb85fb
+    vocab_size: 32768
+    source: ampixa/yak-tokenizer
+    kind: hf_json
+    fertility:
+      npi_Deva: 1.5859044970857172
+      eng_Latn: 1.538285923017214
+      hin_Deva: 1.5048161291580548
+      san_Deva: 2.5887481590574373
+      aya_npi: 1.5690510684534589
+    orphan_mark_rate:
+      npi_Deva: 0.1283633420999393
+      aya_npi: 0.11427928395831169
+    byte_piece_rate:
+      npi_Deva: 0.0012812731809292602
+    roundtrip_rate:
+      npi_Deva: 1.0
+    zwj_token_ratio: 1.6624721678699144
+    zwnj_token_ratio: 1.9215977329464948
+    coverage_devanagari_128: 1.0
+  yak-128k-v1:
+    panel_name: yak-128k-v1
+    revision: 12b6d3010ec542b484ec3b673354852fe8bb85fb
+    vocab_size: 131072
+    source: ampixa/yak-tokenizer
+    kind: hf_json
+    fertility:
+      npi_Deva: 1.3699802149617668
+      eng_Latn: 1.2914022190767545
+      hin_Deva: 1.2898646804196077
+      san_Deva: 2.1432106038291607
+      aya_npi: 1.3601593625498007
+    orphan_mark_rate:
+      npi_Deva: 0.06721311475409836
+      aya_npi: 0.052471108270756774
+    byte_piece_rate:
+      npi_Deva: 0.00039032006245121
+    roundtrip_rate:
+      npi_Deva: 1.0
+    zwj_token_ratio: 1.6830620291212866
+    zwnj_token_ratio: 1.8481867509856735
+    coverage_devanagari_128: 1.0
+  yak-128k-v2.0:
+    panel_name: yak-128k-v2.0
+    revision: 12b6d3010ec542b484ec3b673354852fe8bb85fb
+    vocab_size: 131072
+    source: ampixa/yak-tokenizer
+    kind: hf_json
+    fertility:
+      npi_Deva: 1.3823324955884713
+      eng_Latn: 1.3127254463266518
+      hin_Deva: 1.2980540498381625
+      san_Deva: 2.1256553755522827
+      aya_npi: 1.3677562477363274
+    orphan_mark_rate:
+      npi_Deva: 0.0007349812386368032
+      aya_npi: 0.0016285458938797128
+    byte_piece_rate:
+      npi_Deva: 0.00015473289234459016
+    roundtrip_rate:
+      npi_Deva: 1.0
+    zwj_token_ratio: 1.5139275766016713
+    zwnj_token_ratio: 1.7435004642525533
+    coverage_devanagari_128: 1.0
+  yak-64k-v1-phrase:
+    panel_name: yak-64k-v1-phrase
+    revision: 12b6d3010ec542b484ec3b673354852fe8bb85fb
+    vocab_size: 65536
+    source: ampixa/yak-tokenizer
+    kind: hf_json
+    fertility:
+      npi_Deva: 1.3739372226084166
+      eng_Latn: 1.350394959134286
+      hin_Deva: 1.3666887649650976
+      san_Deva: 2.3851546391752576
+      aya_npi: 1.3774447663889895
+    orphan_mark_rate:
+      npi_Deva: 0.10438234607301315
+      aya_npi: 0.08821692686935086
+    byte_piece_rate:
+      npi_Deva: 0.0008562310266988402
+    roundtrip_rate:
+      npi_Deva: 1.0
+    zwj_token_ratio: 1.730517711171662
+    zwnj_token_ratio: 1.873491630984819
+    coverage_devanagari_128: 1.0
+  yak-128k-v1-phrase:
+    panel_name: yak-128k-v1-phrase
+    revision: 12b6d3010ec542b484ec3b673354852fe8bb85fb
+    vocab_size: 131072
+    source: ampixa/yak-tokenizer
+    kind: hf_json
+    fertility:
+      npi_Deva: 1.2671514892251752
+      eng_Latn: 1.2318158988174055
+      hin_Deva: 1.2465000194984985
+      san_Deva: 2.179734904270987
+      aya_npi: 1.2674031148134735
+    orphan_mark_rate:
+      npi_Deva: 0.07773135839979745
+      aya_npi: 0.06202669105249621
+    byte_piece_rate:
+      npi_Deva: 0.0005907920833860826
+    roundtrip_rate:
+      npi_Deva: 1.0
+    zwj_token_ratio: 1.780028699248755
+    zwnj_token_ratio: 1.9510002532286654
+    coverage_devanagari_128: 1.0
+  indicbert-v2:
+    panel_name: indicbert-v2
+    revision: 8598f13fe52443bc3fc054fcd665944560145b5c
+    vocab_size: 250000
+    source: ai4bharat/IndicBERTv2-MLM-only
+    kind: hf_json
+    fertility:
+      npi_Deva: 1.578257847173948
+      eng_Latn: 1.2363819003698462
+      hin_Deva: 1.234683929337441
+      san_Deva: 2.067039764359352
+      aya_npi: 1.5422401303875408
+    orphan_mark_rate:
+      npi_Deva: 0.06345925800440454
+      aya_npi: 0.05948627623660649
+    byte_piece_rate:
+      npi_Deva: 0.0
+    roundtrip_rate:
+      npi_Deva: 0.003952569169960474
+    zwj_token_ratio: 1.436625444689141
+    zwnj_token_ratio: 1.6398780281212944
+    coverage_devanagari_128: 0.9765625
+  arkios:
+    panel_name: arkios
+    revision: aef562fcaf8747bbd9461cdae61b61f99e97e048
+    vocab_size: 65536
+    source: sajalregmi4/arkios-tokenizer
+    kind: hf_json
+    fertility:
+      npi_Deva: 1.6878241805251055
+      eng_Latn: 1.296972740970732
+      hin_Deva: 2.011699099169364
+      san_Deva: 2.8840648011782033
+      aya_npi: 1.6478268743208981
+    orphan_mark_rate:
+      npi_Deva: 0.14646432644785198
+      aya_npi: 0.13001549569747123
+    byte_piece_rate:
+      npi_Deva: 0.004625522747433785
+    roundtrip_rate:
+      npi_Deva: 1.0
+    zwj_token_ratio: 2.2060681438811245
+    zwnj_token_ratio: 2.2060681438811245
+    coverage_devanagari_128: 0.5703125
+  himalaya-64k:
+    panel_name: himalaya-64k
+    revision: 1c39f7a61b78211e3c5bce64e29b5ffd10b438d5
+    vocab_size: 64000
+    source: himalaya-ai/nepali-tokenizer-bpe-64k-5b
+    kind: sentencepiece
+    fertility:
+      npi_Deva: 1.575691139511256
+      eng_Latn: 1.3736359070362083
+      hin_Deva: 1.608197168818001
+      san_Deva: 3.094256259204713
+      aya_npi: 1.5249366171676928
+    orphan_mark_rate:
+      npi_Deva: 0.0261987986561238
+      aya_npi: 0.0254907549253625
+    byte_piece_rate:
+      npi_Deva: 0.02976210676349815
+    roundtrip_rate:
+      npi_Deva: 0.9920948616600791
+    zwj_token_ratio: 2.440100520552863
+    zwnj_token_ratio: 2.440100520552863
+    coverage_devanagari_128: 0.5078125
+  himalaya-100k:
+    panel_name: himalaya-100k
+    revision: 83beb6d9e7a9af6f8449399aa5e16b438f7cf396
+    vocab_size: 100000
+    source: himalaya-ai/nepali-tokenizer-bpe-100k-5b
+    kind: sentencepiece
+    fertility:
+      npi_Deva: 1.4944120635260147
+      eng_Latn: 1.3200310488105567
+      hin_Deva: 1.5448270483172795
+      san_Deva: 2.989160530191458
+      aya_npi: 1.4571350959797176
+    orphan_mark_rate:
+      npi_Deva: 0.020896697319927004
+      aya_npi: 0.019692280924151474
+    byte_piece_rate:
+      npi_Deva: 0.031380827995849285
+    roundtrip_rate:
+      npi_Deva: 0.9920948616600791
+    zwj_token_ratio: 2.5042654386229803
+    zwnj_token_ratio: 2.5042654386229803
+    coverage_devanagari_128: 0.5078125
+  himalaya-128k:
+    panel_name: himalaya-128k
+    revision: c525ebe0b8f72705e549e6e62d36fb1b6a495df3
+    vocab_size: 128000
+    source: himalaya-ai/nepali-tokenizer-bpe-128k-5b
+    kind: sentencepiece
+    fertility:
+      npi_Deva: 1.461793486979306
+      eng_Latn: 1.2984795214830374
+      hin_Deva: 1.5179191202277424
+      san_Deva: 2.9402061855670105
+      aya_npi: 1.4263219847881203
+    orphan_mark_rate:
+      npi_Deva: 0.018875516698979404
+      aya_npi: 0.016943557448753515
+    byte_piece_rate:
+      npi_Deva: 0.0320810622965212
+    roundtrip_rate:
+      npi_Deva: 0.9920948616600791
+    zwj_token_ratio: 2.531089582770466
+    zwnj_token_ratio: 2.531089582770466
+    coverage_devanagari_128: 0.5078125
