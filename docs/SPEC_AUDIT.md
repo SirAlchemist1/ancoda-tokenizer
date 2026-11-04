@@ -185,3 +185,153 @@ No specification item requires stopping M0 before the machine check, toolchain, 
 | Missing / weak acceptance        | 0        | 7            |
 
 **Proceed to M0 step 2 (machine check).** If free disk &lt; 250 GB or RAM &lt; 16 GB, STOP per M0 step 2 (environment), not because of this audit.
+
+---
+
+# Re-audit — PLAN v2.6 (4 Nov 2026)
+
+Scope: changed parts **3.3–3.13** and milestones **M1–M10** (including new **M8b**). Prior M0 audit items that referred to the old “undo GB9c” wording or phrase-report-only Gate A are superseded where noted. Section 3 is not changed by this audit. Each item is **blocking** or **non-blocking**.
+
+## Summary (v2.6)
+
+No **blocking** defects. Proceed to commit and M1.
+
+---
+
+## 3.3–3.13
+
+### R1 — Mission “akshara” vs 3.3 “not conventional orthographic akshara” — non-blocking
+- **Where:** §1 mission; 3.3 definition.
+- **Issue:** Mission still says “whole aksharas”; 3.3 defines an Ancoda protected unit and requires the paper to say it is not the conventional orthographic akshara.
+- **Why non-blocking:** 3.3 is authoritative; mission uses the project term. Paper/model-card wording is gated by 3.11.
+
+### R2 — Old audit C1 superseded — non-blocking (resolved)
+- **Where:** M0 audit C1; 3.3 v2.6.
+- **Issue:** v2.6 replaces “GB9c disabled / undo” with an explicit override (“every Devanagari letter begins a new unit”) and a boundary table.
+- **Why non-blocking:** Implementation step 3 matches the definition; `gb9c=true` remains raw clusters without the guarantee.
+
+### R3 — Guarantee proof C2 vs eligible units with non-Extend Block 0 chars — non-blocking
+- **Where:** 3.5 proof C2; 3.6 eligibility.
+- **Issue:** C2 assumes every later code point of U is Grapheme_Cluster_Break Extend or SpacingMark. Eligibility only requires Block 0 characters (U+0900–U+097F, ZWJ, ZWNJ), which also include Lo letters and digits.
+- **Why non-blocking:** A second Lo letter inside one eligible multi-code-point unit cannot occur under the 3.3 override (letters start units). Digits/danda as “later” code points of an eligible unit that started with a letter are not produced by the segmenter for well-formed text; ineligible/malformed cases are excluded from coverage. M6 exhaustive per-unit tests are the backstop; STOP if they fail.
+
+### R4 — Letter set source files — non-blocking
+- **Where:** 3.3 step 4 (UnicodeData + Scripts); M0 still lists DerivedCoreProperties.
+- **Issue:** Consonant/InCB reading is no longer the eligibility basis; Lo∩Devanagari is.
+- **Why non-blocking:** UnicodeData.txt and Scripts.txt are already present; DerivedCoreProperties remains useful for the M3 Python reference (InCB) and is not contradictory.
+
+### R5 — Block 1 coverage may be unreachable at 99.99% — non-blocking
+- **Where:** 3.6 steps 5–7.
+- **Issue:** Ineligible units count in N; 99.99% may be impossible.
+- **Why non-blocking:** Plan states the cap then decides; report achieved coverage exactly.
+
+### R6 — Joiner copy accounting (49%+1%) — non-blocking
+- **Where:** 3.8; section 2 new synthetic-joiner rule.
+- **Issue:** Nepali natural share becomes 49% when the 1% synthetic copy is on.
+- **Why non-blocking:** Explicit; ladder has a no-joiner snapshot; M7 keep/drop rule is numeric.
+
+### R7 — Morphology: whole-word no longer matches boundaries — non-blocking
+- **Where:** 3.9 morphology vs whole-word preservation.
+- **Issue:** Recall definition means a one-token word matches none of its reference boundaries; F1 and whole-word preservation are separate.
+- **Why non-blocking:** Intentional (v2.6 changelog); both are reported, not Gate A.
+
+### R8 — ZWJ/ZWNJ Gate A bar now beats Yak v2 (was sidskarki ceiling) — non-blocking
+- **Where:** 3.10.
+- **Issue:** Pass bar tightened to Yak v2 M1 values; miss → STOP (human).
+- **Why non-blocking:** Explicit STOP path; joiner augmentation exists to pursue the bar.
+
+### R9 — Languages-of-Nepal mean “not comparable” — non-blocking
+- **Where:** 3.10; M1 acceptance notes.
+- **Issue:** Private 14-set mean cannot be rerun; must not claim WIN/LOSE.
+- **Why non-blocking:** Explicit reporting rule.
+
+### R10 — Phrase builds moved to Gate P (3.13) — non-blocking (supersedes M0 A6)
+- **Where:** 3.10, 3.13, M8b.
+- **Issue:** M0 audit A6 said phrase rows had no pass bar; Gate P now defines bars.
+- **Why non-blocking:** Updated by v2.4–v2.6; word-level vs phrase comparison forbidden on Gate A.
+
+### R11 — Phrase pattern constructed from 3.1 file — non-blocking
+- **Where:** 3.13 step 2.
+- **Issue:** Exact regex surgery (“first two branches wrapped `{1,4}`”) depends on o200k structure remaining stable.
+- **Why non-blocking:** Assert against 3.1 examples; M8b STOP on mismatch; do not retype the pattern.
+
+---
+
+## M1–M10 (incl. M8b)
+
+### R12 — M1 step 6 path `eval/gate_a.py` vs package module — non-blocking
+- **Where:** M1 step 6; acceptance `python -m ancoda_tok.eval.gate_a`.
+- **Issue:** Shorthand path vs `python/ancoda_tok/eval/gate_a.py`.
+- **Why non-blocking:** Acceptance command defines the module; implement there.
+
+### R13 — M1 reproduction table vs harness panel names — non-blocking
+- **Where:** M1 acceptance; `configs/eval_panel.yaml`.
+- **Issue:** Table uses “Yak v1 128k” etc.; panel names are `yak-128k-v1`, `yak-128k-v2.0`, `yak-128k-v1-phrase`.
+- **Why non-blocking:** Plan allows mapping from `eval_panel.yaml`; record mapping in PROGRESS/RESULTS.
+
+### R14 — M1 ±0.03 vs ±0.003 — non-blocking
+- **Where:** M1 steps 2 and acceptance.
+- **Issue:** Two different tolerances for two different checks.
+- **Why non-blocking:** Clarified in v2.6; both must be recorded in `m1_reproduction.tsv` for the ±0.003 rows.
+
+### R15 — sidskarki community-use-1.0 for proxy — non-blocking (M1 STOP if unclear)
+- **Where:** M1 step 3; M9 arm 6.
+- **Issue:** Proxy use may be disallowed.
+- **Why non-blocking:** Explicit STOP; evaluation-only remains possible.
+
+### R16 — M2 HPLT / nepal_pool / papaya sources may be missing — non-blocking
+- **Where:** M2 source table; 3.8 pools.
+- **Issue:** Config names and licensed nepal_pool sources are discover-only; papaya GitHub path must be confirmed.
+- **Why non-blocking:** Plan forbids inventing names and has STOP/list paths; does not block M1.
+
+### R17 — M3 independent Python segmenter must not call Rust — non-blocking
+- **Where:** M3 step 6.
+- **Issue:** Dual implementation risk of shared bugs if both misread the same table.
+- **Why non-blocking:** Differential test + Unicode test file; human STOP only if rule ambiguity remains (none identified as blocking now).
+
+### R18 — M4 four snapshots vs older three — non-blocking
+- **Where:** M4 acceptance.
+- **Issue:** Adds no-joiner 50% snapshot.
+- **Why non-blocking:** Explicit; storage plan in M2 absorbs size.
+
+### R19 — M6 RAM STOP at 14 GB peak — non-blocking
+- **Where:** M6 memory note; MACHINE.md has 18 GB RAM.
+- **Issue:** Trainer must stream; 14 GB headroom on an 18 GB machine is tight with OS overhead.
+- **Why non-blocking:** Explicit STOP before full build; 5 GB mix if RAM &lt; 32 GB already chosen by 3.8.
+
+### R20 — M7 Unigram control not algorithmic BPE-vs-Unigram — non-blocking
+- **Where:** M7 ladder note.
+- **Issue:** Different pretokenization; paper must not overclaim.
+- **Why non-blocking:** Plan states the limit.
+
+### R21 — M8b / Gate P schedule vs slip rules — non-blocking
+- **Where:** 3.12; M8b.
+- **Issue:** Phrase-128k is cut before full GPU tier if slipping.
+- **Why non-blocking:** Ordered; never cut guarantee/equality/segmenter/Gate A core.
+
+### R22 — M9 fixed-byte + 3 seeds for arms 1–2 — non-blocking
+- **Where:** M9 tiers; Gate B.
+- **Issue:** Budget ~110 H100-hours planning figure; two-seed results labelled preliminary.
+- **Why non-blocking:** Pilot STOP confirms budget; labelling rules are clear.
+
+### R23 — M10 packages three builds — non-blocking
+- **Where:** M10 step 3.
+- **Issue:** Legal sign-off still required before public.
+- **Why non-blocking:** Explicit human STOP.
+
+---
+
+## Blocking items (v2.6 re-audit)
+
+**None.**
+
+---
+
+## Re-audit conclusion
+
+| Category | Blocking | Non-blocking |
+|---|---|---|
+| 3.3–3.13 | 0 | 11 |
+| M1–M10 / M8b | 0 | 12 |
+
+**Proceed:** commit “Update to PLAN v2.6”, then execute M1.

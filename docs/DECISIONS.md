@@ -1,6 +1,6 @@
 # Fixed decisions (the spec)
 
-Source of truth copied from PLAN.md section 3 in M0. Do not change without the human's explicit approval.
+Source of truth copied from PLAN.md section 3 (v2.6). Do not change without the human's explicit approval.
 
 ### 3.1 Pre-tokenizer
 
@@ -20,7 +20,29 @@ None, in the tokenizer or the stored corpus.
 
 ### 3.3 Akshara (the Block 1 unit)
 
-**Definition.** An akshara is a UAX #29 extended grapheme cluster computed **with rule GB9c disabled**. Each consonant keeps its vowel signs, virama, nukta, anusvara, chandrabindu, visarga and any joiner after a virama. A conjunct such as क्ष is two aksharas, क् and ष, which BPE may merge later.
+**Definition.** In this project an "akshara" is the **Ancoda protected unit**: a UAX #29 extended grapheme cluster (Unicode 16.0.0), then split by one override: **every Devanagari letter begins a new unit.** A Devanagari letter is a code point with General_Category Lo and Script Devanagari (consonants, nukta letters, independent vowels, avagraha, om). This is an explicit Ancoda override, not an exact inverse of rule GB9c, and is described that way everywhere. Each consonant keeps its vowel signs, virama, nukta, anusvara, chandrabindu, visarga and any joiner after a virama. **This is not the conventional orthographic akshara:** a conjunct such as क्ष is two units, क् and ष, which BPE may merge later. The paper must say so wherever it uses the word.
+
+**Boundary table (default mode; `|` marks a unit boundary):**
+
+| Sequence | Units | Rule |
+|---|---|---|
+| क + ् + ष (क्ष) | क् \| ष | split after a virama that precedes a consonant |
+| क + ् + ZWJ + ष | क्+ZWJ \| ष | the joiner stays with the virama before it |
+| क + ् + ZWNJ + ष | क्+ZWNJ \| ष | same |
+| र + ् + ZWJ + य (eyelash ra) | र्+ZWJ \| य | same |
+| र + ZWJ + ् (older eyelash order) | one unit (ZWJ and virama are Extend); no special case | recorded in `akshara_cases.tsv` |
+| क + ् + nukta + ष (Extend between virama and letter) | क्+nukta \| ष | the override splits before every letter |
+| Prepend character + Devanagari letter | Prepend \| letter | override |
+| consonant + nukta + vowel sign | one unit | marks extend the base |
+| U+0958 (precomposed क़) vs क + U+093C | one unit each; byte strings stay different | no normalization |
+| consonant + vowel sign + anusvara / chandrabindu / visarga | one unit | marks extend the base |
+| independent vowel (+ marks) | one unit | |
+| vowel sign or virama with no consonant before it | at text start: a unit on its own; after a space, digit or other character: attached to that character (UAX #29 rule GB9) | malformed; counted in the tail, never "fixed" |
+| double virama | one unit up to the next letter (both viramas are Extend) | recorded in `akshara_cases.tsv` |
+| Devanagari letter followed by a non-Devanagari mark (for example U+0301 or a Vedic sign) | one unit, but **not eligible** for protection (3.6) | |
+| digits, danda, double danda | one unit each | |
+
+**Checked on 4 Nov 2026 with `unicode-segmentation` 1.12.0 (Unicode 16.0.0):** the only Devanagari-block characters that join a letter's cluster are marks (Mn/Mc) and ZWJ/ZWNJ; no Devanagari-block character acts as Prepend; क्ष, क्+ZWJ+ष, क्+nukta+ष and क्+्+ष are each one raw cluster (so the override is needed for all of them); क्+ZWNJ+ष is already two raw clusters; र+ZWJ+्+य is one raw cluster. M3 repeats these as unit tests.
 
 **Implementation.**
 
@@ -29,9 +51,9 @@ None, in the tokenizer or the stored corpus.
    - 1.11.0 has Unicode 15.1 data but no GB9c code. 1.13.0 and 1.13.1 were yanked.
    - Record `unicode_segmentation::UNICODE_VERSION` in every manifest.
 2. Compute extended grapheme clusters.
-3. Inside any cluster that contains Devanagari, split after every U+094D virama (plus an immediately following U+200C or U+200D, if present) when the next code point is a Devanagari consonant. This undoes GB9c for Devanagari only.
-4. The Devanagari consonant set = `InCB=Consonant ∩ Script=Devanagari`. Read it from Unicode **16.0.0** `DerivedCoreProperties.txt` and `Scripts.txt`. Never hand-code it.
-5. **Mode `gb9c=true`:** return the raw clusters from step 2 (conjuncts joined). This is used only for the M7 and M9 ablation.
+3. **Override:** inside every cluster, insert a boundary before each Devanagari letter that is not the cluster's first code point. Everything between the virama and that letter (ZWJ, ZWNJ, nukta or any other Extend character) stays with the unit on the left. This removes every conjunct join GB9c makes, and any join made by a Prepend character before a Devanagari letter.
+4. The Devanagari letter set = `General_Category=Lo ∩ Script=Devanagari`, read from Unicode **16.0.0** `UnicodeData.txt` and `Scripts.txt`. Never hand-code it.
+5. **Mode `gb9c=true`:** return the raw clusters from step 2 (conjuncts joined). This is used only for the M7 and M9 ablation. **The 3.5 guarantee does not hold in this mode** (a unit can hold two letters); its violations are measured and reported, never gated.
 
 **Required unit tests (default mode):**
 
@@ -69,6 +91,8 @@ None, in the tokenizer or the stored corpus.
 
 **Rank order = ID order:** bytes < Block 0 < Block 1 < Block 2 < reserved.
 
+**Mechanism (stated so it is never confused):** the vocabulary is an ordinary byte-level BPE rank table. There are no special atom symbols outside it. Every input, valid or not, encodes from bytes, so nothing ever fails to encode and decoding is byte-exact. A covered unit stays whole only because its own merges (Blocks 0 and 1) all rank below every Block 2 merge (3.5). Both exports carry this rank table unchanged, and M6 tests integrity on each export separately.
+
 ### 3.5 Canonical encoder and exports
 
 **Canonical algorithm:** tiktoken's "lowest-rank concatenation" BPE.
@@ -76,11 +100,23 @@ None, in the tokenizer or the stored corpus.
 - For each pre-token: if the whole byte string is a token, emit it.
 - Otherwise start from single bytes. Repeatedly merge the adjacent pair whose concatenation is a token with the lowest rank (leftmost on ties). Stop when no adjacent concatenation is a token.
 
-**The guarantee follows from this:**
+**The guarantee and its proof.** Claim: in default mode, no token boundary ever falls strictly inside a covered unit U, in either export.
 
-- All Block 1 tokens rank below all Block 2 tokens, so every covered akshara is completed before any Block 2 merge can act.
-- A string that spans two aksharas contains two base characters, so it can never be a Block 1 token.
-- **The M6 property tests are the proof of record.**
+Conditions it relies on (all enforced elsewhere in this plan):
+- C1. U starts with a Devanagari letter and every code point of U is a Block 0 character (3.6 eligibility).
+- C2. Every Devanagari letter begins a unit (3.3), and every later code point of U has Grapheme_Cluster_Break Extend or SpacingMark. So an occurrence of U's first letter always starts a unit, and no unit boundary can fall inside U.
+- C3. All of U's code points are in the pre-tokenizer's letter classes (Devanagari letters, \p{M}, ZWJ, ZWNJ), so U never spans two pre-tokens.
+- C4. Ranks: bytes < Block 0 < Block 1 < Block 2 (3.4), and the encoder is lowest-rank concatenation (above).
+- C5. The Block 2 ban 1 forbids any token that joins part of one character to anything outside it, or starts at a continuation byte.
+
+Proof:
+1. While U is not a single symbol, it contains an adjacent pair whose concatenation is a Block 0 or Block 1 token: each character's bytes complete through Block 0 (lead byte + second byte = prefix token, + last byte = character), and U's characters then complete through its Block 1 chain `c1+c2`, `c1c2+c3`, … (3.6 adds every chain prefix).
+2. Every Block 0 and Block 1 token ranks below every Block 2 token (C4), so no Block 2 merge happens anywhere in the pre-token until no Block 0 or Block 1 merge remains, so not before U is one symbol.
+3. No Block 0 or Block 1 merge can cross U's edges. A Block 0 token lies inside one character. A Block 1 token starts with a Devanagari letter followed only by Extend or SpacingMark characters, so by C2 every occurrence of it lies inside one unit.
+4. No other merge can happen inside U first. A Block 1 token cannot start at U's second or later character, because those are marks. Pieces of a character cannot join other material (C5).
+5. Once U is one symbol, later merges only join whole symbols, so U stays whole inside any larger token.
+
+Both exports reproduce this encoder exactly (tested), so the claim holds for tokenizer.json and tiktoken alike. **The M6 tests check it independently on each export**; if a test ever fails, the proof's conditions are wrong and the agent **STOPS**.
 
 **Hugging Face export:**
 
@@ -98,15 +134,18 @@ Verified 4 Nov 2026 with tokenizers 0.23.3 and tiktoken 0.14.0: **0 mismatches i
 
 ### 3.6 Block 1 selection (exact algorithm)
 
-1. Count every akshara containing at least one Devanagari code point over the Devanagari text of the training snapshot. `N` = total occurrences, single-code-point aksharas included (Block 0 already covers those).
-2. Sort aksharas of 2 or more code points by count descending, ties broken by UTF-8 bytes ascending.
+1. Count every unit containing at least one Devanagari code point over the training snapshot.
+   - `N` = occurrences of all such units, eligible or not.
+   - **Eligible** units: start with a Devanagari letter, and every code point is a Block 0 character (U+0900–U+097F, U+200C, U+200D).
+   - `N0` = occurrences of single-code-point units whose code point is in Block 0 (already covered).
+2. Sort eligible units of 2 or more code points by count descending, ties broken by UTF-8 bytes ascending.
 3. Walk the list. Each akshara's chain is `c1+c2`, then `c1c2+c3`, and so on. Its **incremental cost** = the chain prefixes not already selected.
 4. Add the akshara if `selected merges + cost ≤ cap`. Otherwise **stop**; never skip ahead.
-5. Also stop when covered occurrences reach **99.99% of N**.
+5. Also stop when coverage reaches **99.99%**. **Coverage = (N0 + occurrences of selected Block 1 units) ÷ N.** Ineligible units count in N and can never be covered, so 99.99% may be unreachable; then the cap decides.
 6. **Caps** (5% of vocab): 1,638 at 32,768; 3,276 at 65,536; 6,553 at 131,072.
 7. The coverage target never overrides the cap. If the cap binds at, say, 99.4%, report 99.4%.
 8. Record:
-   - N, the akshara types selected, the Block 1 merge count and the coverage achieved
+   - N, N0, the ineligible occurrences, the unit types selected, the Block 1 merge count and the coverage achieved
    - uncovered occurrences, and the top 50 uncovered aksharas
 9. Block 1 order = selection order, each chain's prefixes before its extensions.
 
@@ -123,15 +162,26 @@ Verified 4 Nov 2026 with tokenizers 0.23.3 and tiktoken 0.14.0: **0 mismatches i
 
 ### 3.8 Training mix (by UTF-8 bytes)
 
-| Nepali | English | Hindi | Other Devanagari (Maithili, Sanskrit) | Code | Math |
-|---|---|---|---|---|---|
-| 60% | 22% | 6% | 2% | 6% | 4% |
+| Bucket | Share | Sources (M2) |
+|---|---|---|
+| Nepali | 50% | fw2_npi, iriis, sangraha_nep, indiccorp_npi, hplt_npi |
+| English | 20% | fwedu_en |
+| Hindi | 10% | fw2_hin, sangraha_hin |
+| Marathi | 3% | fw2_mar, sangraha_mar |
+| Sanskrit | 3% | fw2_san, sangraha_san |
+| Smaller Devanagari languages (pool) | 4% | Maithili, Bhojpuri, Awadhi, Magahi, Konkani, Bodo, Dogri, Doteli, Chhattisgarhi, Angika: every `*_Deva` config that exists in FineWeb-2, Sangraha verified and HPLT v2 (M2) |
+| Languages of Nepal (pool) | 2% | only sources found and licence-checked in M2 (for example Newar, Tharu, Tamang, Magar, Gurung, Limbu). If none are found, this share goes to Nepali |
+| Code | 5% | code |
+| Math | 3% | owm |
 
+- **This is a language-balanced training mixture, not a vocabulary budget:** shares set how much text each language contributes; BPE then decides which merges each language gets.
+- **Inside each pool,** sample languages with temperature τ = 0.3 on their available bytes: share ∝ bytes^0.3. A language with less data than its share contributes everything it has; the remainder is redistributed inside the pool. **No document is ever repeated (no upsampling).** A language's support is claimed only from its own measured results.
+- **Joiner augmentation (on by default, removed if the M7 ladder says so):** 1% of the snapshot's bytes, **taken out of Nepali's share** (so Nepali is 49% natural + 1% synthetic, and the total stays 100%), made from Nepali training documents not otherwise sampled. In the ladder's no-joiner snapshot that 1% is natural Nepali. Half the documents get U+200D (ZWJ) after every virama that precedes a consonant; the other half get U+200C (ZWNJ) at the same sites. Exactly the sites Yak's probe uses (3.9). Tagged `synthetic`.
 - **Size:** 10 GB total. If the Mac has less than 32 GB of RAM, use 5 GB with the same shares. Never mix sizes within a sweep.
-- **Sweep (M7):** Nepali at 50%, 60% and 70%, others scaled pro rata. **Pick rule:** the point that meets every Gate A fertility row with the lowest Nepali fertility; on a tie, the lower English fertility.
+- **Sweep (M7):** Nepali at 45%, 50% and 60%, others scaled pro rata. **Pick rule:** the point that meets every Gate A fertility row with the lowest Nepali fertility; on a tie, the lower English fertility.
 - **Excluded from training:**
   - Wikipedia: its CC BY-SA share-alike license complicates releasing the vocabulary, and it is about 0.5% of public Nepali text.
-  - All evaluation sets.
+  - All evaluation sets, including FLORES+ dev and devtest for every language.
   - Yak's files.
 
 ### 3.9 Metric definitions
@@ -153,12 +203,19 @@ All counts use `add_special_tokens=False`.
 | Byte pieces | tokens that are not whole UTF-8 characters or character sequences ÷ all tokens |
 | ZWJ / ZWNJ probe | tokens of the devtest rewritten with a ZWJ (or ZWNJ) after every virama that precedes a consonant ÷ tokens of the original. Yak's `robustness.py`. |
 | Round-trip | share of segments with `decode(encode(x)) == x` byte-exactly |
-| Akshara gold agreement | share of words in `tests/data/akshara_gold.tsv` whose segmentation equals the adjudicated gold |
+| Segmenter agreement | share of words on which `aksharas()` equals the independent Python reference (M3 step 6) on 1M distinct training-snapshot words plus all eval words |
+| Byte-level representability | share of eval segments that encode and decode byte-exactly (always 100% by construction; reported, not claimed as coverage) |
+| Whole-character coverage | of the 128 code points U+0900–U+097F, how many are single tokens |
+| Extended-block coverage (reported) | for Devanagari Extended (U+A8E0–U+A8FF), Vedic Extensions (U+1CD0–U+1CFF) and Devanagari Extended-A (U+11B00–U+11B5F): assigned code points that are single tokens, and their frequency in the training snapshot |
+| Fertility per FLORES+ Devanagari language | whole-file fertility (Yak's definition) on the FLORES+ devtest of every `*_Deva` language FLORES+ has, for ours and every panel tokenizer; also the unweighted mean |
+| Morphology alignment (reported) | on a fixed sample of 20,000 Nepali words from fw2_npi_test. Reference boundaries: suffix boundaries found by longest-match against Papaya's affix inventory (a reference list, not ground truth). **Recall:** reference boundaries that are token boundaries (a word kept as one token matches none of its reference boundaries). **Precision:** word-internal token boundaries that are reference boundaries; words with no internal boundary contribute nothing. **F1.** Each unweighted and frequency-weighted, and separately on words absent from the training snapshot |
+| Whole-word preservation (reported) | share of the same 20,000 words encoded as a single token (with its leading space), unweighted and frequency-weighted. Reported beside morphology F1, never combined with it |
+| Cross-language reuse (reported) | share of non-special tokens used at least once in 3 or more FLORES+ Devanagari languages; and median frequency of used tokens on FLORES+ npi |
 | Encoding-variant cost (reported, not gated) | on FLORES+ npi and Aya, tokens of a rewritten copy ÷ tokens of the original, for three rewrites: every nukta letter swapped between its precomposed (U+0958–U+095F) and decomposed form; every eyelash ra written in the older order (र, ZWJ, virama) instead of र, virama, ZWJ; and the whole text NFC-normalized. A value near 1.00 means variant spellings cost almost nothing. |
 
 ### 3.10 Gate A targets (65,536 build, FLORES+ devtest via Yak's harness, unless noted)
 
-**What "beat Yak" means here.** Better than Yak v2 64k (the newest Yak build on its 3 Nov 2026 leaderboard) on every word-level row below, and a lower Nepali count than every 64k tokenizer on Yak's leaderboard. References are from Yak's public `docs/RESULTS.md` (generated 3 Nov 2026). M1 re-measures them; the M1 values are the ones the gate uses.
+**What "beat Yak" means here.** Better than Yak v2 64k (the newest Yak build on its 3 Nov 2026 leaderboard) on every word-level row below, and a lower Nepali count than every 64k tokenizer on Yak's leaderboard. References are from Yak's public `docs/RESULTS.md` (generated 3 Nov 2026) and its blog, both read 4 Nov 2026. M1 re-measures them; the M1 values are the ones the gate uses.
 
 | Check | Pass bar | Reference (64k) |
 |---|---|---|
@@ -170,22 +227,25 @@ All counts use `add_special_tokens=False`.
 | Orphan-mark share, Nepali FLORES+ | below Yak v2 64k's exact value measured in M1 (reported as 0.2%), and every occurrence inside an uncovered akshara or malformed sequence | Yak v2 0.2%; Yak v1 9.2%; sidskarki-64k 1.7% |
 | Orphan-mark share, everyday Nepali (Aya) | reported; same explanation rule | — |
 | Exact round-trip; unknown tokens | 100%; 0 | Yak 100%; 0. sidskarki-64k 99.1% |
-| Devanagari code points with no token | 0 of 128 | Yak 0; sidskarki-64k 26 |
+| Whole-character coverage, U+0900–U+097F | 128 of 128 | Yak 128; sidskarki-64k 102 |
+| Covered-unit integrity, checked on the tokenizer.json and the tiktoken outputs separately | 0 violations in each | — |
 | Nepali byte pieces | ≤ 0.05% | Yak v2 0.02%; Yak v1 0.07% |
 | Newline gap | ≤ 0.010 | Yak 0.000; sidskarki-64k 0.075 |
 | Hugging Face IDs == tiktoken IDs | 100% of eval texts plus 1M lines | — |
-| ZWJ and ZWNJ probes | below 2.560 and 2.560 (sidskarki-64k). Beating Yak here is not required; the result goes on the scoreboard | Yak v2 1.504 and 1.691; Yak v1 1.661 and 1.965 |
-| Akshara gold agreement | 100%, or every difference documented and approved by the human | — |
+| ZWJ and ZWNJ probes | below Yak v2 64k's exact values measured in M1 (reported as 1.504 and 1.691). If missed, **STOP (human)** with the numbers | Yak v1 1.661 and 1.965; sidskarki-64k 2.560 and 2.560 |
+| Segmenter agreement (M3 step 6) | 100% | — |
 
 - **Stretch (beat both Yak 64k builds):** English below 1.388 and Hindi below 1.376.
 - **Yak scoreboard** (in `docs/GATE_A.md`): for every metric the harness reports for `yak-64k-v1` and `yak-64k-v2.0`, print ours, both Yak values and WIN, TIE or LOSE. This includes everyday Nepali on Aya (Yak v1 1.446, Yak v2 1.455) and the mean over the languages of Nepal (Yak v2 1.843). No row is hidden or dropped.
-- **Different category:** Yak's phrase builds let one token span up to 4 words (64k phrase: Nepali 1.374; 128k phrase: 1.267). Report them in a separate, labelled table. Never claim to beat them unless that table shows it.
+- **Also on the scoreboard (reported, not gated):** Sanskrit (Yak 2.126, IndicBERT v2 2.067 per Yak's blog); fertility on every FLORES+ Devanagari language and their mean, measured by us for ours and every panel tokenizer.
+- **Languages of Nepal (Yak v2 128k 1.629, v2 64k 1.843):** Yak's 14 held-out sets are private and cannot be rerun. Report this row as "not comparable". Never claim a win or loss on it.
+- **Phrase builds are a separate category,** gated by Gate P (3.13). Word-level builds are never compared against phrase builds.
 - **32k and 128k:** Nepali below Yak v1 at the same size (1.586 and 1.370), with English no more than 2% above Yak's.
 - **Always reported, never gated:** Romanized Nepali word-list fertility. Romanized Nepali is out of scope for v1.
 
 ### 3.11 Claims discipline (for the paper and model card)
 
-- **Tokenizer-level claims** ("fewer tokens", "never splits a covered akshara") require Gate A.
+- **Tokenizer-level claims** ("fewer tokens", "never splits a covered akshara") require Gate A, or Gate P for the phrase build.
 - **Model-level claims** ("trains a better model") require Gate B. A reduced-tier (single-seed) result is labeled "single seed, not significance-tested".
 - **"Beats Yak"** may be written only for scoreboard rows marked WIN, naming the Yak build and size (for example "fewer Nepali tokens than Yak v2 64k").
 
@@ -195,8 +255,31 @@ If the schedule slips, cut in this order:
 
 1. The 128k build.
 2. The 32k build.
-3. The full GPU tier, falling back to reduced.
-4. The model-level conjunct ablation arm; it stays at the tokenizer level.
-5. The efficiency extras.
+3. Ancoda-Phrase-128k (keep the 64k phrase result from the M8b sweep as the phrase entry).
+4. The full GPU tier, falling back to reduced.
+5. The model-level conjunct ablation arm; it stays at the tokenizer level.
+6. The efficiency extras.
 
-**Never cut:** the guarantee tests, decontamination, the equality test, the gold agreement or the core Gate A rows.
+**Never cut:** the guarantee tests, decontamination, the equality test, segmenter agreement or the core Gate A rows.
+
+### 3.13 Phrase build (Ancoda-Phrase)
+
+A two-stage curriculum, after SuperBPE (arXiv 2503.13423): word-level merges first, then merges that cross spaces.
+
+1. **Stage 1:** exactly the word-level pipeline (3.1–3.7) on the chosen mix, stopped early so that `t` Block 2 IDs remain.
+2. **Stage 2:** continue learning merges with the **phrase pattern**, built in code from `configs/pretokenizer_pattern.txt` (never retyped): its first two branches (the letter branches) are wrapped as one group repeated `{1,4}`, so up to 4 consecutive words become one pre-token. All other branches (digits, punctuation, newlines, whitespace runs) are unchanged, so numbers and line breaks still split. Assert that on the 3.1 examples, splitting each phrase pre-token with the 3.1 pattern gives back exactly the 3.1 pre-tokens.
+3. **Stage-2 bans,** on top of all 3.4 bans: a token holds at most 4 words; it never ends in a space; it never contains a newline, digit or punctuation character.
+4. **Ranks:** stage-2 merges rank above every stage-1 merge, so the 3.5 guarantee and both exports carry over unchanged. Only the exported pre-tokenizer pattern changes, to the phrase pattern.
+5. **Phrase metrics (reported, M8b):** tokens per word, bytes per token, share of tokens that cross a space, the frequency distribution of stage-2 tokens, and the share of vocabulary entries used fewer than 10 times on a held-out 100 MB slice.
+6. **Word-level consistency (reported):** on FLORES+ npi, the share of phrase-build tokens that are either stage-2 tokens or identical to the stage-1 build's tokens over the same byte span. Covered-akshara violations must still be 0.
+7. **Sweep (M8b), at 64k:** `t` = 10%, 25% and 50% of Block 2. **Pick rule:** the lowest Nepali fertility whose English fertility is within 2% of the 64k word-level build's English fertility. Then build 128k with the chosen fraction.
+
+**Gate P (phrase builds, FLORES+ devtest via Yak's harness):**
+
+| Check | Pass bar | Reference |
+|---|---|---|
+| Nepali, Phrase-128k | below 1.267 | Yak v1 128k-phrase 1.267 |
+| English, Phrase-128k | below 1.232 | Yak v1 128k-phrase 1.232 |
+| Hindi, Phrase-128k | below 1.247 | Yak v1 128k-phrase 1.247 |
+| Nepali, Phrase-64k (sweep pick) | below 1.374 | Yak 64k-phrase 1.374 |
+| All Gate A integrity rows (violations, mark-initial, round-trip, coverage, equality) | as Gate A | — |
