@@ -1,0 +1,27 @@
+# Data and artifacts (never commit). Leading slash = repo root only
+# (so tests/data/ stays trackable).
+/data/
+/artifacts/
+/third_party/
+
+# Python / uv
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Rust
+target/
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Env / secrets
+.env
+.env.*

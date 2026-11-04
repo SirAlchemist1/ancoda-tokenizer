@@ -1,0 +1,50 @@
+[project]
+name = "ancoda-tokenizer"
+version = "0.1.0"
+description = "Lossless Nepali-first byte-level BPE tokenizer (akshara base units)"
+authors = [
+    { name = "SirAlchemist1", email = "shahisuryo@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "datasets>=5.1.0",
+    "datatrove>=0.10.1",
+    "fasttext-wheel>=0.9.2",
+    "huggingface-hub>=0.34",
+    "numpy>=2.4.6",
+    "polars>=2.1.0",
+    "pyahocorasick>=2.3.1",
+    "pyarrow>=26.0.1",
+    "pyyaml>=6.0.3",
+    "regex>=2026.9.29",
+    "sentencepiece>=0.2.2",
+    "tiktoken>=0.14.0",
+    "tokenizers>=0.23.3",
+    "tqdm>=4.70.1",
+    "transformers>=5.22.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.7,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "python"
+module-name = "ancoda_tok"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["python"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["python", "tests"]
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.170.14",
+    "maturin>=1.16.0",
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
+]

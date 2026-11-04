@@ -1,0 +1,26 @@
+[package]
+name = "ancoda-seg"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Pre-tokenizer, akshara segmenter, and counting (PyO3 via maturin later)"
+
+[lib]
+name = "ancoda_seg"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+unicode-segmentation = "=1.12.0"
+tokenizers = { version = "0.21", default-features = true }
+pyo3 = { version = "0.24", features = ["extension-module"], optional = true }
+rayon = "1.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+
+[features]
+default = []
+python = ["dep:pyo3"]
+
+[dev-dependencies]
