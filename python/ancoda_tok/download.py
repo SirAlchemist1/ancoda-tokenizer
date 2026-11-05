@@ -83,6 +83,10 @@ UNICODE_SHA256 = {
     "auxiliary/GraphemeBreakTest.txt": (
         "ee2b9354d270ac061b29f09662cafea06341d77e704b8cc6bd72aaeeda363cb5"
     ),
+    "auxiliary/GraphemeBreakProperty.txt": (
+        "c29360bd6f7132811d701d29069541e827eb44bfc4c8fbde8c370d6982689dc1"
+    ),
+    "emoji/emoji-data.txt": "f1365a5173eee18e1f98b240cdc492e84a25f1ce7e0c9d1094eb29c41a22696a",
 }
 PACKAGES = (
     "huggingface-hub",
@@ -429,9 +433,7 @@ def release_download(path: Path, repo_dir: Path) -> None:
     if hub not in resolved.parents:
         return
     holders = [
-        other
-        for other in hub.rglob("*")
-        if other.is_symlink() and other.resolve() == resolved
+        other for other in hub.rglob("*") if other.is_symlink() and other.resolve() == resolved
     ]
     if any("snapshots" in holder.parts for holder in holders):
         return

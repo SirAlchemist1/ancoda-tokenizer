@@ -9,9 +9,9 @@ export DATATROVE_WORKERS ?= $(ANCODA_WORKERS)
 .PHONY: setup storage-plan download clean-data snapshot inventory counts train export eval gate-a efficiency proxy-pilot proxy-train gate-b release
 
 setup:
-	@echo "setup: ensure uv sync and cargo build (M0 stubs)"
 	uv sync
 	cargo build --workspace
+	uv run maturin develop --manifest-path crates/ancoda-seg/Cargo.toml --features python
 
 storage-plan:
 	uv run python -m ancoda_tok.storage

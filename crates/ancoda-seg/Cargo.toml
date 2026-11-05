@@ -12,7 +12,9 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 unicode-segmentation = "=1.12.0"
-tokenizers = { version = "0.21", default-features = true }
+tokenizers = { version = "0.21", default-features = true, features = ["onig"] }
+# fancy-regex 0.19.0 is the crate tiktoken 0.14.0 uses to split pre-tokens.
+fancy-regex = "=0.19.0"
 pyo3 = { version = "0.24", features = ["extension-module"], optional = true }
 rayon = "1.10"
 serde = { version = "1", features = ["derive"] }

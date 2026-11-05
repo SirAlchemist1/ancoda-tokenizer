@@ -22,7 +22,11 @@ dependencies = [
     "tokenizers>=0.23.3",
     "tqdm>=4.70.1",
     "transformers>=5.22.1",
+    "ancoda-seg",
 ]
+
+[tool.uv.sources]
+ancoda-seg = { path = "crates/ancoda-seg" }
 
 [build-system]
 requires = ["uv_build>=0.13.7,<0.14.0"]

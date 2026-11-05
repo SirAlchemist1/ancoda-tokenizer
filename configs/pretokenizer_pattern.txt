@@ -1,0 +1,1 @@
+[^\r\n\p{L}\p{N}]?[\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}\u200C\u200D]*[\p{Ll}\p{Lm}\p{Lo}\p{M}\u200C\u200D]+(?i:'s|'t|'re|'ve|'m|'ll|'d)?|[^\r\n\p{L}\p{N}]?[\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}\u200C\u200D]+[\p{Ll}\p{Lm}\p{Lo}\p{M}\u200C\u200D]*(?i:'s|'t|'re|'ve|'m|'ll|'d)?|\p{N}| ?[^\s\p{L}\p{N}]+[\r\n/]*|\s*[\r\n]+|\s+(?!\S)|\s+

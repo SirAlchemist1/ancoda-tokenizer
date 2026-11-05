@@ -98,3 +98,73 @@ free_bytes=126733250560
 
 - Free space after the report: 126.733 GB. Floor is 50 GB.
 - `ruff check` passed. `pytest`: 21 passed.
+
+## M3 — Pre-tokenizer, segmenter, export check — done
+- [x] 1. `pattern.py` builds the 3.1 pattern (both o200k sources, asserted replacement counts) and writes `configs/pretokenizer_pattern.txt`
+- [x] 2. `ancoda-seg`: `pretokenize` (tokenizers Split / onig), `aksharas` (3.3), maturin bindings
+- [x] 3. Segmenter tests: Unicode 16 `GraphemeBreakTest.txt`, override property, 3.3 table, `tests/data/akshara_cases.tsv` (200+)
+- [x] 4. Pre-tokenizer tests: 3.1 examples; onig, Python `regex`, and fancy-regex 0.19.0 (tiktoken 0.14.0's version) agree on 100k raw lines and `pretok_adversarial.tsv`
+- [x] 5. Export check: toy vocab plus 1,000 random vocabularies × 200 words; full 3.5 merges mismatch count 0; training-merges-only at least 1
+- [x] 6a. Independent Python reference `eval/ref_segmenter.py` from Unicode 16.0.0 property files
+- [x] 6b. Python reference `gb9c=true` passes `GraphemeBreakTest.txt`
+- [x] 6c. Differential test, 0 disagreements, both modes. The M4 training snapshot does not exist yet; 1M distinct words are sampled from training-role raw parquet (seed 20261104), plus every distinct word in role=eval sources and the harness FLORES+ dev/devtest files
+- [x] 6d. ICU, if `icu4c` and PyICU install
+- [x] Acceptance commands pasted below
+
+Measured:
+- `configs/pretokenizer_pattern.txt` is 317 bytes, sha256 `01bacb48139cdf6f483799bcec4202907b5e902fb1c3e837c76ef0bc9566306b`, no trailing newline. Both o200k sources matched. The edit counts are 4 (`\p{M}]` → `\p{M}\u200C\u200D]`) and 1 (`\p{N}{1,3}` → `\p{N}`).
+- Devanagari letters (Lo ∩ Script=Devanagari): 89. `GraphemeBreakTest.txt`: 1093 cases, 100% in Rust `gb9c=true` and in the Python reference. `tests/data/akshara_cases.tsv`: 328 cases. `tests/data/pretok_adversarial.tsv`: 39 rows.
+- Cross-engine pre-tokens: 100039 lines (100000 reservoir-sampled + 39 adversarial), mismatches 0. The sample is Algorithm R with `random.Random(20261104)`: 33334 Nepali lines (`fw2_npi`, `iriis`, `sangraha_nep`, `indiccorp_npi`, `hplt_npi`), 33333 Hindi (`fw2_hin`, `sangraha_hin`), 33333 English (`fwedu_en`). fancy-regex 0.19.0 is the crate in tiktoken 0.14.0's Cargo.toml. Engines: tokenizers 0.21.4 onig Split, Python regex 2026.9.29, fancy-regex 0.19.0.
+- Export check, seed 20261104: 200201 words (1 toy word `abcd`, 200 toy random words, 1000 vocabularies × 200 words). Full-split mismatches 0. Training-merges-only mismatches 2151.
+- Segmenter differential, both modes: 1000000 training words + 1833695 distinct eval words, disagreements 0. Training words are the first 1000000 distinct whitespace-separated words after shuffling training-role parquet paths with `random.Random(20261104)`. Eval words are every distinct word in role=eval sources plus harness FLORES+ dev and devtest, read in place. Results: `artifacts/eval/m3_pretokenizer.json`, `artifacts/eval/m3_segmenter.json`, and their manifests.
+- ICU: `brew install icu4c` installed icu4c@79 79.1. PyICU 2.17 built against it. Character break iterator compared with `gb9c=true` on the same 2833695 words: 2831807 agree, 1888 disagree. ICU 79.1 reports Unicode 18.0. The disagreements are consonant + vowel sign + virama + consonant sequences. In Unicode 16.0.0, U+093F is InCB None (`DerivedCoreProperties.txt` `@missing` InCB is None; U+093E..U+0940 are Grapheme_Base), so GB9c does not join across it. Example: `दि्छ।` is `['दि्', 'छ', '।']` on Unicode 16 and `['दि्छ', '।']` in ICU 79.1. PyICU was uninstalled after the comparison. `uv sync` keeps `ancoda-seg` and does not build PyICU. Loading PyICU required preloading the keg-only dylibs `libicudata.79`, `libicuuc.79`, and `libicui18n.79`.
+- `cargo fmt --all -- --check` passed. `cargo clippy --workspace --all-targets -- -D warnings` passed. `ruff check python tests` passed. The other pytest files passed: 24 passed in 2.63s (`tests/test_seg.py` excluded from that run because it is in the acceptance command below).
+
+Acceptance:
+
+`cargo test -p ancoda-seg`
+
+```
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running unittests src/lib.rs (target/debug/deps/ancoda_seg-b6bb99b0068279b4)
+
+running 11 tests
+test tests::unicode_version_is_16_0_0 ... ok
+test pretok::tests::pattern_file_uses_the_required_joiner_escapes ... ok
+test pretok::tests::plan_31_examples ... ok
+test pretok::tests::adversarial_file_engines_agree ... ok
+test letters::tests::letter_set_matches_the_spec_examples ... ok
+test segment::tests::default_mode_only_adds_devanagari_letter_boundaries ... ok
+test segment::tests::plan_required_examples ... ok
+test segment::tests::plan_boundary_table_and_checked_raw_clusters ... ok
+test segment::tests::devanagari_block_joiners_are_marks_and_none_prepend ... ok
+test segment::tests::akshara_cases_file ... ok
+test segment::tests::grapheme_break_test_passes ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+   Doc-tests ancoda_seg
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+```
+
+`uv run pytest tests/test_seg.py tests/test_pattern.py tests/test_export_equivalence.py`
+
+```
+============================= test session starts ==============================
+platform darwin -- Python 3.11.18, pytest-9.2.0, pluggy-1.7.0
+rootdir: /Users/jarvis/Downloads/ancoda-tokenizer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.14, anyio-4.16.0
+collected 14 items
+
+tests/test_seg.py ...........                                            [ 78%]
+tests/test_pattern.py ..                                                 [ 92%]
+tests/test_export_equivalence.py .                                       [100%]
+
+======================== 14 passed in 364.59s (0:06:04) ========================
+```
+
+Cross-engine mismatches = 0.

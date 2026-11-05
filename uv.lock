@@ -196,10 +196,16 @@ wheels = [
 ]
 
 [[package]]
+name = "ancoda-seg"
+version = "0.1.0"
+source = { directory = "crates/ancoda-seg" }
+
+[[package]]
 name = "ancoda-tokenizer"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "ancoda-seg" },
     { name = "datasets" },
     { name = "datatrove" },
     { name = "fasttext-wheel" },
@@ -228,6 +234,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "ancoda-seg", directory = "crates/ancoda-seg" },
     { name = "datasets", specifier = ">=5.1.0" },
     { name = "datatrove", specifier = ">=0.10.1" },
     { name = "fasttext-wheel", specifier = ">=0.9.2" },
