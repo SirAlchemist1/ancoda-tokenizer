@@ -1,0 +1,407 @@
+# M2 source inventory. Paths and dataset IDs were read from the Hub API and
+# dataset cards on 4 Nov 2026. Byte budgets use 1 GB = 10^9 bytes, as written
+# in PLAN.md. `amount: all` downloads every file under `paths`. A number is a
+# UTF-8 text cap. `download: false` rows are listed for the human and are not
+# part of the disk total.
+#
+# Wikipedia is not a training source (PLAN.md 3.8). It is absent here on purpose.
+
+gb_bytes: 1000000000
+free_floor_bytes: 50000000000
+# 3.8: under 32 GB RAM the snapshot is 5 GB, not 10 GB.
+snapshot_bytes: 5000000000
+# M2 step 1 says "the 3 snapshots". M4 writes four (45%, 50%, 60%, 50% no joiner).
+snapshot_count_m2_wording: 3
+snapshot_count_m4: 4
+# Count tables, tokenizers and eval artifacts. Not an API measurement.
+counts_allowance_bytes: 10000000000
+
+sources:
+  - id: fw2_npi
+    bucket: Nepali
+    role: train
+    repo: HuggingFaceFW/fineweb-2
+    repo_type: dataset
+    config: npi_Deva
+    split: train
+    paths: [data/npi_Deva/train]
+    amount: all
+    text_column: text
+    card_license: odc-by
+
+  - id: fw2_npi_test
+    bucket: Nepali
+    role: eval
+    repo: HuggingFaceFW/fineweb-2
+    repo_type: dataset
+    config: npi_Deva
+    split: test
+    paths: [data/npi_Deva/test]
+    amount: all
+    text_column: text
+    card_license: odc-by
+
+  - id: fw2_npi_latn_test
+    bucket: Romanized Nepali
+    role: eval
+    repo: HuggingFaceFW/fineweb-2
+    repo_type: dataset
+    config: npi_Latn
+    split: test
+    paths: [data/npi_Latn/test]
+    amount: all
+    text_column: text
+    card_license: odc-by
+    note: >
+      Eval only, for the reported Romanized metric. Romanized Nepali is out of
+      scope for training in v1. The train split is not downloaded.
+
+  - id: iriis
+    bucket: Nepali
+    role: train
+    repo: IRIIS-RESEARCH/Nepali-Text-Corpus
+    repo_type: dataset
+    config: default
+    split: train+test
+    paths: [data]
+    amount: all
+    text_column: Article
+    card_license: mit
+
+  - id: sangraha_nep
+    bucket: Nepali
+    role: train
+    repo: ai4bharat/sangraha
+    repo_type: dataset
+    config: verified
+    split: nep
+    paths: [verified/nep]
+    amount: all
+    text_column: text
+    card_license: cc-by-4.0
+
+  - id: indiccorp_npi
+    bucket: Nepali
+    role: train
+    repo: ai4bharat/IndicCorpV2
+    repo_type: dataset
+    config: indiccorp_v2
+    split: npi_Deva
+    paths: [data/ne.txt]
+    amount: all
+    text_column: plain text
+    card_license: "README: CC-0. Hub YAML license tag is absent."
+
+  - id: hplt_npi
+    bucket: Nepali
+    role: train
+    repo: HPLT/HPLT2.0_cleaned
+    repo_type: dataset
+    config: npi_Deva
+    split: train
+    paths: [npi_Deva]
+    amount: all
+    text_column: text
+    card_license: cc0-1.0
+
+  - id: fwedu_en
+    bucket: English
+    role: train
+    repo: HuggingFaceFW/fineweb-edu
+    repo_type: dataset
+    config: sample-10BT
+    split: train
+    paths: [sample/10BT]
+    amount: 3000000000
+    text_column: text
+    card_license: odc-by
+
+  - id: fw2_hin
+    bucket: Hindi
+    role: train
+    repo: HuggingFaceFW/fineweb-2
+    repo_type: dataset
+    config: hin_Deva
+    split: train
+    paths: [data/hin_Deva/train]
+    amount: 1500000000
+    text_column: text
+    card_license: odc-by
+
+  - id: fw2_hin_test
+    bucket: Hindi
+    role: eval
+    repo: HuggingFaceFW/fineweb-2
+    repo_type: dataset
+    config: hin_Deva
+    split: test
+    paths: [data/hin_Deva/test]
+    amount: all
+    text_column: text
+    card_license: odc-by
+
+  - id: sangraha_hin
+    bucket: Hindi
+    role: train
+    repo: ai4bharat/sangraha
+    repo_type: dataset
+    config: verified
+    split: hin
+    paths: [verified/hin]
+    amount: 500000000
+    text_column: text
+    card_license: cc-by-4.0
+
+  - id: fw2_mar
+    bucket: Marathi
+    role: train
+    repo: HuggingFaceFW/fineweb-2
+    repo_type: dataset
+    config: mar_Deva
+    split: train
+    paths: [data/mar_Deva/train]
+    amount: 500000000
+    text_column: text
+    card_license: odc-by
+
+  - id: sangraha_mar
+    bucket: Marathi
+    role: train
+    repo: ai4bharat/sangraha
+    repo_type: dataset
+    config: verified
+    split: mar
+    paths: [verified/mar]
+    amount: 500000000
+    text_column: text
+    card_license: cc-by-4.0
+
+  - id: fw2_san
+    bucket: Sanskrit
+    role: train
+    repo: HuggingFaceFW/fineweb-2
+    repo_type: dataset
+    config: san_Deva
+    split: train
+    paths: [data/san_Deva/train]
+    amount: 500000000
+    text_column: text
+    card_license: odc-by
+
+  - id: sangraha_san
+    bucket: Sanskrit
+    role: train
+    repo: ai4bharat/sangraha
+    repo_type: dataset
+    config: verified
+    split: san
+    paths: [verified/san]
+    amount: 500000000
+    text_column: text
+    card_license: cc-by-4.0
+
+  # Smaller Devanagari pool. One cap per path (per language). Names are the
+  # FineWeb-2 language-distribution names for the matching *_Deva config.
+  # und_Deva is included because it is a real *_Deva config; the card calls it
+  # undetermined language, published without dedup or filtering.
+  # Languages of Nepal are nepal_pool, not in this list.
+  - id: deva_pool_fw2
+    bucket: Smaller Devanagari
+    role: train
+    repo: HuggingFaceFW/fineweb-2
+    repo_type: dataset
+    config: "*_Deva except npi, hin, mar, san and the nepal_pool hold"
+    split: train
+    per_path_cap: 300000000
+    paths:
+      - data/anp_Deva/train
+      - data/awa_Deva/train
+      - data/bho_Deva/train
+      - data/brx_Deva/train
+      - data/doi_Deva/train
+      - data/dty_Deva/train
+      - data/fmu_Deva/train
+      - data/gom_Deva/train
+      - data/hne_Deva/train
+      - data/kas_Deva/train
+      - data/kru_Deva/train
+      - data/mag_Deva/train
+      - data/mai_Deva/train
+      - data/mup_Deva/train
+      - data/sck_Deva/train
+      - data/snd_Deva/train
+      - data/und_Deva/train
+    text_column: text
+    card_license: odc-by
+
+  - id: deva_pool_sangraha
+    bucket: Smaller Devanagari
+    role: train
+    repo: ai4bharat/sangraha
+    repo_type: dataset
+    config: verified
+    split: "brx, doi, gom, mai, kas, snd"
+    per_path_cap: 300000000
+    paths:
+      - verified/brx
+      - verified/doi
+      - verified/gom
+      - verified/mai
+      - verified/kas
+      - verified/snd
+    text_column: text
+    card_license: cc-by-4.0
+    note: >
+      Sangraha verified splits have no script tag. These six match a FineWeb-2
+      *_Deva config for the same ISO code. mni and sat are omitted: IndicCorp v2
+      labels them mni_Mtei and santhali, and FineWeb-2 has no mni_Deva or sat_Deva
+      folder. asm, ben, guj, kan, mal, ori, pan, tam, tel, urd, eng are not
+      Devanagari. No bho, awa, mag, dty, hne or anp split exists under verified.
+
+  - id: deva_pool_hplt
+    bucket: Smaller Devanagari
+    role: train
+    repo: HPLT/HPLT2.0_cleaned
+    repo_type: dataset
+    config: "awa_Deva, bho_Deva, hne_Deva, kas_Deva, mag_Deva, mai_Deva"
+    split: train
+    per_path_cap: 300000000
+    paths:
+      - awa_Deva
+      - bho_Deva
+      - hne_Deva
+      - kas_Deva
+      - mag_Deva
+      - mai_Deva
+    text_column: text
+    card_license: cc0-1.0
+    note: >
+      HPLT v2 cleaned Devanagari folders found by list_repo_tree: awa, bho, hin,
+      hne, kas, mag, mai, mar, npi, san. hin, mar, san and npi are not pool
+      members (npi is hplt_npi; hin, mar and san are not in the HPLT rows of the
+      M2 table). No anp, brx, doi, dty or gom folder exists in this repo.
+
+  - id: owm
+    bucket: Math
+    role: train
+    repo: open-web-math/open-web-math
+    repo_type: dataset
+    config: default
+    split: train
+    paths: [data]
+    amount: 1000000000
+    text_column: text
+    card_license: "README: ODC-By 1.0. Hub YAML license tag is absent."
+
+  - id: code
+    bucket: Code
+    role: train
+    repo: codeparrot/github-code-clean
+    repo_type: dataset
+    config: direct parquet (loader is a script)
+    split: train
+    paths: [data]
+    amount: 1000000000
+    text_column: code
+    card_license: apache-2.0
+    # Shard data/train-00000-of-00880.parquet (355122552 bytes, 126925 rows):
+    # kept UTF-8 of mit/apache-2.0/bsd-2-clause/bsd-3-clause rows = 550829383.
+    # Columns present: code, repo_name, path, language, license, size.
+    keep_ratio: 1.551095178
+    note: >
+      Read data/*.parquet directly. One shard was opened. Columns are code,
+      repo_name, path, language, license, size. Keep license values mit,
+      apache-2.0, bsd-2-clause and bsd-3-clause. keep_ratio is kept UTF-8
+      bytes divided by that shard's file size (550829383 / 355122552).
+
+  - id: c4_val
+    bucket: English eval
+    role: eval
+    repo: allenai/c4
+    repo_type: dataset
+    config: en
+    split: validation
+    paths: [en]
+    path_contains: c4-validation
+    amount: 50000000
+    text_column: text
+    card_license: odc-by
+
+  - id: belebele_npi
+    bucket: Nepali decontam
+    role: decontam
+    repo: facebook/belebele
+    repo_type: dataset
+    config: npi_Deva
+    split: default
+    paths: [data/npi_Deva.jsonl]
+    amount: all
+    text_column: flores_passage
+    card_license: cc-by-sa-4.0
+
+  - id: aya_npi
+    bucket: Nepali eval
+    role: eval
+    repo: CohereLabs/aya_dataset
+    repo_type: dataset
+    config: default
+    split: train+test
+    paths: [data]
+    amount: all
+    text_column: inputs+targets
+    card_license: apache-2.0
+    note: "Keep rows whose language_code is nep (card: Nepali) or whose language is Nepali."
+
+  - id: glotlid
+    bucket: tool
+    role: tool
+    repo: cis-lmu/glotlid
+    repo_type: model
+    config: model.bin
+    split: n/a
+    paths: [model.bin]
+    amount: all
+    card_license: "other / apache-2.0-plus-notices. Card: model.bin is stable v3."
+
+  - id: papaya_affixes
+    bucket: eval tool
+    role: tool
+    repo: kalexrt/nepali-morphology-tokenizer
+    repo_type: github
+    paths: []
+    amount: all
+    fixed_bytes: 572208
+    card_license: "Code MIT. Affix inventory CC BY 4.0 (data/LICENSE), not MIT."
+    revision: b3498528daa3435f091792e0b44bb222a2f8cb68
+    note: >
+      Commit b3498528daa3435f091792e0b44bb222a2f8cb68. Files
+      data/affix_inventory.tsv (81127 bytes) and data/affix_inventory.json
+      (491081 bytes), plus data/LICENSE. Root LICENSE is MIT for code only;
+      data/LICENSE puts the affix inventory under CC BY 4.0. Evaluation only.
+      Do not copy vocab, merges or stem lexicons.
+
+  - id: nepal_pool
+    bucket: Languages of Nepal
+    role: train
+    repo: HuggingFaceFW/fineweb-2
+    repo_type: dataset
+    config: "new_Deva, thl_Deva, taj_Deva, lif_Deva, rav_Deva, suz_Deva, xsr_Deva, rjs_Deva, kle_Deva, nwx_Deva"
+    split: train
+    paths:
+      - data/new_Deva/train
+      - data/thl_Deva/train
+      - data/taj_Deva/train
+      - data/lif_Deva/train
+      - data/rav_Deva/train
+      - data/suz_Deva/train
+      - data/xsr_Deva/train
+      - data/rjs_Deva/train
+      - data/kle_Deva/train
+      - data/nwx_Deva/train
+    amount: all
+    text_column: text
+    card_license: odc-by
+    note: >
+      Approved 4 Nov 2026, ODC-By. Train splits only. No upsampling. Unused
+      pool share goes to Nepali. NepTam (CC BY-NC) and GurungJasmika audio
+      are excluded.

@@ -14,10 +14,10 @@ setup:
 	cargo build --workspace
 
 storage-plan:
-	@echo "storage-plan: stub — implemented in M2"
+	uv run python -m ancoda_tok.storage
 
 download:
-	@echo "download: stub — implemented in M2"
+	caffeinate -dimsu uv run python -u -m ancoda_tok.download
 
 clean-data:
 	@echo "clean-data: stub — implemented in M4"

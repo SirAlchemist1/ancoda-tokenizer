@@ -283,3 +283,25 @@ A two-stage curriculum, after SuperBPE (arXiv 2503.13423): word-level merges fir
 | Hindi, Phrase-128k | below 1.247 | Yak v1 128k-phrase 1.247 |
 | Nepali, Phrase-64k (sweep pick) | below 1.374 | Yak 64k-phrase 1.374 |
 | All Gate A integrity rows (violations, mark-initial, round-trip, coverage, equality) | as Gate A | — |
+
+## M2 approvals (4 Nov 2026)
+
+The human approved the following for milestone M2. Sections 3.1–3.13 are unchanged.
+
+### Storage
+
+Option 2 is approved. For each training source, delete its raw parquet only after its cleaned parquet is written and verified against the manifest, and only after the exact Hugging Face revision (commit hash) is recorded in that manifest so the text can be re-downloaded. Never delete eval-only or decontamination-only sources. The 50 GB rule from section 2 still applies at every step.
+
+The storage-plan peak that is gated is one copy of each training source (the raw parquet until M4 replaces it with the cleaned parquet), plus eval, decontamination and tool files, plus the snapshots, plus the counts, tokenizers and eval allowance. Raw and cleaned training text are not kept together.
+
+### Languages of Nepal
+
+All 10 FineWeb-2 configs are approved for `nepal_pool`, ODC-By: `new_Deva`, `thl_Deva`, `taj_Deva`, `lif_Deva`, `rav_Deva`, `suz_Deva`, `xsr_Deva`, `rjs_Deva`, `kle_Deva`, `nwx_Deva`. No upsampling. Unused pool share goes to Nepali per 3.8. Train splits only. The CC BY-NC Tamang corpus (`ilprl-docse/NepTam-A-Nepali-Tamang-Parallel-Corpus`) and the Gurung audio (`eduhk-compling/GurungJasmika`) are excluded.
+
+### Romanized Nepali
+
+Out of scope for training in v1. FineWeb-2 `npi_Latn` has a test split; download that split only, as eval-only, for the reported Romanized metric. Do not download the `npi_Latn` train split. Do not use `dipeshch71/nepaliflow-romanized-nepali-to-devanagari-dataset` or `sabin1234/NEPALI_TO_ROMANIZED_WIKIPEDIA`.
+
+### Papaya affix inventory
+
+Approved for evaluation only under CC BY 4.0, at commit `b3498528daa3435f091792e0b44bb222a2f8cb68`. Attribution: the affix dataset is re-derived from Balaram Prasain, "A Computational Analysis of Nepali Morphology: A Model for Natural Language Processing", PhD dissertation, Tribhuvan University, 2011. Cite that work. The files stay under `data/` and are not committed. Do not copy the repository's tokenizer vocab, merges or stem lexicons.
