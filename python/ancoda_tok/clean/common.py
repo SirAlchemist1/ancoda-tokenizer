@@ -133,7 +133,9 @@ def library_versions() -> dict[str, str]:
         import ancoda_seg
 
         out["ancoda-seg"] = getattr(ancoda_seg, "__version__", "local")
-        out["unicode_segmentation"] = ".".join(str(x) for x in ancoda_seg.UNICODE_VERSION)
+        out["unicode_segmentation"] = ".".join(
+            str(x) for x in ancoda_seg.unicode_version()
+        )
     except (ImportError, AttributeError):
         out["ancoda-seg"] = "missing"
     return out
@@ -177,7 +179,9 @@ def base_manifest(**extra: Any) -> dict[str, Any]:
     try:
         import ancoda_seg
 
-        manifest["unicode_segmentation"] = ".".join(str(x) for x in ancoda_seg.UNICODE_VERSION)
+        manifest["unicode_segmentation"] = ".".join(
+            str(x) for x in ancoda_seg.unicode_version()
+        )
     except (ImportError, AttributeError):
         manifest["unicode_segmentation"] = "missing"
     manifest.update(extra)

@@ -26,7 +26,7 @@ snapshot:
 	caffeinate -dimsu uv run python -u -m ancoda_tok.clean snapshot
 
 inventory:
-	@echo "inventory: stub — implemented in M5"
+	caffeinate -dimsu uv run python -u -m ancoda_tok.inventory
 
 counts:
 	@echo "counts: stub — implemented in M6"

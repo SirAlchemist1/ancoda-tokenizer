@@ -295,3 +295,40 @@ all audits clean free_bytes=127512088576
 ### Ops note (human, 7 Nov 2026) — RAM / workers
 
 While unattended: if any step uses **> 10 GB RAM** or is **killed for memory**, lower `ANCODA_WORKERS` from **5 → 3**, then **3 → 2** if needed, and **resume from the last finished shard**. Record each worker-count change here. Do **not** change dedup or decontamination settings. No worker reduction applied (default remains 5; MinHash near-dup peaked under ~6 GB with 5 workers).
+
+## M5 — Akshara inventory and covered set — done
+
+Pre-check (8 Nov 2026): unique `doc_id` == row count in every snapshot and every bucket, including Languages of Nepal (n45 25867, n50 22509, n60 15894, n50_nojoiner 22374). No document repeats.
+
+- [x] 0. Task list; `python/ancoda_tok/inventory.py`; `make inventory`
+- [x] 1. Count `aksharas()` over n50 → `artifacts/inventory/akshara_counts.tsv` (N=708613647, unique=14229)
+- [x] 2. 3.6 selection for 32k / 64k / 128k → `covered_{32k,64k,128k}.json` (all stop at cap; merges = cap)
+- [x] 3. Plot → `artifacts/inventory/coverage_vs_block1.svg` and `docs/figures/m5_coverage_vs_block1.svg`
+- [x] 4. `gb9c=true` → `akshara_counts_gb9c.tsv` + `covered_*_gb9c.json` + gb9c plot
+- [x] Acceptance
+
+Acceptance:
+
+`make inventory` → exit 0.
+
+```
+count mode=default done=75/75 pending=0 workers=5
+count complete docs=2167288 units=708613647 unique=14229
+wrote .../akshara_counts.tsv sha256=35f33fe79bfc5d429db8a28a1ae757652e4c49db92520d0813844ad99e66d77e unique=14229
+covered 32k gb9c=False merges=1638/1638 coverage=0.9996016503 stop=cap
+covered 64k gb9c=False merges=3276/3276 coverage=0.9997618985 stop=cap
+covered 128k gb9c=False merges=6553/6553 coverage=0.9998031057 stop=cap
+count mode=gb9c done=75/75 pending=0 workers=5
+count complete docs=2167288 units=630265342 unique=57131
+wrote .../akshara_counts_gb9c.tsv sha256=8662a0e7254f6d93a90444c64cc4d8ba9de595027fdb7a5d3dcbb9590580b697 unique=57131
+covered 32k gb9c=True merges=1638/1638 coverage=0.9903944853 stop=cap
+covered 64k gb9c=True merges=3276/3276 coverage=0.9968672877 stop=cap
+covered 128k gb9c=True merges=6553/6553 coverage=0.9989564205 stop=cap
+wrote .../manifest.json
+```
+
+`uv run python -m ancoda_tok.inventory --verify-deterministic` → exit 0; all six covered JSON sha256s matched.
+
+`uv run pytest tests/test_inventory.py` → 6 passed.
+
+`docs/RESULTS.md` — section **M5 — Akshara inventory and Block 1 covered set** with tables and both plots.

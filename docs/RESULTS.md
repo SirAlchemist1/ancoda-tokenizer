@@ -390,3 +390,51 @@ MinHash total dropped: **20132** docs / **122711282** bytes.
 | **total** |  |  | 852135439 | 80110281800 | 1.0637% |
 
 Source: `artifacts/clean/snapshots.json`.
+
+---
+
+## M5 — Akshara inventory and Block 1 covered set
+
+Snapshot: `data/snapshots/n50_32fd1b6a9c068400`. Seed `20261104`.
+Counted every `aksharas()` unit with at least one U+0900–U+097F code point.
+Block 1 selection is PLAN.md 3.6 (cap 5% of vocab; stop at cap or 99.99% coverage).
+
+### Default mode (`gb9c=false`)
+
+| | |
+|---|---|
+| counts | `artifacts/inventory/akshara_counts.tsv` |
+| sha256 | `35f33fe79bfc5d429db8a28a1ae757652e4c49db92520d0813844ad99e66d77e` |
+| unique units | 14229 |
+| N (occurrences) | 708613647 |
+| N0 (single-code-point Block 0) | 307644578 |
+| ineligible occurrences | 21907559 |
+
+| Vocab | cap | Block 1 merges | units selected | coverage | uncovered occ. | stop | covered JSON sha256 |
+|---|---:|---:|---:|---:|---:|---|---|
+| 32k | 1638 | 1638 | 1628 | 0.9996016503 | 282276 | cap | `57fca4cdecd5200a81758fea31114e6d6cd2f54ecbabd9c3ee63ba74063fcb82` |
+| 64k | 3276 | 3276 | 3262 | 0.9997618985 | 168722 | cap | `a4d5b9a76dc81ff817a1d13fbe750294f9efc50d1deea51bdb0c8fb7f1d9d826` |
+| 128k | 6553 | 6553 | 6490 | 0.9998031057 | 139522 | cap | `8842fadd737786a1904a10c76702c99063091f00027e0ca9aff6d80877cb7e98` |
+
+![Coverage vs Block 1 merges (default)](figures/m5_coverage_vs_block1.svg)
+
+### Ablation (`gb9c=true`)
+
+| | |
+|---|---|
+| counts | `artifacts/inventory/akshara_counts_gb9c.tsv` |
+| sha256 | `8662a0e7254f6d93a90444c64cc4d8ba9de595027fdb7a5d3dcbb9590580b697` |
+| unique units | 57131 |
+| N | 630265342 |
+| N0 | 271631891 |
+| ineligible occurrences | 21907559 |
+
+| Vocab | cap | Block 1 merges | units selected | coverage | uncovered occ. | stop | covered JSON sha256 |
+|---|---:|---:|---:|---:|---:|---|---|
+| 32k | 1638 | 1638 | 1503 | 0.9903944853 | 6054023 | cap | `a48863954c3f29d28cdf886c0f22f472f25dfdda83a34ae9258839e61dd02e3a` |
+| 64k | 3276 | 3276 | 2999 | 0.9968672877 | 1974440 | cap | `3c8b9557b9317bcea29ccbc010f0f89781d2a7363451de507a906da4530ff11b` |
+| 128k | 6553 | 6553 | 5995 | 0.9989564205 | 657732 | cap | `763e40e2df4665d2214245a3ff05867da0540c04a5f70499929b92579b33da0f` |
+
+![Coverage vs Block 1 merges (gb9c=true)](figures/m5_coverage_vs_block1_gb9c.svg)
+
+Determinism: `uv run python -m ancoda_tok.inventory --verify-deterministic` re-ran 3.6 from each TSV; all six covered JSON sha256s matched.
