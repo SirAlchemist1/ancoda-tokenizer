@@ -6,6 +6,10 @@ license.workspace = true
 publish.workspace = true
 description = "Trainer CLI: Blocks 0/1/2, bans, canonical encoder"
 
+[lib]
+name = "ancoda_bpe"
+path = "src/lib.rs"
+
 [[bin]]
 name = "ancoda-bpe"
 path = "src/main.rs"
@@ -17,3 +21,4 @@ serde_json = "1"
 clap = { version = "4", features = ["derive"] }
 sha2 = "0.10"
 ahash = "0.8"
+libc = "0.2"

@@ -384,3 +384,10 @@ In place of the disabled large-set n-gram rules: drop any training document whos
 ### n45 residual audit hits (200 segment) — cause and fix
 
 The first n45 independent audit reported `{'exact': 0, 'segment': 200, '13gram': 0}`. Cause: LID-rerouted docs under `data/clean/_reroute/` were included in snapshots but had **not** been run through text decontamination. Fix: `decontam_reroutes()` in `run_decontam`, then rebuild snapshots. After that rebuild, text-rule audits were 0; MinHash near-dup then required another rebuild + full audit including `minhash_eval`.
+
+## Human correction (8 Nov 2026) — Ban 1 reading and special-token encoding
+
+Recorded at the human's instruction during M6. The section 3 text above is unchanged; this note is only the corrected reading.
+
+1. **Ban 1, second clause.** `M` lies within one character's UTF-8 encoding: valid lead byte, valid continuation bytes for each later position, and `len(M)` no greater than that lead's width. Proper prefixes such as `E6 97` are allowed. The clause does not mean "exactly one scalar value has an encoding that starts with M". The first clause (both sides complete valid UTF-8) is unchanged.
+2. **Ordinary-text encoding.** Tests set `Tokenizer.encode_special_tokens = True` (tokenizers 0.23.3) so literal special-token strings are plain text, like tiktoken `encode_ordinary`. See `docs/MODEL_CARD_NOTES.md`.

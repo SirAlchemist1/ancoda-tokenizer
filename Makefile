@@ -29,13 +29,13 @@ inventory:
 	caffeinate -dimsu uv run python -u -m ancoda_tok.inventory
 
 counts:
-	@echo "counts: stub — implemented in M6"
+	caffeinate -dimsu uv run python -u -m ancoda_tok.counts
 
 train:
-	@echo "train: stub — implemented in M6"
+	caffeinate -dimsu cargo run --release --offline -p ancoda-bpe -- train --config configs/build_64k.yaml
 
 export:
-	@echo "export: stub — implemented in M6"
+	uv run python -u -m ancoda_tok.export_cli
 
 eval:
 	@echo "eval: stub — implemented in M1/M8"

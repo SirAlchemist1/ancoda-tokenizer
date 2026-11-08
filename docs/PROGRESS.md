@@ -332,3 +332,101 @@ wrote .../manifest.json
 `uv run pytest tests/test_inventory.py` → 6 passed.
 
 `docs/RESULTS.md` — section **M5 — Akshara inventory and Block 1 covered set** with tables and both plots.
+
+## M6 — Trainer, exporter and the guarantee — accepted
+
+- [x] 0. Task list
+- [x] 0b. Human corrections (8 Nov 2026) recorded, implemented, and unit-tested before any tokenizer training
+- [x] 1. `ancoda-seg` / count CLI: stream the n50 snapshot, pre-tokenize, write a sorted `(bytes, u64 count)` table and a manifest
+- [x] 2. `ancoda-bpe` trainer: canonical encoder, Blocks 0 and 1, Block 2 with bans, tie-break, duplicate rule, config switches
+- [x] 3. 1 GB slice benchmark; record peak RAM and time in `docs/MACHINE.md`; STOP if full-size peak would exceed 14 GB
+- [x] 4. Train the 64k build on the 50% snapshot; write `ranks.json` and a manifest
+- [x] 5. Exporters (Hugging Face tokenizer.json and tiktoken) per 3.5
+- [x] 6. `--plain` validation vs Hugging Face `BpeTrainer` on the 1 GB slice → `artifacts/validation/plain_vs_hf.md`
+- [x] 7. Guarantee tests (`tests/test_guarantee.py`) on the 64k build
+- [x] 8. Acceptance commands recorded below
+
+### Human corrections (8 Nov 2026) — recorded before training
+
+The human corrected two readings. Section 3 of PLAN.md is unchanged. The same note is in `docs/DECISIONS.md` and `docs/MODEL_CARD_NOTES.md`. No tokenizer training runs until both are unit-tested.
+
+1. **Ban 1 (PLAN 3.4), second clause.** "A non-empty prefix (proper or complete) of the UTF-8 encoding of exactly one Unicode scalar value, starting at its lead byte" means `M = L+R` lies inside **one** character's encoding: `M` starts with a valid lead byte, every following byte is a valid continuation at that position, and `len(M)` is at most that lead's sequence length. Proper prefixes such as `E6 97` are allowed (`E6+97`, then `E6 97+A5` completes the character). Banned: a merge that joins part of one character to bytes outside it, starts at a continuation byte, or is invalid. The first clause is unchanged: both `L` and `R` may be complete valid UTF-8 strings. This is **not** "exactly one scalar has an encoding that starts with M" (that reading wrongly bans `E6 97`).
+
+2. **Special tokens must not swallow ordinary text.** Equality and guarantee tests set tokenizers 0.23.3 `Tokenizer.encode_special_tokens = True` before `encode(..., add_special_tokens=False)`. With that flag, a literal special-token string such as `<|bos|>` is ordinary text, matching tiktoken `encode_ordinary`. The flag defaults to `False` and is **not** stored in `tokenizer.json`; `False` extracts added special tokens from the text. `add_special_tokens=False` still keeps the post-processor from inserting BOS. `load_hf` sets the flag. Documented in `docs/MODEL_CARD_NOTES.md`.
+
+Counts (`uv run python -u -m ancoda_tok.counts`, caffeinate, exit 0, 113.8 s). Headers `ANCDACT1`.
+
+| slice | unique | occurrences | key_bytes | text_bytes |
+|---|---:|---:|---:|---:|
+| n50 | 9041738 | 549487984 | 227794543 | 5000398763 |
+| n50 1 GB prefix | 1950607 | 208066814 | 20046751 | 1000000996 |
+
+1 GB prefix is whole documents in shard order, stopping at 1000000996 text bytes (195858 docs). Manifests: `artifacts/counts/n50/manifest.json`, `artifacts/counts/n50_1gb/manifest.json`.
+
+Unit tests, before any tokenizer training:
+
+```
+cargo test -p ancoda-bpe --offline --lib
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.08s
+
+uv run pytest tests/test_m6_corrections.py tests/test_counts_format.py -q
+4 passed
+```
+
+Ban 1 cases in `ban::tests::human_cases`: E6+97 allowed, E697+A5 allowed, A5+20 banned, E697+41 banned, F0+9F allowed, complete+complete allowed. The 256×256 table matches that predicate. `tests/test_m6_corrections.py` encodes every special-token name (alone, inside Nepali text, and all names in one string) and requires Hugging Face ids to equal tiktoken `encode_ordinary`. Reloading `tokenizer.json` without `load_hf` swallows `<|bos|>` to the special id; `load_hf` does not.
+
+1 GB benchmark (`configs/bench_64k_1gb.yaml`): peak RSS 1,303,707,648 bytes (1.214 GiB), trainer 22 s. Key-byte ratio 11.363165. Projected full-size peak 14,814,245,355 bytes (13.797 GiB), under 14 × 1024³ = 15,032,385,536 by 218,140,181 bytes. Full n50 train then peaked at 4,078,977,024 bytes (3.800 GiB) in 68 s. Recorded in `docs/MACHINE.md`. Training was allowed.
+
+Full 64k train (`configs/build_64k.yaml`, release, exit 0):
+
+```
+peak_rss_bytes=4078977024
+learned=60847
+duplicates=0
+banned=93
+stopped=filled
+tokens=64512
+elapsed_secs=68
+```
+
+Exports: `artifacts/tokenizers/ancoda-64k/` (`tokenizer.json`, tiktoken rank file, manifests). `load_hf` sets `encode_special_tokens = True`.
+
+Plain vs Hugging Face (`artifacts/validation/plain_vs_hf.md`, status PASS). Both lists have 65,280 merges. They are not identical. The first difference is index 894, an equal-count tie (88816): ours ` I`+`f`, Hugging Face `t`+`he`. Every equal-count run before index 7761 is the same pair set. The first run that is not a permutation starts at index 7761, count 5842 (` qu`+`ot` versus `ot`+`ed`); 87 pairs then appear on only one side, from overlapping ties. 100,000 snapshot lines: 0 byte-segmentation mismatches, 0 decode mismatches.
+
+Guarantee (`caffeinate -dimsu uv run pytest -s tests/test_guarantee.py`, exit 0):
+
+```
+======================== 2 passed in 431.88s (0:07:11) =========================
+```
+
+`artifacts/validation/guarantee.json`:
+
+```
+texts_checked_in_equality_pass: 1234979
+equality_mismatches: 0
+hf_roundtrip_failures: 0
+tt_roundtrip_failures: 0
+hf_covered_violations: 0
+tt_covered_violations: 0
+mark_initial_block1_or_block2: 0
+coverage_failures: 0
+unit_context_failures: 0
+orphan_occurrences_npi_aya: 70
+orphan_tokens_npi_aya: 392935
+orphan_mark_share_npi_aya: 0.00017814651278201228
+orphan_inside_covered: 0
+tail_hf_rate_lo_hi: [0.8, 0.7624466571834992, 0.8353115727002968]
+tail_tt_rate_lo_hi: [0.8, 0.7624466571834992, 0.8353115727002968]
+snapshot_lines: 10000000
+eval_texts: 132924
+special_names: 1024
+ban_predicate_exit: 0
+failures: []
+```
+
+The tail interval is the 10M snapshot lines that contain an uncovered Devanagari akshara. Covered-akshara violations on those lines and on all eval texts are 0. Orphan list: `artifacts/validation/orphans.txt` (70 rows, none inside a selected multi-character unit). FLORES+ npi plus Aya orphan-mark share is 70 / 392935.
+
+Acceptance: passed. M7 has not been started.
+
+Needs the human:
+- Choose the M9 tier: reduced, full, or none.
