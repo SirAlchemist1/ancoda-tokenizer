@@ -430,3 +430,37 @@ Acceptance: passed. M7 has not been started.
 
 Needs the human:
 - Choose the M9 tier: reduced, full, or none.
+
+## M7 — Mix sweep and ablation ladder — blocked (STOP human, option-3 diagnostics done)
+
+- [x] 0. Task list; ladder/build configs; counts/guarantee accept non-n50 paths
+- [x] 1. Count pre-tokens for n45, n60, n50_nojoiner
+- [x] 2. Train final 64k on n45 / n50 / n60; export each
+- [x] 3. Guarantee tests on n45 and n60 (n50 reused M6); harness `--add anc64_n45/n50/n60`
+- [x] 4. Apply 3.8 pick rule → **no mix eligible** (unchanged; no pick recorded)
+- [x] 5. Ladder on n60 (diagnostic force) — all rungs including Unigram (subsampled)
+- [x] 6. Harness + covered-violation metric + word splits
+- [ ] 7. Joiner keep/drop decision — deferred (no pick)
+- [x] 8. STOP (human): diagnostics reported; awaiting fix choice
+
+### Mix sweep fertilities (Yak harness, FLORES+ whole-file)
+
+| Mix | Nepali | English | Hindi | Gate A |
+|---|---:|---:|---:|:---:|
+| n45 | 1.526282 | 1.318798 | 1.362945 | FAIL (npi) |
+| n50 | 1.515748 | 1.324962 | 1.365714 | FAIL (npi) |
+| n60 | 1.492487 | 1.337564 | 1.368093 | FAIL (npi) |
+
+### Option-3 diagnostics (8 Nov 2026)
+
+- Unigram first attempt killed (PID 68728); BPE ladder + nepali-only + guarantees intact.
+- Unigram rerun: `input_sentence_size=1000000`, shuffle on, peak RSS 7468384256 (~6.96 GiB) < 12 GiB cap. Marked `subsampled_for_memory`.
+- Nepali-only ceiling: npi **1.404577** (under Gate A 1.445) but eng 2.244 / hin 1.591.
+- Full tables in `docs/RESULTS.md` (M7 Option 3) and `artifacts/eval/m7/diag_ladder_summary.json`.
+
+Acceptance:
+- STOP (human). No mix pick. No further training until reply.
+
+Needs the human:
+- Read option-3 tables. Choose a fix path (65% Nepali, cap-bound covered set, or other). Decisions unchanged until you say so.
+- M9 tier still open from M6: reduced, full, or none.

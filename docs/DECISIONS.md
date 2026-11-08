@@ -391,3 +391,13 @@ Recorded at the human's instruction during M6. The section 3 text above is uncha
 
 1. **Ban 1, second clause.** `M` lies within one character's UTF-8 encoding: valid lead byte, valid continuation bytes for each later position, and `len(M)` no greater than that lead's width. Proper prefixes such as `E6 97` are allowed. The clause does not mean "exactly one scalar value has an encoding that starts with M". The first clause (both sides complete valid UTF-8) is unchanged.
 2. **Ordinary-text encoding.** Tests set `Tokenizer.encode_special_tokens = True` (tokenizers 0.23.3) so literal special-token strings are plain text, like tiktoken `encode_ordinary`. See `docs/MODEL_CARD_NOTES.md`.
+
+## M7 follow-up (8 Nov 2026) — Joiner copy only on n50 (deviation from 3.8)
+
+PLAN.md 3.8 says the 1% joiner copy is on by default for the mix. The M4 snapshot builder applied joiners **only when Nepali share = 50%**, so only `n50` has the synthetic copy (`joiner_share=0.01`, 21348 docs / ~50 MB). `n45` and `n60` have `joiner_share=0.0`. The M7 ladder "final" rung forced onto n60 therefore has **no** joiner copy; `final_nojoiner` remains the n50_nojoiner arm.
+
+**Recommendation:** keep the joiner copy in every future snapshot (not only n50). Evidence: n50 ZWJ/ZWNJ probes 1.368 / 1.369 vs n60 1.614 / 1.633. Nepali fertility cost on the matched n50 pair is about 0.002 (`mix_anc64_n50` 1.515748 vs `lad_final_nojoiner` on `n50_nojoiner` 1.513823).
+
+## M7 follow-up (8 Nov 2026) — Danda stays a separate token
+
+Danda (purna biram, U+0964) and double danda (U+0965) stay separate tokens, like "." in English. This is a product decision for the paper and shipping builds; pre-tokenizer / merge behaviour that keeps `।` as its own piece is intentional.

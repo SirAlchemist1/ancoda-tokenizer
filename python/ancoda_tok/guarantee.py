@@ -2,24 +2,36 @@
 
 from __future__ import annotations
 
+import argparse
 import bisect
 import json
 import random
 import subprocess
+from pathlib import Path
 
 import ancoda_seg
 import pyarrow.parquet as pq
 
 from ancoda_tok.export_hf import bytes_to_unicode, load_hf
 from ancoda_tok.export_tiktoken import load_tiktoken
-from ancoda_tok.inventory import find_n50_snapshot
+from ancoda_tok.inventory import find_n50_snapshot, find_snapshot
 from ancoda_tok.storage import REPO_ROOT
 
-OUT = REPO_ROOT / "artifacts" / "tokenizers" / "ancoda-64k"
-COVERED = REPO_ROOT / "artifacts" / "inventory" / "covered_64k.json"
+DEFAULT_OUT = REPO_ROOT / "artifacts" / "tokenizers" / "ancoda-64k"
+DEFAULT_COVERED = REPO_ROOT / "artifacts" / "inventory" / "covered_64k.json"
 UNICODE = REPO_ROOT / "third_party" / "unicode" / "16.0.0" / "UnicodeData.txt"
 SEED = 20261104
 MARKS = {"Mn", "Mc", "Me"}
+
+# Mutable paths used by the M6/M7 runners. Defaults match the flagship n50 build.
+OUT = DEFAULT_OUT
+COVERED = DEFAULT_COVERED
+SNAPSHOT: Path | None = None
+REPORT_PATH = REPO_ROOT / "artifacts" / "validation" / "guarantee.json"
+ORPHANS_PATH = REPO_ROOT / "artifacts" / "validation" / "orphans.txt"
+SNAPSHOT_LINE_LIMIT = 10_000_000
+SKIP_RANDOM_UNICODE = False
+SKIP_BAN_TEST = False
 
 
 def _marks() -> set[int]:
@@ -251,7 +263,7 @@ def _units(engines: Engines, contexts: list[str], failures: list[str]) -> int:
 def _orphans(
     engines: Engines, texts: list[tuple[str, str]], failures: list[str]
 ) -> tuple[int, int, int]:
-    path = REPO_ROOT / "artifacts" / "validation" / "orphans.txt"
+    path = ORPHANS_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
     listed = 0
     tokens = 0
@@ -324,7 +336,8 @@ def _eval_texts() -> list[tuple[str, str]]:
 
 def _iter_snapshot_lines(limit: int):
     produced = 0
-    for shard in sorted(find_n50_snapshot().glob("shard-*.parquet")):
+    snapshot = SNAPSHOT if SNAPSHOT is not None else find_n50_snapshot()
+    for shard in sorted(snapshot.glob("shard-*.parquet")):
         parquet = pq.ParquetFile(shard)
         for batch in parquet.iter_batches(columns=["text"], batch_size=32):
             for value in batch.column(0).to_pylist():
@@ -409,6 +422,39 @@ def _random_unicode(count: int) -> list[str]:
     return texts
 
 
+def configure(
+    *,
+    out: Path | None = None,
+    covered: Path | None = None,
+    snapshot: Path | None = None,
+    report: Path | None = None,
+    orphans: Path | None = None,
+    snapshot_line_limit: int | None = None,
+    skip_random_unicode: bool = False,
+    skip_ban_test: bool = False,
+) -> None:
+    """Point the guarantee runner at a tokenizer / covered set / snapshot."""
+    global OUT, COVERED, SNAPSHOT, REPORT_PATH, ORPHANS_PATH
+    global SNAPSHOT_LINE_LIMIT, SKIP_RANDOM_UNICODE, SKIP_BAN_TEST
+    OUT = Path(out) if out is not None else DEFAULT_OUT
+    COVERED = Path(covered) if covered is not None else DEFAULT_COVERED
+    SNAPSHOT = Path(snapshot) if snapshot is not None else None
+    REPORT_PATH = (
+        Path(report)
+        if report is not None
+        else REPO_ROOT / "artifacts" / "validation" / "guarantee.json"
+    )
+    ORPHANS_PATH = (
+        Path(orphans)
+        if orphans is not None
+        else REPO_ROOT / "artifacts" / "validation" / "orphans.txt"
+    )
+    if snapshot_line_limit is not None:
+        SNAPSHOT_LINE_LIMIT = snapshot_line_limit
+    SKIP_RANDOM_UNICODE = skip_random_unicode
+    SKIP_BAN_TEST = skip_ban_test
+
+
 def run() -> list[str]:
     if not (OUT / "tokenizer.json").exists():
         raise SystemExit(f"STOP: missing {OUT / 'tokenizer.json'}")
@@ -421,7 +467,7 @@ def run() -> list[str]:
         "hf_violations": 0,
         "tt_violations": 0,
     }
-    print("loading exports", flush=True)
+    print(f"loading exports from {OUT}", flush=True)
     engines = Engines()
     mark_initial = _vocab(engines, failures)
     coverage_bad = _coverage(engines, failures)
@@ -480,7 +526,7 @@ def run() -> list[str]:
     snapshot_count = 0
     nonempty = 0
     context_rng = random.Random(SEED)
-    for line in _iter_snapshot_lines(10_000_000):
+    for line in _iter_snapshot_lines(SNAPSHOT_LINE_LIMIT):
         _examine_line(
             engines,
             line,
@@ -510,24 +556,52 @@ def run() -> list[str]:
     unit_bad = _units(engines, contexts, failures)
     print(f"unit_bad={unit_bad}", flush=True)
 
-    print("random unicode", flush=True)
-    for index, text in enumerate(_random_unicode(100_000)):
-        _check(engines, text, failures, f"rand:{index}", stats)
+    if SKIP_RANDOM_UNICODE:
+        print("random unicode skipped", flush=True)
+    else:
+        print("random unicode", flush=True)
+        for index, text in enumerate(_random_unicode(100_000)):
+            _check(engines, text, failures, f"rand:{index}", stats)
 
-    ban = subprocess.run(
-        ["cargo", "test", "-p", "ancoda-bpe", "--offline", "--lib", "ban::", "--", "--quiet"],
-        cwd=REPO_ROOT,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-    if ban.returncode != 0:
-        failures.append("ban predicate cargo test failed")
-        failures.append(ban.stderr[-500:])
+    if SKIP_BAN_TEST:
+        ban_code = 0
+        print("ban predicate cargo test skipped", flush=True)
+    else:
+        env = dict(**{k: v for k, v in __import__("os").environ.items()})
+        cargo_bin = str(Path.home() / ".cargo" / "bin")
+        path = env.get("PATH", "")
+        if cargo_bin not in path.split(":"):
+            env["PATH"] = f"{cargo_bin}:{path}"
+        ban = subprocess.run(
+            [
+                "cargo",
+                "test",
+                "-p",
+                "ancoda-bpe",
+                "--offline",
+                "--lib",
+                "ban::",
+                "--",
+                "--quiet",
+            ],
+            cwd=REPO_ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+        ban_code = ban.returncode
+        if ban_code != 0:
+            failures.append("ban predicate cargo test failed")
+            failures.append(ban.stderr[-500:])
 
     hf_ci = _bootstrap(doc_hf)
     tt_ci = _bootstrap(doc_tt)
+    snapshot = SNAPSHOT if SNAPSHOT is not None else find_n50_snapshot()
     report = {
+        "tokenizer_dir": str(OUT.relative_to(REPO_ROOT)),
+        "covered": str(COVERED.relative_to(REPO_ROOT)),
+        "snapshot": str(snapshot.relative_to(REPO_ROOT)),
         "texts_checked_in_equality_pass": stats["texts"],
         "equality_mismatches": stats["equality"],
         "hf_roundtrip_failures": stats["hf_round"],
@@ -546,10 +620,10 @@ def run() -> list[str]:
         "snapshot_lines": snapshot_count,
         "eval_texts": len(eval_texts),
         "special_names": len(names),
-        "ban_predicate_exit": ban.returncode,
+        "ban_predicate_exit": ban_code,
         "failures": failures,
     }
-    dest = REPO_ROOT / "artifacts" / "validation" / "guarantee.json"
+    dest = REPORT_PATH
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2), flush=True)
@@ -557,6 +631,30 @@ def run() -> list[str]:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tokenizer-dir", type=Path, default=None)
+    parser.add_argument("--covered", type=Path, default=None)
+    parser.add_argument("--snapshot", type=Path, default=None)
+    parser.add_argument("--snapshot-prefix", type=str, default=None)
+    parser.add_argument("--report", type=Path, default=None)
+    parser.add_argument("--orphans", type=Path, default=None)
+    parser.add_argument("--snapshot-line-limit", type=int, default=None)
+    parser.add_argument("--skip-random-unicode", action="store_true")
+    parser.add_argument("--skip-ban-test", action="store_true")
+    args = parser.parse_args()
+    snapshot = args.snapshot
+    if snapshot is None and args.snapshot_prefix:
+        snapshot = find_snapshot(args.snapshot_prefix)
+    configure(
+        out=args.tokenizer_dir,
+        covered=args.covered,
+        snapshot=snapshot,
+        report=args.report,
+        orphans=args.orphans,
+        snapshot_line_limit=args.snapshot_line_limit,
+        skip_random_unicode=args.skip_random_unicode,
+        skip_ban_test=args.skip_ban_test,
+    )
     failed = run()
     if failed:
         raise SystemExit(1)

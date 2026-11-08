@@ -1,0 +1,12 @@
+vocab_size: 65536
+plain: false
+block0: true
+block1: true
+bans: true
+gb9c: false
+seed: 20261104
+counts: artifacts/counts/n60/pretoken_counts.bin
+block1_path: artifacts/inventory/covered_64k.json
+unicode_data: third_party/unicode/16.0.0/UnicodeData.txt
+output_dir: artifacts/tokenizers/ancoda-64k-n60
+require_full: true

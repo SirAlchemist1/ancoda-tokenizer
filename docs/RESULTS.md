@@ -438,3 +438,170 @@ Block 1 selection is PLAN.md 3.6 (cap 5% of vocab; stop at cap or 99.99% coverag
 ![Coverage vs Block 1 merges (gb9c=true)](figures/m5_coverage_vs_block1_gb9c.svg)
 
 Determinism: `uv run python -m ancoda_tok.inventory --verify-deterministic` re-ran 3.6 from each TSV; all six covered JSON sha256s matched.
+
+---
+
+## M7 — Mix sweep and ablation ladder
+
+Seed `20261104`. Block 1 frozen from `artifacts/inventory/covered_64k.json` (n50 M5 selection) so the mix sweep isolates Block 2 / data effects.
+
+### Mix sweep (64k final config)
+
+| Mix | Nepali | English | Hindi | bytes/tok (npi) | orphan (npi) | ZWJ | ZWNJ | Gate A fertilities |
+|---|---:|---:|---:|---:|---:|---:|---:|:---:|
+| n45 | 1.526282 | 1.318798 | 1.362945 | 11.9288 | 0.004% | 1.591366 | 1.609622 | FAIL |
+| n50 | 1.515748 | 1.324962 | 1.365714 | 12.0117 | 0.004% | 1.368287 | 1.369416 | FAIL |
+| n60 | 1.492487 | 1.337564 | 1.368093 | 12.1989 | 0.004% | 1.614075 | 1.632744 | FAIL |
+
+**Pick:** none. No mix meets every Gate A fertility row (Nepali < 1.445, English < 1.42, Hindi < 1.385). English and Hindi pass on all three; Nepali is the binding constraint (best is n60 at 1.492487).
+
+**STOP (human):** propose 65% Nepali, or a cap-bound covered set. Ladder not started.
+
+
+---
+
+## M7 — Option 3 diagnostics (no mix pick)
+
+Diagnostic only. No mix was picked. Decisions unchanged.
+
+### Intact artifacts after Unigram kill
+
+- BPE ladder rungs intact: `ladder-plain`, `ladder-b0`, `ladder-b0b1`, `ladder-final_nojoiner`, `ladder-final` (copy of n60), `ladder-gb9c`.
+- Guarantees intact: n45, n50, n60, final_nojoiner (0 failures).
+- Nepali-only diagnostic intact: `diag-n60-nepali-only` (harness npi 1.404577).
+- First Unigram attempt killed (PID 68728); partial state was corpus only; no model.
+
+### Unigram rerun (subsampled for memory)
+
+- `input_sentence_size=1000000`, `shuffle_input_sentence=true`, `subsampled_for_memory=true`.
+- Reused existing `corpus.txt` (5,003,023,829 bytes). Peak RSS **7,468,384,256** bytes (~6.96 GiB), under the 12 GiB cap.
+- Model: `artifacts/tokenizers/ladder-unigram/unigram.model`.
+
+### Ladder on n60 (diagnostic force)
+
+| Rung | Nepali | English | Hindi | orphan (npi) | covered-akshara violations (FLORES+ npi whole-file) |
+|---|---:|---:|---:|---:|---:|
+| plain | 1.488316 | 1.330305 | 1.368249 | 10.2396% | 2869 |
+| b0 | 1.486338 | 1.332040 | 1.368912 | 0.1403% | 62 |
+| b0b1 | 1.492487 | 1.337564 | 1.368093 | 0.0036% | 0 |
+| final_nojoiner | 1.513823 | 1.322999 | 1.363959 | 0.0035% | 0 |
+| final | 1.492487 | 1.337564 | 1.368093 | 0.0036% | 0 |
+| gb9c‡ | 1.489065 | 1.334871 | 1.367859 | 0.0287% | 2 |
+| unigram† | 1.490295 | 1.341400 | 1.359435 | 2.7772% | 10583 |
+
+† Unigram control, SentencePiece, subsampled 1M sentences for memory. Violations counted against the default (gb9c=false) covered set.
+‡ Violations counted against the `covered_64k_gb9c.json` unit set (3.5 guarantee does not apply).
+`final_nojoiner` uses the M4 `n50_nojoiner` counts (only no-joiner snapshot); all other rungs use n60 counts.
+
+### Nepali-only ceiling (not a candidate)
+
+Final 64k config, same covered set, trained only on the Nepali bucket of n60.
+
+| Build | Nepali | English | Hindi | orphan (npi) | covered violations |
+|---|---:|---:|---:|---:|---:|
+| diag-n60-nepali-only | 1.404577 | 2.244235 | 1.591662 | 0.0038% | 0 |
+| anc64_n60 (full mix, reference) | 1.492487 | 1.337564 | 1.368093 | 0.0036% | 0 |
+
+### n60 newline gap (FLORES+ npi)
+
+- whole-file fertility: **1.492487**
+- per-line fertility: **1.492273**
+- newline gap (whole − per-line): **0.000214**
+
+### Top 50 FLORES+ npi words — token splits (with leading space)
+
+Frequency over `str.split()` on FLORES+ npi_Deva devtest. Each word is encoded as `" " + word`. HF pieces are decoded from the GPT-2 byte alphabet to UTF-8; SentencePiece keeps `▁` for the leading space.
+
+| # | count | word | n60 | Yak v1 64k | sidskarki-64k |
+|---:|---:|---|---|---|---|
+| 1 | 624 | र | ` र` | ` र` | `▁र` |
+| 2 | 151 | लागि | ` लागि` | ` लागि` | `▁लागि` |
+| 3 | 136 | छ। | ` छ` · `।` | ` छ` · `।` | `▁छ` · `।` |
+| 4 | 135 | पनि | ` पनि` | ` पनि` | `▁पनि` |
+| 5 | 128 | गर्न | ` गर्न` | ` गर्न` | `▁गर्न` |
+| 6 | 127 | यो | ` यो` | ` यो` | `▁यो` |
+| 7 | 118 | रूपमा | ` रूपमा` | ` रूपमा` | `▁रूपमा` |
+| 8 | 108 | वा | ` वा` | ` वा` | `▁वा` |
+| 9 | 107 | एक | ` एक` | ` एक` | `▁एक` |
+| 10 | 104 | धेरै | ` धेरै` | ` धेरै` | `▁धेरै` |
+| 11 | 82 | थियो। | ` थियो` · `।` | ` थियो` · `।` | `▁थियो` · `।` |
+| 12 | 82 | भएको | ` भएको` | ` भएको` | `▁भएको` |
+| 13 | 77 | गर्ने | ` गर्ने` | ` गर्ने` | `▁गर्ने` |
+| 14 | 69 | हो। | ` हो` · `।` | ` हो` · `।` | `▁हो` · `।` |
+| 15 | 64 | केही | ` केही` | ` केही` | `▁केही` |
+| 16 | 64 | कि | ` कि` | ` कि` | `▁कि` |
+| 17 | 64 | गरिएको | ` गरिएको` | ` गरिएको` | `▁गरिएको` |
+| 18 | 64 | थिए। | ` थिए` · `।` | ` थिए` · `।` | `▁थिए` · `।` |
+| 19 | 63 | छ | ` छ` | ` छ` | `▁छ` |
+| 20 | 61 | कुनै | ` कुनै` | ` कुनै` | `▁कुनै` |
+| 21 | 60 | हुन | ` हुन` | ` हुन` | `▁हुन` |
+| 22 | 60 | छन्। | ` छन्` · `।` | ` छन्` · `।` | `▁छन्` · `।` |
+| 23 | 58 | तर | ` तर` | ` तर` | `▁तर` |
+| 24 | 51 | को | ` को` | ` को` | `▁को` |
+| 25 | 51 | मा | ` मा` | ` मा` | `▁मा` |
+| 26 | 51 | प्रयोग | ` प्रयोग` | ` प्रयोग` | `▁प्रयोग` |
+| 27 | 49 | आफ्नो | ` आफ्नो` | ` आफ्नो` | `▁आफ्नो` |
+| 28 | 47 | गरेको | ` गरेको` | ` गरेको` | `▁गरेको` |
+| 29 | 46 | अन्य | ` अन्य` | ` अन्य` | `▁अन्य` |
+| 30 | 45 | भन्ने | ` भन्ने` | ` भन्ने` | `▁भन्ने` |
+| 31 | 45 | सबैभन्दा | ` सबैभन्दा` | ` सबैभन्दा` | `▁सबैभन्दा` |
+| 32 | 44 | गरे। | ` गरे` · `।` | ` गरे` · `।` | `▁गरे` · `।` |
+| 33 | 41 | एउटा | ` एउटा` | ` एउटा` | `▁एउटा` |
+| 34 | 41 | यसको | ` यसको` | ` यसको` | `▁यसको` |
+| 35 | 41 | जुन | ` जुन` | ` जुन` | `▁जुन` |
+| 36 | 40 | सबै | ` सबै` | ` सबै` | `▁सबै` |
+| 37 | 39 | भएका | ` भएका` | ` भएका` | `▁भएका` |
+| 38 | 39 | हुन्छ। | ` हुन्छ` · `।` | ` हुन्छ` · `।` | `▁हुन्छ` · `।` |
+| 39 | 38 | हो | ` हो` | ` हो` | `▁हो` |
+| 40 | 37 | भनेर | ` भनेर` | ` भनेर` | `▁भनेर` |
+| 41 | 37 | दुई | ` दुई` | ` दुई` | `▁दुई` |
+| 42 | 35 | रहेको | ` रहेको` | ` रहेको` | `▁रहेको` |
+| 43 | 35 | जसले | ` जसले` | ` जसले` | `▁जसले` |
+| 44 | 35 | नयाँ | ` नयाँ` | ` नयाँ` | `▁नयाँ` |
+| 45 | 33 | सुरु | ` सुरु` | ` सुरु` | `▁सुरु` |
+| 46 | 33 | काम | ` काम` | ` काम` | `▁काम` |
+| 47 | 33 | गरेका | ` गरेका` | ` गरेका` | `▁गरेका` |
+| 48 | 33 | मात्र | ` मात्र` | ` मात्र` | `▁मात्र` |
+| 49 | 33 | ठूलो | ` ठूलो` | ` ठूलो` | `▁ठूलो` |
+| 50 | 32 | यसलाई | ` यसलाई` | ` यसलाई` | `▁यसलाई` |
+
+
+### Follow-up measurements (no new training)
+
+**Nepali-only joiner content:** No. n60 has `joiner_share=0.0` and 0 synthetic Nepali docs. The Nepali-only build counted only `bucket==Nepali` from n60, so it includes no 1% synthetic joiner copy (that exists only on n50).
+
+**ZWJ / ZWNJ probes (Yak harness token_ratio):**
+
+| Build | ZWJ | ZWNJ |
+|---|---:|---:|
+| anc64_n45 | 1.591366 | 1.609622 |
+| anc64_n50 | 1.368287 | 1.369416 |
+| anc64_n60 | 1.614075 | 1.632744 |
+| diag-n60-nepali-only | 1.659572 | 1.698180 |
+
+**Block 1 rarity (n60 final; Block 1 size = 3276):**
+
+- FLORES+ npi whole-file: **3231** Block 1 tokens used fewer than 10 times (3037 unused).
+- 1M Nepali snapshot lines: **1713** Block 1 tokens used fewer than 10 times (949 unused; 2327 used at least once).
+
+**Vocab slot domain share (n60):** each of 65,536 ids assigned by argmax encode-count on 50 MB text per n60 bucket (English / Code / Math / Nepali).
+
+| Domain (argmax) | slots | share of 65536 |
+|---|---:|---:|
+| English | 18606 | 0.283905 |
+| Code | 8419 | 0.128464 |
+| Math | 8361 | 0.127579 |
+| Nepali | 26929 | 0.410904 |
+| unused in 50MB×4 sample | 3221 | 0.049149 |
+
+Focus-only (English vs Code vs Math, Nepali ignored): English 0.652252, Code 0.128494, Math 0.125549, unused-in-focus 0.091309. Source: `artifacts/eval/m7/diag_vocab_slots.json`.
+
+**Top-50 word splits:** on the 50 most frequent FLORES+ npi words (leading-space form), n60, Yak v1 64k and sidskarki-64k agree on all 50 after normalizing SentencePiece `▁` to a leading space. Full table under Option 3 above.
+
+
+### Unigram control — SentencePiece defaults (diagnostic note)
+
+The M7 Unigram rung called `SentencePieceTrainer.train` without setting `remove_extra_whitespaces` or `add_dummy_prefix`. SentencePiece defaults are `remove_extra_whitespaces=1` and `add_dummy_prefix=1`. That is a **deviation** from PLAN.md M7 / 3.2 (no normalization). Recorded here for the paper; the control remains tokenizer-level only.
+
+**STOP (human):** diagnostics complete. No mix pick. No further training until you reply.
+

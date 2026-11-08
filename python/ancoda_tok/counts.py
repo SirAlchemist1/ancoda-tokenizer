@@ -136,14 +136,17 @@ def _sidecar(path: Path) -> Path:
     return path.with_suffix(".json")
 
 
-def _count_shard(shard: str, dest: str) -> dict:
+def _count_shard(shard: str, dest: str, bucket: str | None = None) -> dict:
     shard_path = Path(shard)
     dest_path = Path(dest)
     side = _sidecar(dest_path)
     if dest_path.exists() and side.exists():
         meta = json.loads(side.read_text(encoding="utf-8"))
-        meta["resumed"] = True
-        return meta
+        if meta.get("bucket_filter") == bucket:
+            meta["resumed"] = True
+            return meta
+        dest_path.unlink()
+        side.unlink()
     if dest_path.exists():
         dest_path.unlink()
     counter: dict[bytes, int] = {}
@@ -152,11 +155,23 @@ def _count_shard(shard: str, dest: str) -> dict:
     empty = 0
     occurrences = 0
     parquet = pq.ParquetFile(shard_path)
-    for batch in parquet.iter_batches(columns=["text"], batch_size=BATCH):
+    columns = ["text"] if bucket is None else ["text", "bucket"]
+    for batch in parquet.iter_batches(columns=columns, batch_size=BATCH):
         texts = [("" if value is None else value) for value in batch.column(0).to_pylist()]
-        docs += len(texts)
-        text_bytes += sum(len(text.encode("utf-8")) for text in texts)
-        for parts in ancoda_seg.pretokenize_batch(texts):
+        if bucket is None:
+            keep = texts
+        else:
+            buckets = batch.column(1).to_pylist()
+            keep = [
+                text
+                for text, label in zip(texts, buckets, strict=True)
+                if label == bucket
+            ]
+        if not keep:
+            continue
+        docs += len(keep)
+        text_bytes += sum(len(text.encode("utf-8")) for text in keep)
+        for parts in ancoda_seg.pretokenize_batch(keep):
             for part in parts:
                 raw = part.encode("utf-8")
                 if not raw:
@@ -181,6 +196,7 @@ def _count_shard(shard: str, dest: str) -> dict:
         "key_bytes": sum(len(raw) for raw, _count in entries),
         "bin_sha256": sha256_file(dest_path),
         "shard_sha256": sha256_file(shard_path),
+        "bucket_filter": bucket,
         "resumed": False,
     }
     side.write_text(json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -236,7 +252,9 @@ def _workers(requested: int | None) -> int:
     return int(os.environ.get("ANCODA_WORKERS", "5"))
 
 
-def build(snapshot: Path, out_dir: Path, workers: int) -> None:
+def build(
+    snapshot: Path, out_dir: Path, workers: int, bucket: str | None = None
+) -> None:
     free = free_bytes()
     print(f"free_bytes={free}", flush=True)
     if free < FREE_FLOOR:
@@ -249,7 +267,9 @@ def build(snapshot: Path, out_dir: Path, workers: int) -> None:
     jobs = [(str(shard), str(shard_dir / f"{shard.stem}.bin")) for shard in shards]
     metas: list[dict] = []
     with ProcessPoolExecutor(max_workers=workers) as pool:
-        futures = {pool.submit(_count_shard, shard, dest): shard for shard, dest in jobs}
+        futures = {
+            pool.submit(_count_shard, shard, dest, bucket): shard for shard, dest in jobs
+        }
         for done, future in enumerate(as_completed(futures), start=1):
             meta = future.result()
             metas.append(meta)
@@ -266,6 +286,7 @@ def build(snapshot: Path, out_dir: Path, workers: int) -> None:
     manifest = base_manifest(
         snapshot=str(snapshot.relative_to(REPO_ROOT)),
         kind="pretoken_counts",
+        bucket_filter=bucket,
         docs=sum(item["docs"] for item in metas),
         text_bytes=sum(item["text_bytes"] for item in metas),
         empty_pretokens=sum(item["empty_pretokens"] for item in metas),
@@ -282,7 +303,10 @@ def build(snapshot: Path, out_dir: Path, workers: int) -> None:
         f"key_bytes={stats['key_bytes']} text_bytes={manifest['text_bytes']}",
         flush=True,
     )
-    _build_one_gb(metas, out_dir.parent / "n50_1gb", snapshot)
+    # The 1 GB slice is only for the M6 plain-vs-HF check on n50. Other
+    # snapshots must not overwrite artifacts/counts/n50_1gb.
+    if out_dir.name == "n50" and bucket is None:
+        _build_one_gb(metas, out_dir.parent / "n50_1gb", snapshot)
 
 
 def _build_one_gb(metas: list[dict], out_dir: Path, snapshot: Path) -> None:
@@ -341,9 +365,14 @@ def main() -> None:
     parser.add_argument("--snapshot", type=Path, default=None)
     parser.add_argument("--out", type=Path, default=REPO_ROOT / "artifacts" / "counts" / "n50")
     parser.add_argument("--workers", type=int, default=None)
+    parser.add_argument(
+        "--bucket",
+        default=None,
+        help="If set, count only documents whose snapshot bucket equals this label",
+    )
     args = parser.parse_args()
     snapshot = args.snapshot or find_n50_snapshot()
-    build(snapshot, args.out, _workers(args.workers))
+    build(snapshot, args.out, _workers(args.workers), bucket=args.bucket)
 
 
 if __name__ == "__main__":

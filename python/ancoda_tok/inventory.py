@@ -49,16 +49,31 @@ INVENTORY_DIR = REPO_ROOT / "artifacts" / "inventory"
 FIGURES_DIR = REPO_ROOT / "docs" / "figures"
 
 
-def find_n50_snapshot() -> Path:
+def find_snapshot(prefix: str) -> Path:
+    """Return the unique snapshot directory whose name starts with ``prefix``.
+
+    For ``n50``, directories starting with ``n50_nojoiner`` are excluded so the
+    joiner and no-joiner 50% snapshots stay distinct.
+    """
     root = REPO_ROOT / "data" / "snapshots"
-    matches = sorted(
-        p
-        for p in root.iterdir()
-        if p.is_dir() and p.name.startswith("n50_") and not p.name.startswith("n50_nojoiner")
-    )
+    if not root.is_dir():
+        raise Stop(f"STOP: missing snapshots dir {root}")
+    matches = []
+    for path in sorted(root.iterdir()):
+        if not path.is_dir() or not path.name.startswith(prefix):
+            continue
+        if prefix == "n50" and path.name.startswith("n50_nojoiner"):
+            continue
+        matches.append(path)
     if len(matches) != 1:
-        raise Stop(f"STOP: expected exactly one n50 snapshot, found {[p.name for p in matches]}")
+        raise Stop(
+            f"STOP: expected exactly one {prefix} snapshot, found {[p.name for p in matches]}"
+        )
     return matches[0]
+
+
+def find_n50_snapshot() -> Path:
+    return find_snapshot("n50")
 
 
 def code_points_field(unit: str) -> str:

@@ -37,6 +37,9 @@ train:
 export:
 	uv run python -u -m ancoda_tok.export_cli
 
+m7:
+	caffeinate -dimsu uv run python -u -m ancoda_tok.m7 all
+
 eval:
 	@echo "eval: stub — implemented in M1/M8"
 
