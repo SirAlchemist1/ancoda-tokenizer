@@ -20,10 +20,10 @@ download:
 	caffeinate -dimsu uv run python -u -m ancoda_tok.download
 
 clean-data:
-	@echo "clean-data: stub — implemented in M4"
+	caffeinate -dimsu uv run python -u -m ancoda_tok.clean all
 
 snapshot:
-	@echo "snapshot: stub — implemented in M4"
+	caffeinate -dimsu uv run python -u -m ancoda_tok.clean snapshot
 
 inventory:
 	@echo "inventory: stub — implemented in M5"

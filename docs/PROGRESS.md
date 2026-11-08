@@ -168,3 +168,130 @@ tests/test_export_equivalence.py .                                       [100%]
 ```
 
 Cross-engine mismatches = 0.
+
+## M4 — Cleaning, decontamination, snapshots — done
+
+- [x] 0. Task list; `configs/mix.yaml`; clean package CLI
+- [x] 1–2. UTF-8 + GlotLID; max script-outside share 0.041 (deva_pool_sangraha) < 0.20 STOP bar
+- [x] 3. Legacy fonts (dictionary detector)
+  - Converter MIT approved; lexicon `artifacts/clean/preeti_lexicon.tsv` (49,830 forms, sha256 `2761f296d51b367f0418d2c6a2d6754c4540a88a0910f521e6628f78a04fd454`)
+  - Logistic classifier v1 precision 0.05 → replaced by dictionary (DECISIONS.md 5 Nov 2026)
+  - Dictionary v2 spot-check: precision **0.89**; known true Preeti **3/5** → below 0.99 → **filter disabled**; continue M4
+- [x] 4. Dedup (exact + MinHash 5-gram 14×8 across Nepali; preference sangraha→iriis→indiccorp→fw2→hplt)
+- [x] 5. Decontam (human-approved 7 Nov 2026 — DECISIONS.md): exact on all eval; 6–12 + 13-gram on FLORES+/Belebele/aya only; MinHash near-dup vs large web test sets; reroutes decontaminated (fixes n45 segment=200)
+- [x] 6. Joiner augmentation on n50 only (1% of snapshot bytes from unused Nepali)
+- [x] 7. Four snapshots under `data/snapshots/` (rebuilt after MinHash near-dup)
+- [x] 8. Independent audit: exact / segment / 13-gram / minhash_eval all 0
+- [x] Acceptance
+
+### Spot-check v2 (exact)
+
+```
+flagged_reviewed=100
+unflagged_reviewed=100
+true_positives=89
+false_positives=11
+precision=0.89
+known_true_preeti_caught=3/5
+```
+
+### Decision
+
+legacy-font filter disabled: no detector reached 99% precision. Would-flag line counts recorded per source as a limitation (fw2_npi 35, iriis 0, sangraha_nep 104, indiccorp_npi 0, hplt_npi 426; total 565).
+
+Large-set n-gram rules disabled (false-overlap ~58% on fw2_npi sample); exact-only + MinHash near-dup kept.
+
+### MinHash near-dup vs large web test sets (docs dropped)
+
+Against `fw2_npi_test` / `fw2_hin_test` / `c4_val` (same MinHash settings as step 4). Source: `artifacts/clean/minhash_eval_near_dup.json` + `minhash_eval_run.log`.
+
+| source | dropped docs | scanned |
+|---|---:|---:|
+| sangraha_nep | 11,692 | 4,297,173 |
+| iriis | 4,631 | 3,212,707 |
+| hplt_npi | 2,331 | 883,600 |
+| fw2_npi | 1,020 | 2,937,040 |
+| indiccorp_npi | 236 | 21,578,116 |
+| fw2_hin | 183 | 219,026 |
+| sangraha_hin | 29 | 80,398 |
+| deva_pool_fw2 | 4 | 178,425 |
+| code | 3 | 144,907 |
+| fwedu_en | 2 | 614,846 |
+| owm | 1 | 128,504 |
+| all other train + `_reroute/*` (82 dirs) | 0 | (fully scanned) |
+| **total** | **20,132** | |
+
+**Shard coverage:** every training source in `mix.yaml` and every non-empty `_reroute/` dir was processed; for each, `scanned = kept + dropped`. Log shows all pending shards completed (e.g. fw2_npi 227/227, iriis 194/194, sangraha_nep 331 pending → done, …). No source missing from the report; no scanned/kept+dropped mismatch.
+
+### Decontam bytes removed by rule (share of input)
+
+Input = kept + dropped after text decontam (pre-MinHash). Text rule bytes from `decontam_report.json` `per_eval`; MinHash from `minhash_eval_near_dup.json`. 13-gram drops: **0** bytes everywhere.
+
+| source | exact | segment | 13-gram | MinHash | total drop | input | share |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| code | 0 | 3,460,145 | 0 | 8,607 | 3,468,752 | 998,261,389 | 0.35% |
+| deva_pool_fw2 | 0 | 18,415,865 | 0 | 13,650 | 18,429,515 | 964,462,702 | 1.91% |
+| deva_pool_hplt | 0 | 4,390,001 | 0 | 0 | 4,390,001 | 504,986,458 | 0.87% |
+| deva_pool_sangraha | 0 | 876,493 | 0 | 0 | 876,493 | 174,145,735 | 0.50% |
+| fw2_hin | 0 | 134,286,991 | 0 | 592,394 | 134,879,385 | 1,485,712,545 | 9.08% |
+| fw2_mar | 0 | 310,812 | 0 | 0 | 310,812 | 498,947,556 | 0.06% |
+| fw2_npi | 0 | 74,311,674 | 0 | 5,074,838 | 79,386,512 | 15,279,926,039 | 0.52% |
+| fw2_san | 0 | 2,517,196 | 0 | 0 | 2,517,196 | 348,213,007 | 0.72% |
+| fwedu_en | 0 | 183,832,533 | 0 | 4,282 | 183,836,815 | 2,998,563,161 | 6.13% |
+| hplt_npi | 23,899,670 | 53,985,656 | 0 | 16,879,648 | 94,764,974 | 6,412,988,278 | 1.48% |
+| indiccorp_npi | 90,664 | 6,395,854 | 0 | 951,199 | 7,437,717 | 12,621,064,938 | 0.06% |
+| iriis | 262,294 | 30,992,954 | 0 | 25,147,770 | 56,403,018 | 13,019,540,491 | 0.43% |
+| nepal_pool | 0 | 42,486 | 0 | 0 | 42,486 | 134,371,824 | 0.03% |
+| owm | 0 | 71,948,535 | 0 | 2,936 | 71,951,471 | 999,608,469 | 7.20% |
+| sangraha_hin | 4,211 | 39,574,790 | 0 | 111,077 | 39,690,078 | 456,571,246 | 8.69% |
+| sangraha_mar | 0 | 125,407 | 0 | 0 | 125,407 | 499,655,938 | 0.03% |
+| sangraha_nep | 4,261,996 | 74,617,905 | 0 | 73,924,881 | 152,804,782 | 22,233,931,930 | 0.69% |
+| sangraha_san | 0 | 820,025 | 0 | 0 | 820,025 | 479,330,094 | 0.17% |
+| **total** | **28,518,835** | **700,905,322** | **0** | **122,711,282** | **852,135,439** | **80,110,281,800** | **1.06%** |
+
+### n50 snapshot — bytes per language
+
+Path: `data/snapshots/n50_32fd1b6a9c068400` (text_bytes **5,000,398,763**).
+
+| bucket | bytes | docs |
+|---|---:|---:|
+| Nepali | 2,500,028,405 | 1,185,391 |
+| English | 1,000,002,558 | 211,442 |
+| Hindi | 500,005,528 | 520,979 |
+| Code | 250,126,946 | 35,025 |
+| Smaller Devanagari | 200,016,985 | 46,345 |
+| Marathi | 150,142,261 | 87,741 |
+| Sanskrit | 150,000,246 | 36,536 |
+| Math | 150,013,422 | 21,320 |
+| Languages of Nepal | 100,062,412 | 22,509 |
+
+### Acceptance
+
+`make snapshot` (rebuild after MinHash) + independent audit → four snapshots, free disk ≥ 50 GB:
+
+```
+snapshot n45 dir=n45_868dd1887992c328 docs=2099708 text_bytes=5000068588
+snapshot n50 dir=n50_32fd1b6a9c068400 docs=2167288 text_bytes=5000398763
+snapshot n60 dir=n60_cf8066dbbdd0da93 docs=2313669 text_bytes=5000710160
+snapshot n50_nojoiner dir=n50_nojoiner_3e785f409c11d076 docs=2168971 text_bytes=5000095538
+audit n45 {'exact': 0, 'segment': 0, '13gram': 0, 'minhash_eval': 0}
+audit n50 {'exact': 0, 'segment': 0, '13gram': 0, 'minhash_eval': 0}
+audit n60 {'exact': 0, 'segment': 0, '13gram': 0, 'minhash_eval': 0}
+audit n50_nojoiner {'exact': 0, 'segment': 0, '13gram': 0, 'minhash_eval': 0}
+all audits clean free_bytes=127512088576
+```
+
+`artifacts/clean/snapshots.json` audits are taken only from on-disk audit output (never hand-typed). n45/n50 were re-bound from `artifacts/clean/audit_run2.log` (current digests `n45_868dd1887992c328` / `n50_32fd1b6a9c068400`); n60 from `audit_n60.log`; n50_nojoiner from `audit_n50_nojoiner.log`. Each snapshot has `artifacts/clean/audit_<name>.result.json` with path+sha256 recorded under `audit_provenance`.
+
+`docs/RESULTS.md` — section **M4 — Training snapshots (Ancoda)** lists bytes per language per snapshot and per-source decontam byte shares.
+
+`uv run pytest tests/test_clean.py`
+
+```
+........                                                                 [100%]
+8 passed in 0.19s
+```
+
+### Ops note (human, 7 Nov 2026) — RAM / workers
+
+While unattended: if any step uses **> 10 GB RAM** or is **killed for memory**, lower `ANCODA_WORKERS` from **5 → 3**, then **3 → 2** if needed, and **resume from the last finished shard**. Record each worker-count change here. Do **not** change dedup or decontamination settings. No worker reduction applied (default remains 5; MinHash near-dup peaked under ~6 GB with 5 workers).

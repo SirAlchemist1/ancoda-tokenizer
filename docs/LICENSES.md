@@ -53,6 +53,12 @@ Approved 4 Nov 2026. `nepal_pool` is the ten FineWeb-2 train splits named above,
 
 Romanized Nepali is out of scope for training in v1. FineWeb-2 `npi_Latn` has a test split (`data/npi_Latn/test/000_00000.parquet`, 54981 bytes at the size query); that split is eval-only. The train split is not downloaded. `dipeshch71/nepaliflow-romanized-nepali-to-devanagari-dataset` and `sabin1234/NEPALI_TO_ROMANIZED_WIKIPEDIA` are not used.
 
+## M4 tools
+
+| ID | Revision | License (as read) | Card/URL | Attribution | Share-alike | Redistribution | Training use | Notes |
+|---|---|---|---|---|---|---|---|---|
+| `globalpolicy/UnicodeToPreeti` | `c1d6e3080976d7113c24ab5b59d06f937a20949d` | **MIT** | https://github.com/globalpolicy/UnicodeToPreeti | Yes (copyright notice) | No | Yes | No — conversion table only, to synthesize Preeti positives for the legacy-font classifier | Human advance approval (M4): MIT is in the allowed set (MIT, Apache-2.0, BSD, ISC, CC0, CC BY). Mapping table and convert logic vendored under `python/ancoda_tok/clean/preeti_convert.py` with the MIT notice. Never used as training text. |
+
 ## Loading (from `configs/eval_panel.yaml`)
 
 | Panel name | Kind | How loaded |

@@ -317,3 +317,76 @@ Built by `uv run python scripts/eval_panel.py fetch`. Licenses and attribution a
 - Sanskrit: harness `san_Deva` values recorded in `configs/eval.yaml`; IndicBERT v2 matches the reported 2.067; Yak blog 2.126 differs from this harness’s Yak measurement.
 - **Languages of Nepal:** Yak’s 14 held-out sets are private and **not comparable**. This harness can rerun FLORES+ for `npi_Deva`, `mai_Deva`, `bho_Deva`, `awa_Deva`, `mag_Deva` (and `hin_Deva` / `san_Deva` / `eng_Latn`, plus non-Deva `bod_Tibt` / `sat_Olck`).
 - Panel failure: `airavata` gated 403 (not required for M1 acceptance rows).
+
+---
+
+---
+
+## M4 — Training snapshots (Ancoda)
+
+Four 5 GB snapshots (RAM < 32 GB → 5 GB each). Seed `20261104`.
+Legacy-font filter disabled (dictionary Preeti detector precision 0.89 < 0.99).
+Decontam: exact on all eval sets; 6–12 + 13-gram on FLORES+/Belebele/aya only;
+MinHash near-dup (same settings as step 4) vs `fw2_npi_test` / `fw2_hin_test` / `c4_val`.
+Independent audit: exact / segment / 13-gram / minhash_eval all **0** on every snapshot.
+Free disk after build: **127.5 GB** (≥ 50 GB required).
+
+| Snapshot | path | text_bytes | docs (sum) | joiner |
+|---|---|---:|---:|---|
+| `n45` | `data/snapshots/n45_868dd1887992c328` | 5000068588 | 2099708 | none |
+| `n50` | `data/snapshots/n50_32fd1b6a9c068400` | 5000398763 | 2167288 | 1% (21348 docs / 50004482 B) |
+| `n60` | `data/snapshots/n60_cf8066dbbdd0da93` | 5000710160 | 2313669 | none |
+| `n50_nojoiner` | `data/snapshots/n50_nojoiner_3e785f409c11d076` | 5000095538 | 2168971 | none (ladder control) |
+
+### Bytes per language (bucket) per snapshot
+
+| Bucket | n45 | n50 | n60 | n50_nojoiner |
+|---|---:|---:|---:|---:|
+| Nepali | 2250002496 | 2500028405 | 3000001740 | 2500006506 |
+| English | 1100008519 | 1000002558 | 800000683 | 1000011890 |
+| Hindi | 550001672 | 500005528 | 400003339 | 500023240 |
+| Marathi | 165011290 | 150142261 | 120010497 | 150011301 |
+| Sanskrit | 165005077 | 150000246 | 120536929 | 150005876 |
+| Smaller Devanagari | 220002508 | 200016985 | 160043316 | 200002873 |
+| Languages of Nepal | 110000787 | 100062412 | 80009019 | 100002013 |
+| Code | 275003861 | 250126946 | 200093646 | 250003405 |
+| Math | 165032378 | 150013422 | 120010991 | 150028434 |
+| **total** | 5000068588 | 5000398763 | 5000710160 | 5000095538 |
+
+### Decontam audit
+
+| Snapshot | exact | segment (6–12) | 13-gram | minhash_eval |
+|---|---:|---:|---:|---:|
+| `n45` | 0 | 0 | 0 | 0 |
+| `n50` | 0 | 0 | 0 | 0 |
+| `n60` | 0 | 0 | 0 | 0 |
+| `n50_nojoiner` | 0 | 0 | 0 | 0 |
+
+### Training bytes removed by decontamination (per source)
+
+Text rules from `decontam_report.json`; MinHash near-dup from `minhash_eval_near_dup.json`.
+MinHash total dropped: **20132** docs / **122711282** bytes.
+
+| source | text drop bytes | MinHash drop bytes | total drop | input bytes | share |
+|---|---:|---:|---:|---:|---:|
+| code | 3460145 | 8607 | 3468752 | 998261389 | 0.3475% |
+| deva_pool_fw2 | 18415865 | 13650 | 18429515 | 964462702 | 1.9109% |
+| deva_pool_hplt | 4390001 | 0 | 4390001 | 504986458 | 0.8693% |
+| deva_pool_sangraha | 876493 | 0 | 876493 | 174145735 | 0.5033% |
+| fw2_hin | 134286991 | 592394 | 134879385 | 1485712545 | 9.0784% |
+| fw2_mar | 310812 | 0 | 310812 | 498947556 | 0.0623% |
+| fw2_npi | 74311674 | 5074838 | 79386512 | 15279926039 | 0.5195% |
+| fw2_san | 2517196 | 0 | 2517196 | 348213007 | 0.7229% |
+| fwedu_en | 183832533 | 4282 | 183836815 | 2998563161 | 6.1308% |
+| hplt_npi | 77885326 | 16879648 | 94764974 | 6412988278 | 1.4777% |
+| indiccorp_npi | 6486518 | 951199 | 7437717 | 12621064938 | 0.0589% |
+| iriis | 31255248 | 25147770 | 56403018 | 13019540491 | 0.4332% |
+| nepal_pool | 42486 | 0 | 42486 | 134371824 | 0.0316% |
+| owm | 71948535 | 2936 | 71951471 | 999608469 | 7.1980% |
+| sangraha_hin | 39579001 | 111077 | 39690078 | 456571246 | 8.6931% |
+| sangraha_mar | 125407 | 0 | 125407 | 499655938 | 0.0251% |
+| sangraha_nep | 78879901 | 73924881 | 152804782 | 22233931930 | 0.6873% |
+| sangraha_san | 820025 | 0 | 820025 | 479330094 | 0.1711% |
+| **total** |  |  | 852135439 | 80110281800 | 1.0637% |
+
+Source: `artifacts/clean/snapshots.json`.

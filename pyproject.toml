@@ -23,6 +23,7 @@ dependencies = [
     "tqdm>=4.70.1",
     "transformers>=5.22.1",
     "ancoda-seg",
+    "indic-nlp-library>=0.92",
 ]
 
 [tool.uv.sources]
@@ -44,6 +45,10 @@ pythonpath = ["python"]
 line-length = 100
 target-version = "py311"
 src = ["python", "tests"]
+
+[tool.ruff.lint.per-file-ignores]
+# Vendored MIT converter; keep upstream control flow.
+"python/ancoda_tok/clean/preeti_convert.py" = ["SIM102"]
 
 [dependency-groups]
 dev = [

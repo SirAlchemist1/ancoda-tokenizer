@@ -305,3 +305,82 @@ Out of scope for training in v1. FineWeb-2 `npi_Latn` has a test split; download
 ### Papaya affix inventory
 
 Approved for evaluation only under CC BY 4.0, at commit `b3498528daa3435f091792e0b44bb222a2f8cb68`. Attribution: the affix dataset is re-derived from Balaram Prasain, "A Computational Analysis of Nepali Morphology: A Model for Natural Language Processing", PhD dissertation, Tribhuvan University, 2011. Cite that work. The files stay under `data/` and are not committed. Do not copy the repository's tokenizer vocab, merges or stem lexicons.
+
+## M4 legacy-font detector (5 Nov 2026)
+
+The logistic-regression Preeti classifier failed the 99% precision spot-check (precision 0.05 after one retrain). The human replaced it with a **dictionary-based Preeti detector**:
+
+1. Take the 50,000 most frequent Devanagari words from Nepali training sources after UTF-8 cleanup and GlotLID keep (`npi_Deva`). Convert each with the MIT `globalpolicy/UnicodeToPreeti` converter. Keep converted forms of length ≥ 2. Write `artifacts/clean/preeti_lexicon.tsv` with sha256.
+2. A Latin-script line in a Nepali document is flagged if it has ≥ 3 whitespace tokens in that lexicon and those tokens are ≥ 50% of the line's tokens. Drop a document only if more than 20% of its lines are flagged.
+3. Spot-check: 100 flagged + 100 unflagged → `artifacts/clean/preeti_spotcheck_v2.tsv`. If precision ≥ 99%, keep the filter. If below 99%, do not retry: disable the filter, record that here, count would-have-flagged lines per source as a limitation, and continue M4.
+
+### Legacy-font filter status (after dictionary spot-check)
+
+legacy-font filter disabled: no detector reached 99% precision.
+
+Dictionary detector spot-check (`artifacts/clean/preeti_spotcheck_v2.tsv`): precision **0.89** (89 true Preeti / 100 flagged; 11 false positives). Known true Preeti lines caught: **3/5**. Lexicon: `artifacts/clean/preeti_lexicon.tsv` sha256 `2761f296d51b367f0418d2c6a2d6754c4540a88a0910f521e6628f78a04fd454` (49,830 forms from 50,000 Devanagari words).
+
+**Limitation — would-have-flagged lines** (dictionary detector, filter not applied), from `artifacts/clean/report.json` `legacy_would_flag_lines`:
+
+| source | would-flag lines |
+| --- | ---: |
+| fw2_npi | 35 |
+| iriis | 0 |
+| sangraha_nep | 104 |
+| indiccorp_npi | 0 |
+| hplt_npi | 426 |
+| **total** | **565** |
+
+## M4 decontamination n-gram scope (6 Nov 2026; human-approved 7 Nov 2026)
+
+**Approved:** for the large same-distribution web test sets (`fw2_npi_test`, `fw2_hin_test`, `c4_val`), apply **exact-match only**. Their 6–12-word segment and 13-word n-gram rules produced ~40–60% false-overlap drops on Nepali training (ordinary n-gram overlap with the same web distribution, not eval-passage leakage) and the merged indexes (~339M segment hashes) were too heavy for an 18 GB Mac.
+
+**Unchanged — full three rules** (exact, 6–12-word segments, 13-gram) still apply to:
+- FLORES+ `dev` and `devtest` for every language present in the harness copy under `third_party/yak-tokenizer/data/eval/flores_plus/`
+- Belebele `npi_Deva` (`belebele_npi`)
+- `aya_npi`
+
+Confirmed in code: `iter_eval_texts(ngram=True)` indexes FLORES+ + Belebele + aya for segments/13-grams; `_EXACT_ONLY_EVAL_SOURCES` contribute only to the exact-key map.
+
+### Measured drop rates (fw2_npi sample / full corpus)
+
+**Before** (large-set segment + 13-gram enabled), independent rates on the first **5,000** `fw2_npi` clean docs (`artifacts/clean/decontam_rate_probe.log`). A document may count in more than one cell:
+
+| eval set | rule | hits / 5,000 | rate |
+|---|---|---:|---:|
+| fw2_npi_test | segment (6–12) | 2,887 | **0.5774** |
+| fw2_npi_test | 13-gram | 539 | 0.1078 |
+| fw2_hin_test | segment (6–12) | 30 | 0.0060 |
+| fw2_hin_test | 13-gram | 2 | 0.0004 |
+| c4_val | segment (6–12) | 32 | 0.0064 |
+| c4_val | 13-gram | 0 | 0.0000 |
+| short_eval (FLORES+Belebele+aya) | segment | 0 | 0.0000 |
+| short_eval (FLORES+Belebele+aya) | 13-gram | 0 | 0.0000 |
+| large-set segment **union** | segment | 2,897 | **0.5794** |
+
+Earlier probes with the merged full index (including large sets): bloom bench 21/50 = **0.42**; first 50k `fw2_npi` docs in `decontam_run6.log` 30,318/50,000 = **0.6064**.
+
+**After** (exact-only on large sets; full three rules on short eval), same 5,000-doc sample: **0** drops. Full-corpus after rates from `artifacts/clean/decontam_report.json` (34,652,585 scanned = kept + dropped over training sources in that report; overall drop rate **0.001556**):
+
+| eval set | rule | dropped docs | rate |
+|---|---|---:|---:|
+| fw2_npi_test | exact | 5,821 | 0.000168 |
+| fw2_hin_test | exact | 3 | ~0 |
+| c4_val | exact | 0 | 0 |
+| short_eval (FLORES+Belebele+aya) | exact | 0 | 0 |
+| short_eval (FLORES+Belebele+aya) | segment (6–12) | 48,101 | 0.001388 |
+| short_eval (FLORES+Belebele+aya) | 13-gram | 0 | 0 |
+| fw2_npi_test / fw2_hin_test / c4_val | segment | **0** (disabled) | 0 |
+| fw2_npi_test / fw2_hin_test / c4_val | 13-gram | **0** (disabled) | 0 |
+
+On the 50k `fw2_npi` probe after the change (`decontam_run8.log`): 98/50,000 = **0.0020** (vs 0.6064 before).
+
+### MinHash near-dup vs large test sets (7 Nov 2026)
+
+In place of the disabled large-set n-gram rules: drop any training document whose MinHash signature (same settings as M4 step 4: 5-gram word shingles, 14 buckets × 8 hashes, seed `20261104`) collides in any band with a document in `fw2_npi_test`, `fw2_hin_test` or `c4_val`. Prior MinHash signature workdir was not on disk; eval bands are rebuilt. Counts go to `artifacts/clean/minhash_eval_near_dup.json`. The independent snapshot audit also checks this rule (`minhash_eval` must be 0).
+
+**Result:** dropped **20,132** training documents (**122,711,282** bytes) across clean sources + `_reroute/`. Top sources by docs: sangraha_nep 11,692; iriis 4,631; hplt_npi 2,331; fw2_npi 1,020; indiccorp_npi 236; fw2_hin 183.
+
+### n45 residual audit hits (200 segment) — cause and fix
+
+The first n45 independent audit reported `{'exact': 0, 'segment': 200, '13gram': 0}`. Cause: LID-rerouted docs under `data/clean/_reroute/` were included in snapshots but had **not** been run through text decontamination. Fix: `decontam_reroutes()` in `run_decontam`, then rebuild snapshots. After that rebuild, text-rule audits were 0; MinHash near-dup then required another rebuild + full audit including `minhash_eval`.
