@@ -143,6 +143,22 @@ def load_index_rows(index_path: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def sealed_doc_id_hashes() -> set[str]:
+    """sha256(doc_id) hex digests excluded from every future snapshot."""
+    path = REPO_ROOT / "data" / "clean" / "sealed_test_doc_id_sha256.txt"
+    if not path.is_file():
+        alt = REPO_ROOT / "data" / "clean" / "sealed_test_set.json"
+        if not alt.is_file():
+            return set()
+        data = load_json(alt)
+        return set(data.get("doc_id_sha256") or [])
+    return {ln.strip() for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()}
+
+
+def _doc_id_sha256(doc_id: str) -> str:
+    return hashlib.sha256(doc_id.encode("utf-8")).hexdigest()
+
+
 def pool_sample_index(
     items: list[dict[str, Any]],
     target_bytes: int,
@@ -152,6 +168,11 @@ def pool_sample_index(
 ) -> list[dict[str, Any]]:
     if target_bytes <= 0 or not items:
         return []
+    sealed = sealed_doc_id_hashes()
+    if sealed:
+        items = [it for it in items if _doc_id_sha256(it["doc_id"]) not in sealed]
+        if not items:
+            return []
     groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for it in items:
         groups[it.get("lang") or "all"].append(it)
