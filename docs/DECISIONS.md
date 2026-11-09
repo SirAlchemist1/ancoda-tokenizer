@@ -410,3 +410,22 @@ Hash-selected held-out docs from cleaned training data that appear in no snapsho
 - **seed** = 20261104
 - **list_sha256** = `71f744cea9e958351494fea6d70e35597daa833b4875bf00878caf64951c3da0`
 - **Canonical copy (hashes + seed only, no document text):** `docs/sealed_test_set.json`
+
+## M8 selection (lookup applied 9 Nov 2026)
+
+Selection rules written in the research log at 12:45 on 9 Nov, before the 13:40 results; lookup applied mechanically.
+
+Inputs:
+
+- Yak v1 64k code/KB **316.4**
+- Yak v1 128k code/KB **291.7**
+
+Outputs:
+
+- Snapshot **n60j5**, joiner copy on, code+math scale **1.0**
+- Block 1 for every size = that size's M5 inventory ranking truncated to a **3%** cap. The 250k inventory is built the same way and saved as `artifacts/inventory/covered_250k.json`.
+- **Ancoda-64k:** vocab 65,536, B_d 48,000
+- **Ancoda-128k:** vocab 131,072, B_d 94,742
+- **Ancoda-32k:** vocab 32,768, B_d 23,522 (same Devanagari share, 48,000/64,256, of non-byte non-reserved slots)
+- **Ancoda-NE-64k:** vocab 65,536, standard single-list trainer (no script budget), Nepali-only text from n60j5 including the joiner copy
+- **Ancoda-250k:** vocab 250,000. Frontier B_d 144,000 / 160,000 / 175,000 / 190,000 × code scale 1.0 and 0.5. Pick rule: integrity + Block 1 coverage ≥ 99.95%; prefer points that beat IndicBERT v2 on Hindi AND English (whole-file CI excluding 0), beat every ~250k tokenizer on Nepali, and have code/KB ≤ IndicBERT v2's; among those the lowest Hindi; if none qualifies, the most WIN rows in the ~250k class, then the lowest Nepali. Re-run the chosen point on n60j10; use it only if Hindi or English improves with CI excluding 0. Memory cap 12 GiB; if exceeded, stop that point and report.
