@@ -327,31 +327,39 @@ def guarantee(
     orphans: Path,
     covered: Path,
     snapshot_prefix: str = "n60",
+    snapshot: Path | None = None,
+    snapshot_line_limit: int = 1_000_000,
 ) -> dict:
+    """Run guarantee tests. Diagnostics use 1M snapshot lines (M8 does 10M)."""
     if report.is_file():
         data = json.loads(report.read_text(encoding="utf-8"))
-        if not data.get("failures"):
+        if not data.get("failures") and data.get("snapshot_lines") == snapshot_line_limit:
             return data
-    _caffeinate(
-        [
-            "uv",
-            "run",
-            "python",
-            "-u",
-            "-m",
-            "ancoda_tok.guarantee",
-            "--tokenizer-dir",
-            str(tok_dir),
-            "--covered",
-            str(covered),
-            "--snapshot-prefix",
-            snapshot_prefix,
-            "--report",
-            str(report),
-            "--orphans",
-            str(orphans),
-        ]
-    )
+        # Stale/partial report (e.g. interrupted 10M run): re-run.
+        report.unlink(missing_ok=True)
+    cmd = [
+        "uv",
+        "run",
+        "python",
+        "-u",
+        "-m",
+        "ancoda_tok.guarantee",
+        "--tokenizer-dir",
+        str(tok_dir),
+        "--covered",
+        str(covered),
+        "--report",
+        str(report),
+        "--orphans",
+        str(orphans),
+        "--snapshot-line-limit",
+        str(snapshot_line_limit),
+    ]
+    if snapshot is not None:
+        cmd.extend(["--snapshot", str(snapshot)])
+    else:
+        cmd.extend(["--snapshot-prefix", snapshot_prefix])
+    _caffeinate(cmd)
     return json.loads(report.read_text(encoding="utf-8"))
 
 

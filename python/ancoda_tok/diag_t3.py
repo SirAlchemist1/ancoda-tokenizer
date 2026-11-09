@@ -252,12 +252,15 @@ def main() -> None:
             dest = OUT / tag / "combined"
             combine(dewa_dir, latin_dir, dest, mergeable=MERGEABLE)
             if not args.skip_guarantee:
+                # Diagnostics: all eval texts + 1M snapshot lines (M8 does 10M).
+                # Prefer the 10 GB joiner snapshot when present.
                 g = guarantee(
                     dest,
                     report=OUT / f"guarantee_{tag}.json",
                     orphans=OUT / f"orphans_{tag}.txt",
                     covered=COVERED,
-                    snapshot_prefix=NAME,
+                    snapshot=snap,
+                    snapshot_line_limit=1_000_000,
                 )
                 viol = g.get("hf_covered_violations")
                 fails = g.get("failures")

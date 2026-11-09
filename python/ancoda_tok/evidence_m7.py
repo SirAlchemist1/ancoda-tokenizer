@@ -237,6 +237,76 @@ def build() -> list[dict]:
         ),
         value={"phrase_splits": splits, "decision": danda.get("decision")},
     )
+
+    # Combined-candidates snapshot choice
+    choice_rel = "artifacts/eval/m7/combined_candidates/snapshot_choice.json"
+    choice = _load_json(choice_rel)
+    _claim(
+        claims,
+        claim_id="M7_combined_snapshot_choice",
+        text=(
+            f"Combined candidates snapshot: {choice.get('chosen_label')} "
+            f"({choice.get('chosen_path')}); helping_points={choice.get('helping_points')}"
+        ),
+        source=choice_rel,
+        reproduce=(
+            "uv run python -c \"import json; "
+            "print(json.load(open('artifacts/eval/m7/combined_candidates/snapshot_choice.json'))"
+            "['chosen_label'], "
+            "json.load(open('artifacts/eval/m7/combined_candidates/snapshot_choice.json'))"
+            "['helping_points'])\""
+        ),
+        value={
+            "chosen_label": choice.get("chosen_label"),
+            "chosen_path": choice.get("chosen_path"),
+            "helping_points": choice.get("helping_points"),
+            "reason": choice.get("reason"),
+            "comparisons": choice.get("comparisons"),
+        },
+    )
+
+    # Combined-candidates frontier (16 points + bootstrap CIs)
+    cc_rel = "artifacts/eval/m7/combined_candidates/frontier.json"
+    cc = _load_json(cc_rel)
+    rows = cc["rows"]
+    best64 = min((r for r in rows if r["vocab"] == "64k"), key=lambda r: r["npi"])
+    best128 = min((r for r in rows if r["vocab"] == "128k"), key=lambda r: r["npi"])
+    _claim(
+        claims,
+        claim_id="M7_combined_candidates",
+        text=(
+            f"Combined candidates: {len(rows)} points on {cc.get('snapshot')}; "
+            f"best 64k npi={best64['npi']:.6f} ({best64['label']}); "
+            f"best 128k npi={best128['npi']:.6f} ({best128['label']})"
+        ),
+        source=cc_rel,
+        reproduce=(
+            "uv run python -c \"import json; d=json.load(open("
+            "'artifacts/eval/m7/combined_candidates/frontier.json')); "
+            "print(len(d['rows']), d.get('snapshot')); "
+            "b64=min((r for r in d['rows'] if r['vocab']=='64k'), key=lambda r:r['npi']); "
+            "print(b64['label'], b64['npi'])\""
+        ),
+        value={
+            "n_rows": len(rows),
+            "snapshot": cc.get("snapshot"),
+            "snapshot_choice": cc.get("snapshot_choice"),
+            "best_64k": {
+                "label": best64["label"],
+                "npi": best64["npi"],
+                "eng": best64["eng"],
+                "hin": best64["hin"],
+                "bootstrap_ci_vs": best64.get("bootstrap_ci_vs"),
+            },
+            "best_128k": {
+                "label": best128["label"],
+                "npi": best128["npi"],
+                "eng": best128["eng"],
+                "hin": best128["hin"],
+                "bootstrap_ci_vs": best128.get("bootstrap_ci_vs"),
+            },
+        },
+    )
     return claims
 
 

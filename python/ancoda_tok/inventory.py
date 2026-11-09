@@ -64,6 +64,9 @@ def find_snapshot(prefix: str) -> Path:
             continue
         if prefix == "n50" and path.name.startswith("n50_nojoiner"):
             continue
+        # Diagnostic 10 GB n60+joiner snapshot must not match prefix "n60".
+        if prefix == "n60" and path.name.startswith("n60j"):
+            continue
         matches.append(path)
     if len(matches) != 1:
         raise Stop(
