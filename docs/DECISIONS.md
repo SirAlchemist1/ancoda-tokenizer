@@ -401,3 +401,12 @@ PLAN.md 3.8 says the 1% joiner copy is on by default for the mix. The M4 snapsho
 ## M7 follow-up (8 Nov 2026) — Danda stays a separate token
 
 Danda (purna biram, U+0964) and double danda (U+0965) stay separate tokens, like "." in English. This is a product decision for the paper and shipping builds; pre-tokenizer / merge behaviour that keeps `।` as its own piece is intentional.
+
+## Sealed test set (locked 9 Nov 2026, before M8)
+
+Hash-selected held-out docs from cleaned training data that appear in no snapshot built so far (including n60j5 and the 10GB joiner snapshot), near-dup filtered against all snapshots, and excluded from future snapshot sampling via `sha256(doc_id)`.
+
+- **n** = 35688
+- **seed** = 20261104
+- **list_sha256** = `71f744cea9e958351494fea6d70e35597daa833b4875bf00878caf64951c3da0`
+- **Canonical copy (hashes + seed only, no document text):** `docs/sealed_test_set.json`
