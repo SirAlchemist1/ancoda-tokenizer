@@ -24,6 +24,7 @@ dependencies = [
     "transformers>=5.22.1",
     "ancoda-seg",
     "indic-nlp-library>=0.92",
+    "zstandard>=0.25.0",
 ]
 
 [tool.uv.sources]
