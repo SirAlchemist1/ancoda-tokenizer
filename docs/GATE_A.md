@@ -1,5 +1,7 @@
 # Gate A
 
+> **11 Nov 2026.** The whole-file first-byte FLORES scoreboard in this document is superseded by [`docs/RESULTS_PER_SENTENCE.md`](RESULTS_PER_SENTENCE.md) (from `artifacts/eval/m8/followup/flores_per_sentence.json`) for all tokenizer comparisons. Each FLORES sentence is encoded separately. Gate A pass/fail bars below stay as originally written; the old tables are not edited.
+
 Ancoda-64k is the flagship. Selection is the mechanical lookup in `docs/DECISIONS.md`.
 
 ## PLAN 3.10
