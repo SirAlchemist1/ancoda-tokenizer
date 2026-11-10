@@ -1,5 +1,7 @@
 # M8 evidence
 
+**Sealed fertility correction:** `artifacts/eval/m8/sealed.json` is superseded. It paired texts with language labels by list position after `fetch_texts` (shard-sorted), mislabeling ~39% of docs. Corrected fertilities and document-level CIs are in `artifacts/eval/m8/followup/sealed_relabel.json` (join by `doc_id`). Sealed metrics remain report-only and do not drive tokenizer or config changes.
+
 | File | sha256 |
 |---|---|
 | `artifacts/eval/m8/builds.json` | `be4dba52cb24ac52c02f34c6e2f270b8e98c603e6a1a6f99a5083289a536eb1a` |
@@ -732,6 +734,12 @@
 | `artifacts/eval/m8/screen/ancoda-250k-bd190000-cm50.json` | `610b76bd026432d012f1fadc8507272e71e9db7f686da87d11a46a4f1ea48afa` |
 | `artifacts/eval/m8/screen/ancoda-250k-bd190000-cm50.orphans.txt` | `ef158be527ac10ad35acda89756105b86e4c762a9b198a821ee29cc6138d1e17` |
 | `artifacts/eval/m8/sealed.json` | `875406694874601ae68586c30b5c25e382029876a431ba602ced0bb9b2863293` |
+| `artifacts/eval/m8/followup/sealed_relabel.json` | `a41b1906eec951767195e7ea026e3371d182920195a63de8922ae51648a94b39` |
+| `artifacts/eval/m8/followup/whitespace_fertility.json` | `baafd3dbfa76d86d06439170a1bc6729c32bd65155e4076210e3636d1c49345d` |
+| `artifacts/eval/m8/followup/sealed_nepali_by_source.json` | `1f9612c226cf41dfc14f61b09c98dfa4df3b22cc7be5b9e5eb3127c2454cb8a1` |
+| `artifacts/eval/m8/followup/joiner_sealed_overlap.json` | `5bcc9eaab281630ff2c2c348b8c18419fab0a9bccdaf65978f88284e63dc30e5` |
+| `artifacts/eval/m8/followup/code_math_kb.json` | `75d32291e11d2086ef7ce3bb22d2a0f7b7087a2e5010bc04e19aa1098477201f` |
+| `artifacts/eval/m8/followup/training_source_overlap.json` | `07e1d096faba31c1198e4453ac46ffcb99b658876b1ba95a4890b74ebf281319` |
 | `artifacts/eval/m8/sides/ancoda-128k_s4096/side-deva/manifest.json` | `5d3ca6b86250a7ab3751198a1405eb259816f129389221fcbf0a2a97e31fdc02` |
 | `artifacts/eval/m8/sides/ancoda-128k_s4096/side-deva/ranks.json` | `68917c8510ca837e002ce98e5bedbc90952153df1ba0610b6dd88d62ed4fae28` |
 | `artifacts/eval/m8/sides/ancoda-128k_s4096/side-latin/manifest.json` | `01ed5fa20679db6fdedab96129e5ae9b230ec00c5e2e410afceb3a7e9cdca4c2` |
