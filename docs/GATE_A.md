@@ -325,3 +325,80 @@ Re-measured with frozen M8 tokenizers; texts joined to metadata by `doc_id`. Sou
 | yak-64k-v1 | 3.2842 | 1.4479 | 1.3653 | 2.4474 | 1.7709 | 1.3161 | 3.0466 | 1.4056 | 1.7098 | 1.4983 | 2.5471 | 1.7041 | 1.6121 | 1.5149 | 1.1439 |
 | yak-64k-v2.0 | 3.3469 | 1.4792 | 1.3749 | 2.4282 | 1.8014 | 1.3285 | 2.9905 | 1.4071 | 1.6304 | 1.4505 | 2.5833 | 1.6454 | 1.5506 | 1.4120 | 1.1548 |
 
+### sidskarki FLORES path (1.4448 vs 1.3699)
+
+Hub ships only `nepali_bpe_64k.model` (no `tokenizer.json`). Both paths use `sentencepiece.SentencePieceProcessor` on that file. The model has no BOS/EOS (`bos_id=eos_id=-1`).
+
+| Path | Mode | tokens | BOS | EOS | unk | `<0x0A>` | fertility | round-trip |
+|---|---|---:|---:|---:|---:|---:|---:|---|
+| whole-file | `'\n'.join(lines)` then one `encode()` | 27019 | 0 | 0 | 0 | 1011 | 1.4448 | exact False (content OK) |
+| per-line | `encode(line)` per line, sum | 25619 | 0 | 0 | 0 | 0 | 1.3699 | exact rate 0.9951 |
+
+M8 scoreboard / misspell absolute used whole-file (1.4448 = Yak `fertility`). The whitespace follow-up FLORES number used per-line (1.3699 = Yak `fertility_segments` / npi-per-line). Sealed, Aya and fw2 already encode each document alone via `Encoder` → SentencePiece `.model`.
+
+**Chosen path:** per-unit SentencePiece `.model` (FLORES: per line; Aya/fw2/sealed: per doc). No special tokens added; closest to lossless; no cross-unit newline byte tokens. Recomputed fertilities (chosen path):
+
+| Set | ancoda-64k | ancoda-ne-64k | sidskarki | 64k vs sid | ne vs sid |
+|---|---:|---:|---:|---|---|
+| FLORES npi | 1.4508 | 1.4052 | 1.3699 | LOSE +0.0809 [+0.0733,+0.0884] | LOSE +0.0352 [+0.0283,+0.0428] |
+| Aya npi | 1.4407 | 1.3962 | 1.4068 | LOSE +0.0340 [+0.0210,+0.0433] | WIN −0.0106 [−0.0162,−0.0050] |
+| fw2_npi_test | 1.2928 | 1.2475 | 1.2361 | LOSE +0.0567 [+0.0560,+0.0574] | LOSE +0.0114 [+0.0108,+0.0119] |
+| sealed Nepali (full) | 1.3077 | 1.2631 | 1.2323 | LOSE +0.0754 [+0.0738,+0.0769] | LOSE +0.0307 [+0.0293,+0.0322] |
+
+Detail: `artifacts/eval/m8/followup/sidskarki_flores_path_audit.json`, `sidskarki_chosen_path_recompute.json`.
+
+### Sealed list without joiner sources
+
+Dropped 65 sealed docs that were synthetic ZWJ/ZWNJ sources in n60j5∪n60j10. Original `docs/sealed_test_set.json` unchanged. Reduced list: `docs/sealed_test_set_no_joiners.json` (n=35623, list_sha256=`820f385638336be6b904c1f3b10c56f380ef73515f76375eebd1f1e258156336`).
+
+Sealed Nepali headline on the reduced list (n=28094), doc-level CIs:
+
+| Pair | fertility ours / base | verdict |
+|---|---|---|
+| ancoda-64k vs sidskarki | 1.3077 / 1.2323 | LOSE +0.0754 [+0.0738,+0.0770] |
+| ancoda-64k vs yak-64k-v1 | 1.3077 / 1.3162 | WIN −0.0084 [−0.0088,−0.0080] |
+| ancoda-64k vs yak-64k-v2.0 | 1.3077 / 1.3285 | WIN −0.0208 [−0.0212,−0.0204] |
+| ancoda-ne-64k vs sidskarki | 1.2631 / 1.2323 | LOSE +0.0308 [+0.0293,+0.0322] |
+| ancoda-ne-64k vs yak-64k-v1 | 1.2631 / 1.3162 | WIN −0.0531 [−0.0539,−0.0522] |
+| ancoda-ne-64k vs yak-64k-v2.0 | 1.2631 / 1.3285 | WIN −0.0654 [−0.0663,−0.0646] |
+
+Selected extra CIs (reduced sealed):
+
+| Pair | lang | docs | verdict |
+|---|---|---:|---|
+| ancoda-250k vs indicbert-v2 | Hindi | 1352 | LOSE +0.0086 [+0.0037,+0.0141] |
+| ancoda-250k vs indicbert-v2 | Marathi | 401 | LOSE +0.0405 [+0.0309,+0.0509] |
+| ancoda-250k vs indicbert-v2 | awa_Deva | 15 | TIE +0.0288 [−0.3215,+0.2417] |
+| ancoda-128k vs yak-128k-v1 | Nepali | 28094 | WIN −0.0015 [−0.0018,−0.0012] |
+| ancoda-64k vs yak-64k-v2.0 | bho_Deva | 172 | LOSE +0.0190 [+0.0051,+0.0425] |
+| ancoda-64k vs yak-64k-v2.0 | mai_Deva | 258 | LOSE +0.0300 [+0.0235,+0.0362] |
+| ancoda-64k vs yak-64k-v2.0 | new_Deva | 450 | LOSE +0.0238 [+0.0150,+0.0369] |
+
+Unweighted mean of 11 Devanagari groups (Hin, Mar, Nep, San, anp, awa, bho, gom, hne, mai, new), doc-level bootstrap on the reduced sealed set:
+
+| Pair | verdict |
+|---|---|
+| ancoda-32k vs yak-32k-v1 | WIN −0.1792 [−0.1937,−0.1696] |
+| ancoda-64k vs yak-64k-v1 | WIN −0.1841 [−0.1988,−0.1734] |
+| ancoda-64k vs yak-64k-v2.0 | WIN −0.1509 [−0.1585,−0.1425] |
+| ancoda-64k vs sidskarki | WIN −0.2991 [−0.3261,−0.2808] |
+| ancoda-64k vs arkios | WIN −0.5940 [−0.6239,−0.5728] |
+| ancoda-64k vs sarvam-1 | WIN −0.5087 [−0.5386,−0.4885] |
+| ancoda-ne-64k vs yak-64k-v1 | LOSE +0.1192 [+0.1016,+0.1323] |
+| ancoda-ne-64k vs yak-64k-v2.0 | LOSE +0.1524 [+0.1368,+0.1672] |
+| ancoda-ne-64k vs sidskarki | TIE +0.0042 [−0.0159,+0.0177] |
+| ancoda-ne-64k vs arkios | WIN −0.2907 [−0.3197,−0.2694] |
+| ancoda-ne-64k vs sarvam-1 | WIN −0.2054 [−0.2334,−0.1858] |
+| ancoda-128k vs yak-128k-v1 | WIN −0.1827 [−0.1967,−0.1715] |
+| ancoda-128k vs yak-128k-v2.0 | WIN −0.1463 [−0.1547,−0.1375] |
+| ancoda-128k vs llama3 | WIN −1.6775 [−1.7319,−1.6359] |
+| ancoda-128k vs sarvam-m | WIN −1.2074 [−1.2489,−1.1770] |
+| ancoda-128k vs qwen2.5 | WIN −3.8808 [−3.9882,−3.7950] |
+| ancoda-128k vs qwen3 | WIN −3.8808 [−3.9882,−3.7950] |
+| ancoda-250k vs indicbert-v2 | WIN −0.1358 [−0.1739,−0.1113] |
+| ancoda-250k vs bloom | WIN −0.3856 [−0.4293,−0.3563] |
+| ancoda-250k vs gemma3 | WIN −0.5547 [−0.5942,−0.5284] |
+| ancoda-250k vs sarvam-30b | WIN −0.5548 [−0.5942,−0.5285] |
+
+Full JSON: `artifacts/eval/m8/followup/sealed_nojjoiners_remeasure.json`. Sealed remains report-only.
+

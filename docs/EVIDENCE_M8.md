@@ -2,6 +2,10 @@
 
 **Sealed fertility correction:** `artifacts/eval/m8/sealed.json` is superseded. It paired texts with language labels by list position after `fetch_texts` (shard-sorted), mislabeling ~39% of docs. Corrected fertilities and document-level CIs are in `artifacts/eval/m8/followup/sealed_relabel.json` (join by `doc_id`). Sealed metrics remain report-only and do not drive tokenizer or config changes.
 
+**sidskarki FLORES:** whole-file SentencePiece encode = 1.4448 (Yak `fertility`); per-line = 1.3699 (Yak `fertility_segments`). Chosen reporting path is per-unit `.model` encode (no BOS/EOS). See `artifacts/eval/m8/followup/sidskarki_flores_path_audit.json`.
+
+**Sealed without joiner sources:** `docs/sealed_test_set_no_joiners.json` drops 65 joiner-source docs (n=35623, list_sha256 `820f3856…6336`). Remeasure: `artifacts/eval/m8/followup/sealed_nojjoiners_remeasure.json`. Original `docs/sealed_test_set.json` kept.
+
 | File | sha256 |
 |---|---|
 | `artifacts/eval/m8/builds.json` | `be4dba52cb24ac52c02f34c6e2f270b8e98c603e6a1a6f99a5083289a536eb1a` |
@@ -740,6 +744,10 @@
 | `artifacts/eval/m8/followup/joiner_sealed_overlap.json` | `5bcc9eaab281630ff2c2c348b8c18419fab0a9bccdaf65978f88284e63dc30e5` |
 | `artifacts/eval/m8/followup/code_math_kb.json` | `75d32291e11d2086ef7ce3bb22d2a0f7b7087a2e5010bc04e19aa1098477201f` |
 | `artifacts/eval/m8/followup/training_source_overlap.json` | `07e1d096faba31c1198e4453ac46ffcb99b658876b1ba95a4890b74ebf281319` |
+| `artifacts/eval/m8/followup/sidskarki_flores_path_audit.json` | `867134a797a668b1f44feeda4679908e0d6a3ee9fde0b3869bd0738cd23b2a81` |
+| `artifacts/eval/m8/followup/sidskarki_chosen_path_recompute.json` | `364ca0a5475c8acfed190e55e3615ee82da2aae0615e8eb9dead0f21dff61831` |
+| `artifacts/eval/m8/followup/sealed_nojjoiners_remeasure.json` | `501bb996099bb7c51bd2f9aa74b4cdff1520ce453194b82e6b3194c5e87b697a` |
+| `docs/sealed_test_set_no_joiners.json` | `e4ce58519601024b6587b8818018f8fcc8674251106bb038b405f82df472006f` |
 | `artifacts/eval/m8/sides/ancoda-128k_s4096/side-deva/manifest.json` | `5d3ca6b86250a7ab3751198a1405eb259816f129389221fcbf0a2a97e31fdc02` |
 | `artifacts/eval/m8/sides/ancoda-128k_s4096/side-deva/ranks.json` | `68917c8510ca837e002ce98e5bedbc90952153df1ba0610b6dd88d62ed4fae28` |
 | `artifacts/eval/m8/sides/ancoda-128k_s4096/side-latin/manifest.json` | `01ed5fa20679db6fdedab96129e5ae9b230ec00c5e2e410afceb3a7e9cdca4c2` |
