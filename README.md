@@ -19,13 +19,15 @@ Lower fertility is better. Diff = ours − competitor. **WIN** = 95% CI entirely
 | ancoda-ne-64k | sidskarki-64k† | **WIN** −0.0395 | **WIN** −0.1576 | **WIN** −0.0741 | **WIN** −0.0654 |
 | ancoda-128k | yak-128k-v1 | LOSE +0.0045 | LOSE +0.0105 | **WIN** −0.0193 | **WIN** −0.0392 |
 | ancoda-128k | yak-128k-v2.0 | **WIN** −0.0079 | **WIN** −0.0108 | **WIN** −0.0287 | **WIN** −0.0232 |
+| ancoda-128k | himalaya-128k§ | **WIN** −0.0873 | TIE +0.0034 | **WIN** −0.2406 | **WIN** −0.3755 |
 | ancoda-128k | llama3 / sarvam-m / qwen2.5 / qwen3 | **WIN** (large) | LOSE on eng | **WIN** | **WIN** |
 | ancoda-250k | indicbert-v2 | **WIN** −0.2500‡ | **WIN** −0.0079‡ | TIE +0.0034‡ | **WIN** −0.1216‡ |
 | ancoda-250k | bloom / gemma3 / sarvam-30b | **WIN** | **WIN** | **WIN** | **WIN** |
 | ancoda-32k | yak-32k-v1 | **WIN** −0.0144 | LOSE +0.0338 | **WIN** −0.0713 | **WIN** −0.0857 |
 
 † Scoreboard used sidskarki **whole-file** FLORES (1.4448). Chosen reporting path is **per-line** SentencePiece (1.3699); under that path ancoda-64k and ne-64k **LOSE** on FLORES Nepali vs sidskarki. See Gate A.  
-‡ Per-line encoding for that baseline.
+‡ Per-line encoding for that baseline.  
+§ HimalayaAI BPE-128k, 128,000 pieces. Same whole-file first-byte bootstrap as the other rows (seed `20261104`, 10k). Off the frozen Gate A scoreboard: the Hub card states no license. See [vs HimalayaAI BPE-128k](#vs-himalayaai-bpe-128k).
 
 ### Absolute fertilities (FLORES columns)
 
@@ -40,11 +42,40 @@ Lower fertility is better. Diff = ours − competitor. **WIN** = 95% CI entirely
 | ancoda-250k | 1.3284 | 1.2287 | 1.2404 | 1.3767 |
 | ancoda-32k | 1.5715 | 1.5721 | 1.4373 | 1.6547 |
 
+## vs HimalayaAI BPE-128k
+
+FLORES+ devtest, whole file joined by newlines, tokens / `str.split()` words. Diff = ours − HimalayaAI. **WIN** = 95% CI entirely below 0 (seed `20261104`, 10,000 line resamples, whole-file first-byte). ancoda-128k has 131,072 ids; HimalayaAI BPE-128k has 128,000 pieces.
+
+| Ours | Nepali | English | Hindi | Devanagari mean |
+|---|---|---|---|---|
+| ancoda-128k | **WIN** −0.0873 | TIE +0.0034 | **WIN** −0.2406 | **WIN** −0.3755 |
+| ancoda-64k | TIE −0.0109 | LOSE +0.1159 | **WIN** −0.1777 | **WIN** −0.2885 |
+| ancoda-250k | **WIN** −0.1334 | **WIN** −0.0698 | **WIN** −0.2775 | **WIN** −0.4306 |
+
+On the matched size, ancoda-128k uses **6.0%** fewer Nepali tokens (1.3745 vs 1.4618), **15.9%** fewer Hindi tokens (1.2773 vs 1.5179), and **20.8%** fewer tokens on the seven-language Devanagari mean (1.4317 vs 1.8072). English is a tie (1.3019 vs 1.2985).
+
+| | ancoda-128k | HimalayaAI BPE-128k |
+|---|---:|---:|
+| Nepali fertility | 1.3745 | 1.4618 |
+| English fertility | 1.3019 | 1.2985 |
+| Hindi fertility | 1.2773 | 1.5179 |
+| Devanagari mean | 1.4317 | 1.8072 |
+| Nepali lines, exact round-trip | 1,012 / 1,012 | 1,004 / 1,012 |
+| Nepali lines that keep every character | 1,012 / 1,012 | 1,010 / 1,012 |
+| Orphan-mark share, Nepali | 0.0039% | 1.89% |
+| ZWJ token ratio | 1.2698 | 2.4457 |
+| ZWNJ token ratio | 1.2737 | 2.4457 |
+
+HimalayaAI's vocabulary has no piece containing ऊ, ऋ, ऐ, ः, ़, ऽ, ॥, or ॐ. Two of 1,012 Nepali lines lose characters, so its fertility is slightly flattered. The gaps above are much larger than that. The ZWJ and ZWNJ ratios are the Gate A probe: a joiner after every virama before a Devanagari letter, tokens(rewritten) / tokens(original) on the Nepali devtest.
+
+ancoda-32k loses Nepali (+0.1097) and English (+0.2736) to this 128k model and wins Hindi (−0.0806) and the Devanagari mean (−0.1525). ancoda-ne-64k wins Nepali (−0.0565) and the Devanagari mean (−0.0677) and loses English (+0.9526) and Hindi (+0.0746).
+
 ## Where we win (summary)
 
 - **ancoda-64k vs Yak 64k-v1 / v2.0:** WIN on Nepali, Hindi, and Devanagari mean; WIN on English vs v2.0; LOSE English vs v1.
 - **ancoda-64k vs sidskarki / arkios / sarvam-1:** WIN on Hindi and Devanagari mean (and English vs sidskarki / sarvam-1).
 - **ancoda-128k vs Yak 128k-v2.0:** WIN on Nepali, English, Hindi, Deva mean. vs v1: WIN Hindi + Deva mean; LOSE Nepali + English by small margins.
+- **ancoda-128k vs HimalayaAI BPE-128k:** WIN on Nepali (−6.0% tokens), Hindi (−15.9%), and the Devanagari mean (−20.8%). English is a tie. Exact Nepali round-trip is 1,012/1,012 for Ancoda and 1,004/1,012 for HimalayaAI.
 - **ancoda-128k / 250k vs large multilingual baselines** (Llama-3, Qwen, Sarvam-M, Bloom, Gemma3, …): WIN on Nepali / Hindi / Deva mean (English mixed).
 - **ancoda-32k vs Yak 32k-v1:** WIN Nepali, Hindi, Deva mean; LOSE English.
 - **Integrity:** all Ancoda builds: 0 covered violations, 0 mark-initial, exact HF↔tiktoken round-trip, orphan-mark share ≪ Yak v1.
@@ -90,4 +121,4 @@ Exports: Hugging Face `tokenizer.json` and tiktoken ranks; both must match the c
 
 ## License / comparison arms
 
-Yak, sidskarki-64k, HimalayaAI, and Arkios are evaluation-only within their licenses. Do not copy their vocab, merges, or regex into Ancoda. HimalayaAI BPE-128k was skipped (Hub card: no license). FLORES+ text is never re-hosted in this repo.
+Yak, sidskarki-64k, HimalayaAI, and Arkios are evaluation-only within their licenses. Do not copy their vocab, merges, or regex into Ancoda. HimalayaAI's Hub card states no license: the section above is a local comparison only, and the model is not redistributed. FLORES+ text is never re-hosted in this repo.
