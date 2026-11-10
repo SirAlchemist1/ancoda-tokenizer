@@ -52,6 +52,12 @@ def main() -> None:
     bpb.add_argument("--eval-dir", type=Path, required=True)
     bpb.add_argument("--out", type=Path, required=True)
     bpb.add_argument("--build", type=Path, required=True)
+    bpb.add_argument(
+        "--sid-tokenizer",
+        type=Path,
+        default=None,
+        help="When set, also report sidskarki round-trip rates and BPB on lossless docs",
+    )
 
     params = sub.add_parser("params")
     params.add_argument("--vocab", type=int, required=True)

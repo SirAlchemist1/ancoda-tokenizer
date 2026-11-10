@@ -15,6 +15,9 @@ import zstandard as zstd
 from ancoda_tok.m9.arms import load_arm
 from ancoda_tok.m9.common import attach_build, bpb, now_utc, text_windows
 from ancoda_tok.m9.model import Llama
+from ancoda_tok.m9.train import TORCH_THREADS, configure_cpu, cpu_temp_c
+
+EVAL_BATCH = 2
 
 
 def iter_jsonl_zst(path: Path):
@@ -53,13 +56,29 @@ def _score_spans(model: Llama, spans: list[list[int]], eos: int, device: torch.d
 def score_ids(model: Llama, ids: list[int], eos: int, device: torch.device) -> float:
     spans = [ids[a:b] for a, b in text_windows(len(ids))]
     total = 0.0
-    step = 4
-    for i in range(0, len(spans), step):
-        total += _score_spans(model, spans[i : i + step], eos, device)
+    for i in range(0, len(spans), EVAL_BATCH):
+        total += _score_spans(model, spans[i : i + EVAL_BATCH], eos, device)
     return total
 
 
+def _empty_agg() -> dict:
+    return {"nll": 0.0, "bytes": 0, "docs": 0}
+
+
+def _finalize_groups(groups: dict[str, dict]) -> dict:
+    report = {}
+    for key, agg in sorted(groups.items()):
+        report[key] = {
+            "docs": agg["docs"],
+            "bytes": agg["bytes"],
+            "nll_nats": agg["nll"],
+            "bpb": bpb(agg["nll"], int(agg["bytes"])) if agg["bytes"] else None,
+        }
+    return report
+
+
 def evaluate(args) -> dict:
+    configure_cpu()
     started = now_utc()
     device = torch.device("xpu" if torch.xpu.is_available() else "cpu")
     if device.type != "xpu":
@@ -70,31 +89,74 @@ def evaluate(args) -> dict:
     model.load_state_dict(payload["model"])
     model.to(device)
     model.eval()
-    groups: dict[str, dict[str, float]] = defaultdict(lambda: {"nll": 0.0, "bytes": 0, "docs": 0})
+
+    sid_arm = None
+    if getattr(args, "sid_tokenizer", None) is not None:
+        sid_arm = load_arm("sidskarki-64k", Path(args.sid_tokenizer))
+
+    groups: dict[str, dict] = defaultdict(_empty_agg)
+    rt_groups: dict[str, dict] = defaultdict(_empty_agg)
+    by_set: dict[str, dict[str, int]] = defaultdict(lambda: {"docs": 0, "ok": 0})
+    by_lang: dict[str, dict[str, int]] = defaultdict(lambda: {"docs": 0, "ok": 0})
     n = 0
+    peak_cpu_c: float | None = None
     with torch.inference_mode():
         for path in sorted(Path(args.eval_dir).rglob("*.jsonl.zst")):
+            set_name = path.relative_to(args.eval_dir).as_posix()
             for row in iter_jsonl_zst(path):
                 text = row["text"]
                 original = int(row["original_bytes"])
                 if original <= 0 or text == "":
                     continue
+                lang = str(row["lang"])
                 nll = score_ids(model, arm.encode(text), arm.eos_id, device)
-                key = f"{path.stem}:{row['lang']}"
+                key = f"{path.stem}:{lang}"
                 groups[key]["nll"] += nll
                 groups[key]["bytes"] += original
                 groups[key]["docs"] += 1
+                if sid_arm is not None:
+                    ids = sid_arm.encode(text)
+                    ok = sid_arm.decode(ids) == text
+                    by_set[set_name]["docs"] += 1
+                    by_lang[lang]["docs"] += 1
+                    if ok:
+                        by_set[set_name]["ok"] += 1
+                        by_lang[lang]["ok"] += 1
+                        rt_groups[key]["nll"] += nll
+                        rt_groups[key]["bytes"] += original
+                        rt_groups[key]["docs"] += 1
                 n += 1
                 if n % 200 == 0:
-                    print(f"scored {n}", flush=True)
-    report = {}
-    for key, agg in sorted(groups.items()):
-        report[key] = {
-            "docs": agg["docs"],
-            "bytes": agg["bytes"],
-            "nll_nats": agg["nll"],
-            "bpb": bpb(agg["nll"], int(agg["bytes"])),
+                    temp_c = cpu_temp_c()
+                    if temp_c is not None:
+                        peak_cpu_c = temp_c if peak_cpu_c is None else max(peak_cpu_c, temp_c)
+                    print(f"scored {n} cpu_temp_c={temp_c}", flush=True)
+
+    roundtrip = None
+    if sid_arm is not None:
+
+        def rate_map(src: dict[str, dict[str, int]]) -> dict:
+            out = {}
+            for name, agg in sorted(src.items()):
+                docs = agg["docs"]
+                out[name] = {
+                    "docs": docs,
+                    "ok": agg["ok"],
+                    "rate": (agg["ok"] / docs) if docs else None,
+                }
+            return out
+
+        roundtrip = {
+            "per_eval_set": rate_map(by_set),
+            "per_language": rate_map(by_lang),
+            "bpb_on_lossless_docs": _finalize_groups(rt_groups),
+            "note": (
+                "bpb_on_lossless_docs scores this arm's NLL only on documents where "
+                "sidskarki decode(encode(x)) == x. Pair with the matching arm-C report "
+                "for the secondary A vs C comparison."
+            ),
         }
+
     out = attach_build(
         {
             "kind": "m9_bpb",
@@ -103,7 +165,11 @@ def evaluate(args) -> dict:
             "completed_steps": payload.get("completed_steps"),
             "seed": payload.get("seed"),
             "ln2": math.log(2),
-            "groups": report,
+            "groups": _finalize_groups(groups),
+            "sidskarki_roundtrip": roundtrip,
+            "torch_threads": TORCH_THREADS,
+            "eval_batch": EVAL_BATCH,
+            "peak_cpu_temp_c": peak_cpu_c,
             "started_at": started,
             "finished_at": now_utc(),
         },

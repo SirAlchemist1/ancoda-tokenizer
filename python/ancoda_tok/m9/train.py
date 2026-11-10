@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import time
 from pathlib import Path
@@ -22,6 +23,28 @@ from ancoda_tok.m9.model import assert_formula, build_model, trainable_groups
 from ancoda_tok.m9.perm import first_step_reaching
 from ancoda_tok.m9.reader import TokenStream
 from ancoda_tok.m9.schedule import learning_rate
+
+TORCH_THREADS = 4
+
+
+def configure_cpu() -> None:
+    torch.set_num_threads(TORCH_THREADS)
+    torch.set_num_interop_threads(1)
+
+
+def cpu_temp_c() -> float | None:
+    """Hottest readable thermal zone in Celsius, or None without sudo."""
+    root = Path("/sys/class/thermal")
+    if not root.is_dir():
+        return None
+    temps: list[float] = []
+    for zone in sorted(root.glob("thermal_zone*/temp")):
+        try:
+            milli = int(zone.read_text(encoding="utf-8").strip())
+        except (OSError, ValueError):
+            continue
+        temps.append(milli / 1000.0)
+    return max(temps) if temps else None
 
 
 def rss_bytes() -> int:
@@ -89,6 +112,7 @@ def _payload(args, model, optim, completed: int, stream: TokenStream) -> dict:
 
 
 def train(args) -> None:
+    configure_cpu()
     device = torch.device("xpu" if torch.xpu.is_available() else "cpu")
     if device.type != "xpu":
         raise SystemExit("STOP: torch.xpu is not available")
@@ -121,6 +145,7 @@ def train(args) -> None:
     final_name: str | None = None
     target = int(args.steps)
     started = now_utc()
+    peak_cpu_c: float | None = None
     model.train()
     if os.environ.get("M9_ANOMALY"):
         torch.autograd.set_detect_anomaly(True)
@@ -157,6 +182,11 @@ def train(args) -> None:
         completed += 1
         step_index = completed - 1
         if step_index % 50 == 0 or completed == target or target <= 100:
+            temp_c = cpu_temp_c()
+            if temp_c is not None:
+                peak_cpu_c = temp_c if peak_cpu_c is None else max(peak_cpu_c, temp_c)
+            if math.isnan(loss_sum) or math.isinf(loss_sum):
+                raise SystemExit(f"STOP: non-finite loss at step {step_index}: {loss_sum}")
             record = {
                 "step": step_index,
                 "completed_steps": completed,
@@ -170,10 +200,15 @@ def train(args) -> None:
                 else -1,
                 "rss_bytes": rss_bytes(),
                 "lr": lr,
+                "cpu_temp_c": temp_c,
+                "peak_cpu_temp_c": peak_cpu_c,
+                "torch_threads": TORCH_THREADS,
             }
             with log_path.open("a", encoding="utf-8") as handle:
                 handle.write(json.dumps(record) + "\n")
             print(json.dumps(record), flush=True)
+            if completed == 500 and record["loss"] >= 8.0:
+                raise SystemExit(f"STOP: loss at step 500 is {record['loss']}, not below 8.0")
         names: set[str] = set()
         if completed % int(args.checkpoint_every) == 0 or completed == target:
             name = f"checkpoint-{completed:06d}.pt"
@@ -205,6 +240,8 @@ def train(args) -> None:
             "bytes_seen": stream.bytes_covered(completed * TOKENS_PER_STEP),
             "compile": bool(args.compile),
             "micro_batch": micro,
+            "torch_threads": TORCH_THREADS,
+            "peak_cpu_temp_c": peak_cpu_c,
             "started_at": started,
             "finished_at": now_utc(),
             "input_sha256": {

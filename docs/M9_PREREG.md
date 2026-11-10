@@ -140,3 +140,12 @@ Each document or FLORES sentence is scored on its own. Text tokens are split int
 ### Pilot, then stop
 
 Arm A, seed 1, 300 steps. Arm C, seed 1, 50 steps. One kill and resume of arm A. BPB on arm A's 300-step checkpoint, to prove the eval path. No full run.
+
+## Amendment — 10 Nov 2026 (after tokenize, before full runs)
+
+This section amends the pre-registration. The original text above is unchanged.
+
+- **sidskarki round-trip is larger than limitation (b) said.** On the shared training stream, sidskarki round-trips exactly on 640 of 1,000 documents (rate 0.64). Limitation (b) called the whitespace loss "slight". That understates the measured rate. The primary A vs C comparisons still use every eval document, and the exact round-trip rate is reported with every result.
+- **Secondary A vs C on lossless docs.** In addition to the primary A vs C comparisons, report BPB(A) − BPB(C) restricted to eval documents where `sidskarki.decode(sidskarki.encode(x)) == x` exactly. Report the sidskarki round-trip rate per eval set and per language. This secondary comparison does not replace the primary decision rule; it is reported beside it.
+- **Arm D** remains skipped: no 64k plain tokenizer trained on n60j5.
+- **`torch.compile`** is unavailable on the compute server (no C compiler). Training is eager for the pilot and the full runs.
