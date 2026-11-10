@@ -95,7 +95,7 @@ def train(args) -> None:
     stream = TokenStream(Path(args.tokens), args.seed)
     model = build_model(args.vocab, args.seed).to(device)
     assert_formula(model)
-    optim = torch.optim.AdamW(trainable_groups(model), lr=1e-3, betas=(0.9, 0.95))
+    optim = torch.optim.AdamW(trainable_groups(model), lr=1e-3, betas=(0.9, 0.95), foreach=False)
     run_dir = Path(args.run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
     completed = 0
@@ -122,21 +122,23 @@ def train(args) -> None:
     target = int(args.steps)
     started = now_utc()
     model.train()
+    if os.environ.get("M9_ANOMALY"):
+        torch.autograd.set_detect_anomaly(True)
     while completed < target:
         step = completed
         lr = learning_rate(step, total_steps=FULL_STEPS)
         for group in optim.param_groups:
             group["lr"] = lr
         pos = step * TOKENS_PER_STEP
-        window = stream.read(pos, TOKENS_PER_STEP).reshape(SEQUENCES_PER_STEP, 1024)
+        window = np.array(stream.read(pos, TOKENS_PER_STEP), dtype=np.int64, copy=True).reshape(
+            SEQUENCES_PER_STEP, 1024
+        )
         optim.zero_grad(set_to_none=True)
         t0 = time.perf_counter()
-        if device.type == "xpu":
-            torch.xpu.reset_peak_memory_stats()
         loss_sum = 0.0
         for i in range(accum):
             sl = window[i * micro : (i + 1) * micro]
-            batch = torch.from_numpy(np.ascontiguousarray(sl)).to(device)
+            batch = torch.tensor(sl, device=device)
             with torch.autocast(device_type="xpu", dtype=torch.bfloat16):
                 logits = model(batch)
             loss = F.cross_entropy(
@@ -144,10 +146,14 @@ def train(args) -> None:
                 batch[:, 1:].reshape(-1),
             )
             (loss / accum).backward()
+            if device.type == "xpu":
+                torch.xpu.synchronize()
             loss_sum += float(loss.detach().item())
             del logits, loss, batch
         torch.nn.utils.clip_grad_norm_(raw_module(model).parameters(), 1.0)
         optim.step()
+        if device.type == "xpu":
+            torch.xpu.synchronize()
         completed += 1
         step_index = completed - 1
         if step_index % 50 == 0 or completed == target or target <= 100:

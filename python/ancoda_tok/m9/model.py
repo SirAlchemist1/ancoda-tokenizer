@@ -74,6 +74,23 @@ class Block(nn.Module):
         return x
 
 
+class _EmbeddingLookup(torch.autograd.Function):
+    """Embedding backward via index_add. The XPU embedding kernel overflows."""
+
+    @staticmethod
+    def forward(ctx, ids: torch.Tensor, weight: torch.Tensor) -> torch.Tensor:
+        ctx.save_for_backward(ids)
+        ctx.n_vocab = int(weight.shape[0])
+        return F.embedding(ids, weight)
+
+    @staticmethod
+    def backward(ctx, grad: torch.Tensor):
+        (ids,) = ctx.saved_tensors
+        grad_weight = grad.new_zeros((ctx.n_vocab, grad.shape[-1]))
+        grad_weight.index_add_(0, ids.reshape(-1).long(), grad.reshape(-1, grad.shape[-1]))
+        return None, grad_weight
+
+
 class Llama(nn.Module):
     def __init__(self, vocab: int) -> None:
         super().__init__()
@@ -98,13 +115,18 @@ class Llama(nn.Module):
 
     def forward(self, tokens: torch.Tensor) -> torch.Tensor:
         t = tokens.shape[1]
-        h = self.embed(tokens)
+        # The XPU embedding backward overflows on the second step under autocast.
+        # The lookup stays in fp32; the stack still runs in bf16.
+        with torch.autocast(device_type=tokens.device.type, enabled=False):
+            h = _EmbeddingLookup.apply(tokens.to(torch.int32), self.embed.weight)
+        h = h.to(dtype=torch.bfloat16)
         cos = self.cos[:, :, :t, :]
         sin = self.sin[:, :, :t, :]
         for block in self.blocks:
             h = block(h, cos, sin)
         h = self.norm(h)
-        return F.linear(h, self.embed.weight)
+        with torch.autocast(device_type=h.device.type, enabled=False):
+            return F.linear(h.float(), self.embed.weight)
 
 
 def build_model(vocab: int, seed: int) -> Llama:
@@ -118,7 +140,7 @@ def trainable_groups(model: nn.Module) -> list[dict]:
     for name, param in model.named_parameters():
         if not param.requires_grad:
             continue
-        if name.endswith(("norm.weight", "embed.weight")):
+        if "norm" in name or name.endswith("embed.weight"):
             nodecay.append(param)
         else:
             decay.append(param)
