@@ -463,7 +463,20 @@ Acceptance:
 
 Needs the human:
 - Read option-3 tables. Choose a fix path (65% Nepali, cap-bound covered set, or other). Decisions unchanged until you say so.
-- M9 tier still open from M6: reduced, full, or none.
+
+## M8 — Final builds, Gate A, efficiency — done (Gate A written; STOP human for review)
+
+- [x] Builds and exports: ancoda-32k, ancoda-64k (flagship), ancoda-ne-64k, ancoda-128k, ancoda-250k under `artifacts/tokenizers/m8/`
+- [x] Guarantees: covered violations 0, mark-initial 0, HF==tiktoken, round-trip, Block 1 coverage, orphan-inside-covered 0 (see `docs/GATE_A.md` and `docs/EVIDENCE_M8.md`)
+- [x] Harness + multilang + morph + efficiency rows; `make gate-a` wrote `docs/GATE_A.md`
+- [x] Frozen scoreboard also in `README.md` (WIN/LOSE vs Yak / sidskarki / arkios / sarvam / …)
+- [ ] STOP (human): Gate A review. Nepali fertility on ancoda-64k is 1.4509 (FAIL vs 1.445); English stretch also FAIL. Scoreboard still WIN on Nepali/Hindi/Devanagari mean vs Yak 64k-v1 and v2.0.
+
+Acceptance:
+- Gate A document and evidence hashes are recorded. Flagship files are frozen for M9 comparison (arm A).
+
+Needs the human:
+- Gate A review before treating M8 as closed for product decisions. M9 proxy runs proceed under the separate M9 pre-registration.
 
 ## M9 — Proxy pretraining — in progress
 
@@ -472,5 +485,5 @@ Protocol: `docs/M9_PREREG.md` (amended 10 Nov 2026 in commit `49a0437`). This do
 - [x] Licence. Human confirmed Ancoda Labs' total annual revenue is at most USD $100,000. Yak (CC BY-NC 4.0) and sidskarki (community-use-1.0) allow a non-released research proxy and a private copy of the tokenizer file on the compute server. M9 weights and third-party tokenizer files are not released.
 - [x] `docs/M9_PREREG.md` written before any training run; amendment records sidskarki 640/1000 round-trip, secondary lossless A vs C, Arm D skipped, eager training.
 - [x] Shared stream and server tokenize. Stream `10fddf2e2d95ec356188958ce03bd1cb34636d6e3db1f5181dedb2182edd1bcd`, 2,477,651 docs, 7,189,336,358 bytes, overlap 0. Content tokens: ancoda-64k 1,085,350,393 (0.150967/byte), yak-64k-v1 1,086,527,299 (0.151130), sidskarki-64k 1,551,158,477 (0.215758, round-trip 640/1000), yak-64k-v2.0 1,103,061,378 (0.153430). Mac and server 10,000-doc counts match. Arm D skipped: no 64k plain tokenizer on n60j5.
-- [x] Pilot (eager). A-s1 step 0 loss 11.183 → step 300 loss 6.190 (~4.68 s/step). Resume proven from `latest.pt` at completed_steps=301. C-s1 50 steps: 11.172 → 7.636. BPB wrote `pilot-ancoda-64k-s1-step301.json` (32 groups; sealed Nepali BPB 0.716). `torch.compile` unavailable (no C compiler).
-- [ ] Full runs. Driver `screen m9full` / `~/m9/run_full.sh`, order A/B/C × seeds 1–3 then E-s1. B*: seed1 4813230411, seed2 4795818967, seed3 4805817305. Crontab `@reboot` installed. Pilot run dirs deleted before full A-s1.
+- [x] Pilot (eager). A-s1 step 0 loss 11.183 → step 300 loss 6.190 (~4.68 s/step). Resume proven from `latest.pt` at completed_steps=301. C-s1 50 steps: 11.172 → 7.636. BPB wrote `pilot-ancoda-64k-s1-step301.json` (32 groups; sealed Nepali BPB 0.716). `torch.compile` unavailable (no C compiler). Peak CPU temp during pilot/full A-s1 probe: 53°C. A-s1 full run passed step 100 with loss 7.662 (~28.1k tok/s).
+- [ ] Full runs. Driver `screen m9full` / `~/m9/run_full.sh`, order A/B/C × seeds 1–3 then E-s1. B*: seed1 4813230411, seed2 4795818967, seed3 4805817305. Crontab `@reboot` installed. Pilot run dirs deleted before full A-s1. Mac-side SSH to the server is intermittent (Tailscale relay with RxBytes=0); the queue is intended to survive without the Mac via screen + checkpoint resume + `@reboot`.
