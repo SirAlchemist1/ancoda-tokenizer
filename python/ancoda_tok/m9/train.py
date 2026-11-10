@@ -131,6 +131,8 @@ def train(args) -> None:
         window = stream.read(pos, TOKENS_PER_STEP).reshape(SEQUENCES_PER_STEP, 1024)
         optim.zero_grad(set_to_none=True)
         t0 = time.perf_counter()
+        if device.type == "xpu":
+            torch.xpu.reset_peak_memory_stats()
         loss_sum = 0.0
         for i in range(accum):
             sl = window[i * micro : (i + 1) * micro]
@@ -148,7 +150,7 @@ def train(args) -> None:
         optim.step()
         completed += 1
         step_index = completed - 1
-        if step_index % 50 == 0 or completed == target:
+        if step_index % 50 == 0 or completed == target or target <= 100:
             record = {
                 "step": step_index,
                 "completed_steps": completed,
@@ -157,6 +159,9 @@ def train(args) -> None:
                 "bytes_seen": stream.bytes_covered(completed * TOKENS_PER_STEP),
                 "step_seconds": time.perf_counter() - t0,
                 "gpu_bytes": gpu_bytes(),
+                "gpu_peak_bytes": int(torch.xpu.max_memory_allocated())
+                if device.type == "xpu"
+                else -1,
                 "rss_bytes": rss_bytes(),
                 "lr": lr,
             }
