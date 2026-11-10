@@ -11,7 +11,7 @@ import numpy as np
 import zstandard as zstd
 
 from ancoda_tok.m9.arms import load_arm
-from ancoda_tok.m9.common import update_list_hash
+from ancoda_tok.m9.common import attach_build, now_utc, update_list_hash
 
 
 def iter_jsonl_zst(path: Path):
@@ -50,6 +50,7 @@ def _encode_one(task: dict) -> dict:
     np.asarray(tokens, dtype=store).tofile(out / "tokens.bin")
     np.asarray(tok_counts, dtype="<i4").tofile(out / "tok_counts.i32")
     np.asarray(byte_counts, dtype="<i8").tofile(out / "byte_counts.i64")
+    (out / "done").write_text("ok\n", encoding="utf-8")
     return {
         "shard": shard.name,
         "docs": n,
@@ -67,6 +68,7 @@ def tokenize(args) -> dict:
         raise SystemExit(f"STOP: no shards in {text}")
     arm = load_arm(args.arm, Path(args.tokenizer))
     out = Path(args.out)
+    started = now_utc()
     part_root = out / "parts"
     part_root.mkdir(parents=True, exist_ok=True)
     tasks = [
@@ -79,7 +81,7 @@ def tokenize(args) -> dict:
         }
         for shard in shards
     ]
-    pending = [task for task in tasks if not (Path(task["out"]) / "tok_counts.i32").is_file()]
+    pending = [task for task in tasks if not (Path(task["out"]) / "done").is_file()]
     print(f"tokenize {args.arm} shards={len(shards)} pending={len(pending)}", flush=True)
     if pending:
         ctx = mp.get_context("spawn")
@@ -121,20 +123,27 @@ def tokenize(args) -> dict:
             f"{list_sha} != stream {stream_manifest['document_list_sha256']}"
         )
     text_bytes = int(byte_counts.sum())
-    manifest = {
-        "arm": args.arm,
-        "eos_id": arm.eos_id,
-        "eos_rule": arm.eos_rule,
-        "vocab": arm.vocab,
-        "model_vocab": arm.model_vocab,
-        "dtype": arm.dtype,
-        "n_docs": docs,
-        "content_tokens": content_tokens,
-        "stream_tokens": content_tokens + docs,
-        "text_bytes": text_bytes,
-        "document_list_sha256": list_sha,
-        "tokens_per_byte": content_tokens / text_bytes if text_bytes else 0.0,
-    }
+    manifest = attach_build(
+        {
+            "arm": args.arm,
+            "eos_id": arm.eos_id,
+            "eos_rule": arm.eos_rule,
+            "vocab": arm.vocab,
+            "model_vocab": arm.model_vocab,
+            "dtype": arm.dtype,
+            "n_docs": docs,
+            "content_tokens": content_tokens,
+            "stream_tokens": content_tokens + docs,
+            "text_bytes": text_bytes,
+            "document_list_sha256": list_sha,
+            "tokens_per_byte": content_tokens / text_bytes if text_bytes else 0.0,
+            "seed": None,
+            "started_at": started,
+            "finished_at": now_utc(),
+            "input_sha256": {"text_manifest": stream_manifest.get("document_list_sha256")},
+        },
+        args.build,
+    )
     (out / "manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )

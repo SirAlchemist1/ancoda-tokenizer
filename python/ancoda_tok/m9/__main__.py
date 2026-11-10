@@ -29,6 +29,7 @@ def main() -> None:
     tok.add_argument("--arm", required=True)
     tok.add_argument("--out", type=Path, required=True)
     tok.add_argument("--workers", type=int, default=6)
+    tok.add_argument("--build", type=Path, required=True)
 
     train = sub.add_parser("train")
     train.add_argument("--tokens", type=Path, required=True)
@@ -42,6 +43,7 @@ def main() -> None:
     train.add_argument("--bstar", type=int, default=None)
     train.add_argument("--resume", action="store_true")
     train.add_argument("--compile", action="store_true")
+    train.add_argument("--build", type=Path, required=True)
 
     bpb = sub.add_parser("bpb")
     bpb.add_argument("--arm", required=True)
@@ -49,10 +51,14 @@ def main() -> None:
     bpb.add_argument("--checkpoint", type=Path, required=True)
     bpb.add_argument("--eval-dir", type=Path, required=True)
     bpb.add_argument("--out", type=Path, required=True)
+    bpb.add_argument("--build", type=Path, required=True)
 
     params = sub.add_parser("params")
     params.add_argument("--vocab", type=int, required=True)
     params.add_argument("--seed", type=int, default=1)
+
+    rec = sub.add_parser("build-record")
+    rec.add_argument("--out", type=Path, required=True)
 
     args = parser.parse_args()
     if args.cmd == "prepare":
@@ -100,6 +106,13 @@ def main() -> None:
         model = build_model(args.vocab, args.seed)
         assert_formula(model)
         print(f"constructed {count_parameters(model)}")
+    elif args.cmd == "build-record":
+        from ancoda_tok.clean.common import base_manifest, finish_manifest
+
+        record = finish_manifest(base_manifest(kind="m9_build"))
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        print(args.out)
     else:
         raise SystemExit(f"unknown {args.cmd}")
 

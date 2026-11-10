@@ -11,7 +11,13 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from ancoda_tok.m9.common import FULL_STEPS, SEQUENCES_PER_STEP, TOKENS_PER_STEP
+from ancoda_tok.m9.common import (
+    FULL_STEPS,
+    SEQUENCES_PER_STEP,
+    TOKENS_PER_STEP,
+    attach_build,
+    now_utc,
+)
 from ancoda_tok.m9.model import assert_formula, build_model, trainable_groups
 from ancoda_tok.m9.perm import first_step_reaching
 from ancoda_tok.m9.reader import TokenStream
@@ -57,6 +63,11 @@ def load_checkpoint(path: Path, model: torch.nn.Module, optim: torch.optim.Optim
     payload = torch.load(path, map_location="cpu", weights_only=False)
     model.load_state_dict(payload["model"])
     optim.load_state_dict(payload["optim"])
+    device = next(model.parameters()).device
+    for state in optim.state.values():
+        for key, value in list(state.items()):
+            if torch.is_tensor(value):
+                state[key] = value.to(device)
     return int(payload["completed_steps"])
 
 
@@ -109,6 +120,7 @@ def train(args) -> None:
     bstar_name: str | None = None
     final_name: str | None = None
     target = int(args.steps)
+    started = now_utc()
     model.train()
     while completed < target:
         step = completed
@@ -171,3 +183,25 @@ def train(args) -> None:
         if names:
             keep = {n for n in (latest_name, bstar_name, final_name) if n}
             retain(run_dir, keep)
+    manifest = attach_build(
+        {
+            "kind": "m9_run",
+            "arm": args.arm,
+            "seed": args.seed,
+            "vocab": args.vocab,
+            "completed_steps": completed,
+            "tokens_seen": completed * TOKENS_PER_STEP,
+            "bytes_seen": stream.bytes_covered(completed * TOKENS_PER_STEP),
+            "compile": bool(args.compile),
+            "micro_batch": micro,
+            "started_at": started,
+            "finished_at": now_utc(),
+            "input_sha256": {
+                "token_manifest_list": stream.manifest.get("document_list_sha256"),
+            },
+        },
+        args.build,
+    )
+    (run_dir / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )

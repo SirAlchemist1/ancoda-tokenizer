@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import math
+from datetime import UTC, datetime
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -199,3 +201,31 @@ def storage_dtype(max_id: int) -> str:
     if max_id <= 65535:
         return "uint16"
     return "uint32"
+
+
+def now_utc() -> str:
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def attach_build(manifest: dict, build_path: Path) -> dict:
+    """Copy the Mac build record into a server artifact manifest."""
+    path = Path(build_path)
+    if not path.is_file():
+        raise SystemExit(f"STOP: missing build record {path}")
+    build = json.loads(path.read_text(encoding="utf-8"))
+    required = (
+        "git_commit",
+        "config_sha256",
+        "library_versions",
+        "unicode",
+        "unicode_segmentation",
+    )
+    missing = [key for key in required if key not in build]
+    if missing:
+        raise SystemExit(f"STOP: build record missing {missing}")
+    manifest["git_commit"] = build["git_commit"]
+    manifest["config_sha256"] = build["config_sha256"]
+    manifest["library_versions"] = build["library_versions"]
+    manifest["unicode"] = build["unicode"]
+    manifest["unicode_segmentation"] = build["unicode_segmentation"]
+    return manifest

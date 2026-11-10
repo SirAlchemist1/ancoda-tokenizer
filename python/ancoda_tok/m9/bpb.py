@@ -13,7 +13,7 @@ import torch.nn.functional as F
 import zstandard as zstd
 
 from ancoda_tok.m9.arms import load_arm
-from ancoda_tok.m9.common import bpb, text_windows
+from ancoda_tok.m9.common import attach_build, bpb, now_utc, text_windows
 from ancoda_tok.m9.model import Llama
 
 
@@ -60,6 +60,7 @@ def score_ids(model: Llama, ids: list[int], eos: int, device: torch.device) -> f
 
 
 def evaluate(args) -> dict:
+    started = now_utc()
     device = torch.device("xpu" if torch.xpu.is_available() else "cpu")
     if device.type != "xpu":
         raise SystemExit("STOP: torch.xpu is not available")
@@ -94,13 +95,20 @@ def evaluate(args) -> dict:
             "nll_nats": agg["nll"],
             "bpb": bpb(agg["nll"], int(agg["bytes"])),
         }
-    out = {
-        "arm": args.arm,
-        "checkpoint": str(args.checkpoint),
-        "completed_steps": payload.get("completed_steps"),
-        "ln2": math.log(2),
-        "groups": report,
-    }
+    out = attach_build(
+        {
+            "kind": "m9_bpb",
+            "arm": args.arm,
+            "checkpoint": str(args.checkpoint),
+            "completed_steps": payload.get("completed_steps"),
+            "seed": payload.get("seed"),
+            "ln2": math.log(2),
+            "groups": report,
+            "started_at": started,
+            "finished_at": now_utc(),
+        },
+        args.build,
+    )
     dest = Path(args.out)
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(json.dumps(out, indent=2, sort_keys=True) + "\n", encoding="utf-8")
