@@ -464,3 +464,12 @@ Acceptance:
 Needs the human:
 - Read option-3 tables. Choose a fix path (65% Nepali, cap-bound covered set, or other). Decisions unchanged until you say so.
 - M9 tier still open from M6: reduced, full, or none.
+
+## M9 — Proxy pretraining — in progress
+
+The human specified this run on 10 Nov 2026 (setup and pilot only; full runs not started). Protocol: `docs/M9_PREREG.md`. This does not change `docs/DECISIONS.md`.
+
+- [x] Licence. Human confirmed Ancoda Labs' total annual revenue is at most USD $100,000. Yak (CC BY-NC 4.0) and sidskarki (community-use-1.0) allow a non-released research proxy and a private copy of the tokenizer file on the compute server. M9 weights and third-party tokenizer files are not released.
+- [x] `docs/M9_PREREG.md` written before any training run
+- [ ] Shared stream, server tokenize, pilot
+- [ ] Full runs — not started
