@@ -467,9 +467,10 @@ Needs the human:
 
 ## M9 — Proxy pretraining — in progress
 
-The human specified this run on 10 Nov 2026 (setup and pilot only; full runs not started). Protocol: `docs/M9_PREREG.md`. This does not change `docs/DECISIONS.md`.
+Protocol: `docs/M9_PREREG.md` (amended 10 Nov 2026 in commit `49a0437`). This does not change `docs/DECISIONS.md`. Full runs are in progress on ancoda-server; the milestone is not complete until all queued seeds finish and the decision rule is applied.
 
 - [x] Licence. Human confirmed Ancoda Labs' total annual revenue is at most USD $100,000. Yak (CC BY-NC 4.0) and sidskarki (community-use-1.0) allow a non-released research proxy and a private copy of the tokenizer file on the compute server. M9 weights and third-party tokenizer files are not released.
-- [x] `docs/M9_PREREG.md` written before any training run
+- [x] `docs/M9_PREREG.md` written before any training run; amendment records sidskarki 640/1000 round-trip, secondary lossless A vs C, Arm D skipped, eager training.
 - [x] Shared stream and server tokenize. Stream `10fddf2e2d95ec356188958ce03bd1cb34636d6e3db1f5181dedb2182edd1bcd`, 2,477,651 docs, 7,189,336,358 bytes, overlap 0. Content tokens: ancoda-64k 1,085,350,393 (0.150967/byte), yak-64k-v1 1,086,527,299 (0.151130), sidskarki-64k 1,551,158,477 (0.215758, round-trip 640/1000), yak-64k-v2.0 1,103,061,378 (0.153430). Mac and server 10,000-doc counts match. Arm D skipped: no 64k plain tokenizer on n60j5.
-- [ ] Pilot. Eager Ancoda seed 1 was healthy at step 0 (loss 11.183, about 4.7 s/step, host RSS 3.62 GB, XPU peak 6.20 GB). `torch.compile` cannot run: the server has no C compiler. The server then stopped answering SSH, before the checkpoint resume, the step-100 and step-300 losses, arm C, and the BPB eval. Full runs not started.
+- [x] Pilot (eager). A-s1 step 0 loss 11.183 → step 300 loss 6.190 (~4.68 s/step). Resume proven from `latest.pt` at completed_steps=301. C-s1 50 steps: 11.172 → 7.636. BPB wrote `pilot-ancoda-64k-s1-step301.json` (32 groups; sealed Nepali BPB 0.716). `torch.compile` unavailable (no C compiler).
+- [ ] Full runs. Driver `screen m9full` / `~/m9/run_full.sh`, order A/B/C × seeds 1–3 then E-s1. B*: seed1 4813230411, seed2 4795818967, seed3 4805817305. Crontab `@reboot` installed. Pilot run dirs deleted before full A-s1.
