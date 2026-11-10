@@ -471,5 +471,5 @@ The human specified this run on 10 Nov 2026 (setup and pilot only; full runs not
 
 - [x] Licence. Human confirmed Ancoda Labs' total annual revenue is at most USD $100,000. Yak (CC BY-NC 4.0) and sidskarki (community-use-1.0) allow a non-released research proxy and a private copy of the tokenizer file on the compute server. M9 weights and third-party tokenizer files are not released.
 - [x] `docs/M9_PREREG.md` written before any training run
-- [ ] Shared stream, server tokenize, pilot
-- [ ] Full runs — not started
+- [x] Shared stream and server tokenize. Stream `10fddf2e2d95ec356188958ce03bd1cb34636d6e3db1f5181dedb2182edd1bcd`, 2,477,651 docs, 7,189,336,358 bytes, overlap 0. Content tokens: ancoda-64k 1,085,350,393 (0.150967/byte), yak-64k-v1 1,086,527,299 (0.151130), sidskarki-64k 1,551,158,477 (0.215758, round-trip 640/1000), yak-64k-v2.0 1,103,061,378 (0.153430). Mac and server 10,000-doc counts match. Arm D skipped: no 64k plain tokenizer on n60j5.
+- [ ] Pilot. Eager Ancoda seed 1 was healthy at step 0 (loss 11.183, about 4.7 s/step, host RSS 3.62 GB, XPU peak 6.20 GB). `torch.compile` cannot run: the server has no C compiler. The server then stopped answering SSH, before the checkpoint resume, the step-100 and step-300 losses, arm C, and the BPB eval. Full runs not started.
