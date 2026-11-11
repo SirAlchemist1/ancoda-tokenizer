@@ -1,0 +1,44 @@
+{
+  "1": {
+    "bstar": 4813230411,
+    "bstar_step": {
+      "ancoda-64k": 5397,
+      "sidskarki-64k": 7630,
+      "yak-64k-v1": 5408,
+      "yak-64k-v2.0": 5488
+    },
+    "bytes_at_full": {
+      "ancoda-64k": 6628017935,
+      "sidskarki-64k": 4813230411,
+      "yak-64k-v1": 6620796017
+    }
+  },
+  "2": {
+    "bstar": 4795818967,
+    "bstar_step": {
+      "ancoda-64k": 5402,
+      "sidskarki-64k": 7630,
+      "yak-64k-v1": 5413,
+      "yak-64k-v2.0": 5494
+    },
+    "bytes_at_full": {
+      "ancoda-64k": 6618946476,
+      "sidskarki-64k": 4795818967,
+      "yak-64k-v1": 6611435770
+    }
+  },
+  "3": {
+    "bstar": 4805817305,
+    "bstar_step": {
+      "ancoda-64k": 5401,
+      "sidskarki-64k": 7630,
+      "yak-64k-v1": 5412,
+      "yak-64k-v2.0": 5492
+    },
+    "bytes_at_full": {
+      "ancoda-64k": 6614510260,
+      "sidskarki-64k": 4805817305,
+      "yak-64k-v1": 6607383087
+    }
+  }
+}
