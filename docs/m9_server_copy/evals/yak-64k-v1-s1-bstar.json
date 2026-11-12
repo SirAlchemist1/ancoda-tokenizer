@@ -1,0 +1,656 @@
+{
+  "arm": "yak-64k-v1",
+  "checkpoint": "/home/ancoda/m9/runs/yak-64k-v1-s1/checkpoint-bstar-005408.pt",
+  "completed_steps": 5408,
+  "config_sha256": {
+    "mix.yaml": "54d78fce8cfaf0836e7a466934cbd2093c72eeb2ae7ccd3ad4a5f68f13c71ee9",
+    "sources.yaml": "00d3ce0d8dd60fc80c48e5b25c9859a6ce07a47609e275dd3d1f9db55540b0c1"
+  },
+  "eval_batch": 2,
+  "finished_at": "2026-11-11T14:32:21Z",
+  "git_commit": "49a0437f20d76632307d76abbe7253bb7d1396d7",
+  "groups": {
+    "awa.jsonl:awa": {
+      "bpb": 0.9817731724220471,
+      "bytes": 330548,
+      "docs": 1012,
+      "nll_nats": 224942.31240844727
+    },
+    "bho.jsonl:bho": {
+      "bpb": 0.9645385090871593,
+      "bytes": 328554,
+      "docs": 1012,
+      "nll_nats": 219660.41078186035
+    },
+    "eng.jsonl:eng": {
+      "bpb": 1.3956892272062704,
+      "bytes": 132096,
+      "docs": 1012,
+      "nll_nats": 127792.0550994873
+    },
+    "flores_npi_misspell.jsonl:npi": {
+      "bpb": 0.7460772168512249,
+      "bytes": 339472,
+      "docs": 1012,
+      "nll_nats": 175554.99795913696
+    },
+    "flores_npi_zwj.jsonl:npi": {
+      "bpb": 1.3137290864543176,
+      "bytes": 339472,
+      "docs": 1012,
+      "nll_nats": 309125.787361145
+    },
+    "flores_npi_zwnj.jsonl:npi": {
+      "bpb": 1.3294062209648818,
+      "bytes": 339472,
+      "docs": 1012,
+      "nll_nats": 312814.68075561523
+    },
+    "hin.jsonl:hin": {
+      "bpb": 0.6951564546012179,
+      "bytes": 337073,
+      "docs": 1012,
+      "nll_nats": 162417.18795776367
+    },
+    "hne.jsonl:hne": {
+      "bpb": 1.0225482588410364,
+      "bytes": 326104,
+      "docs": 1012,
+      "nll_nats": 231134.83303833008
+    },
+    "mag.jsonl:mag": {
+      "bpb": 0.9858403180572968,
+      "bytes": 326702,
+      "docs": 1012,
+      "nll_nats": 223246.0738143921
+    },
+    "mai.jsonl:mai": {
+      "bpb": 0.903001679340947,
+      "bytes": 335359,
+      "docs": 1012,
+      "nll_nats": 209905.58059692383
+    },
+    "mar.jsonl:mar": {
+      "bpb": 0.8413163693721789,
+      "bytes": 355511,
+      "docs": 1012,
+      "nll_nats": 207318.39738464355
+    },
+    "npi.jsonl:npi": {
+      "bpb": 0.6658033095928676,
+      "bytes": 339472,
+      "docs": 1012,
+      "nll_nats": 156666.2216949463
+    },
+    "san.jsonl:san": {
+      "bpb": 1.0336201392400275,
+      "bytes": 346812,
+      "docs": 1012,
+      "nll_nats": 248473.76442718506
+    },
+    "sealed.jsonl:Code": {
+      "bpb": 1.0085848924651541,
+      "bytes": 3589870,
+      "docs": 565,
+      "nll_nats": 2509670.127986908
+    },
+    "sealed.jsonl:English": {
+      "bpb": 1.226709522603095,
+      "bytes": 15924488,
+      "docs": 3576,
+      "nll_nats": 13540436.834205627
+    },
+    "sealed.jsonl:Hindi": {
+      "bpb": 0.5863372403636095,
+      "bytes": 7977090,
+      "docs": 1352,
+      "nll_nats": 3242033.003627777
+    },
+    "sealed.jsonl:Marathi": {
+      "bpb": 0.7120093049556204,
+      "bytes": 2386314,
+      "docs": 401,
+      "nll_nats": 1177710.9675922394
+    },
+    "sealed.jsonl:Math": {
+      "bpb": 1.5796961827294485,
+      "bytes": 2402282,
+      "docs": 364,
+      "nll_nats": 2630407.3956623077
+    },
+    "sealed.jsonl:Nepali": {
+      "bpb": 0.4792068188690141,
+      "bytes": 59907737,
+      "docs": 28094,
+      "nll_nats": 19899005.167247295
+    },
+    "sealed.jsonl:Sanskrit": {
+      "bpb": 0.9801917934332387,
+      "bytes": 2407105,
+      "docs": 155,
+      "nll_nats": 1635428.4863128662
+    },
+    "sealed.jsonl:anp_Deva": {
+      "bpb": 0.6478119080543178,
+      "bytes": 740680,
+      "docs": 138,
+      "nll_nats": 332586.79794311523
+    },
+    "sealed.jsonl:awa_Deva": {
+      "bpb": 0.7875209257689305,
+      "bytes": 49695,
+      "docs": 15,
+      "nll_nats": 27126.905754089355
+    },
+    "sealed.jsonl:bho_Deva": {
+      "bpb": 0.8064518027488248,
+      "bytes": 283902,
+      "docs": 172,
+      "nll_nats": 158698.32030677795
+    },
+    "sealed.jsonl:gom_Deva": {
+      "bpb": 0.7793050725343892,
+      "bytes": 76071,
+      "docs": 17,
+      "nll_nats": 41091.50894165039
+    },
+    "sealed.jsonl:hne_Deva": {
+      "bpb": 0.9968119998317891,
+      "bytes": 136221,
+      "docs": 46,
+      "nll_nats": 94120.18727493286
+    },
+    "sealed.jsonl:mai_Deva": {
+      "bpb": 0.8175055655984518,
+      "bytes": 712507,
+      "docs": 258,
+      "nll_nats": 403743.28705596924
+    },
+    "sealed.jsonl:new_Deva": {
+      "bpb": 0.8769888258672972,
+      "bytes": 1361046,
+      "docs": 450,
+      "nll_nats": 827355.8164834976
+    },
+    "sealed.jsonl:und_Deva": {
+      "bpb": 1.1692697415807627,
+      "bytes": 145026,
+      "docs": 20,
+      "nll_nats": 117540.09595680237
+    },
+    "sealed_npi_2000.jsonl:Nepali": {
+      "bpb": 0.49280018276280796,
+      "bytes": 10625570,
+      "docs": 2000,
+      "nll_nats": 3629514.685745716
+    },
+    "sealed_npi_misspell.jsonl:Nepali": {
+      "bpb": 0.5807742922232267,
+      "bytes": 10625570,
+      "docs": 2000,
+      "nll_nats": 4277451.3818359375
+    },
+    "sealed_npi_zwj.jsonl:Nepali": {
+      "bpb": 0.9627853005602127,
+      "bytes": 10625570,
+      "docs": 2000,
+      "nll_nats": 7090994.504126072
+    },
+    "sealed_npi_zwnj.jsonl:Nepali": {
+      "bpb": 0.9837491091844884,
+      "bytes": 10625570,
+      "docs": 2000,
+      "nll_nats": 7245394.713242054
+    }
+  },
+  "kind": "m9_bpb",
+  "library_versions": {
+    "ancoda-seg": "local",
+    "datasets": "5.1.0",
+    "datatrove": "0.10.1",
+    "fasttext-wheel": "0.9.2",
+    "huggingface-hub": "2.4.0",
+    "numpy": "2.4.6",
+    "polars": "2.1.0",
+    "pyahocorasick": "2.3.1",
+    "pyarrow": "26.0.1",
+    "pyyaml": "6.0.3",
+    "regex": "2026.9.29",
+    "tiktoken": "0.14.0",
+    "tokenizers": "0.23.3",
+    "unicode_segmentation": "16.0.0"
+  },
+  "ln2": 0.6931471805599453,
+  "peak_cpu_temp_c": 64.0,
+  "seed": 1,
+  "sidskarki_roundtrip": {
+    "bpb_on_lossless_docs": {
+      "awa.jsonl:awa": {
+        "bpb": 0.976238051898363,
+        "bytes": 299565,
+        "docs": 930,
+        "nll_nats": 202708.64162445068
+      },
+      "bho.jsonl:bho": {
+        "bpb": 0.9645385090871593,
+        "bytes": 328554,
+        "docs": 1012,
+        "nll_nats": 219660.41078186035
+      },
+      "eng.jsonl:eng": {
+        "bpb": 1.3956892272062704,
+        "bytes": 132096,
+        "docs": 1012,
+        "nll_nats": 127792.0550994873
+      },
+      "flores_npi_misspell.jsonl:npi": {
+        "bpb": 0.74576021869826,
+        "bytes": 337635,
+        "docs": 1007,
+        "nll_nats": 174530.82204055786
+      },
+      "flores_npi_zwj.jsonl:npi": {
+        "bpb": 1.3131260331944934,
+        "bytes": 337635,
+        "docs": 1007,
+        "nll_nats": 307311.8681716919
+      },
+      "flores_npi_zwnj.jsonl:npi": {
+        "bpb": 1.3288522941168663,
+        "bytes": 337635,
+        "docs": 1007,
+        "nll_nats": 310992.29678344727
+      },
+      "hin.jsonl:hin": {
+        "bpb": 0.6940341353842472,
+        "bytes": 335326,
+        "docs": 1006,
+        "nll_nats": 161314.54249572754
+      },
+      "hne.jsonl:hne": {
+        "bpb": 1.0198927005649518,
+        "bytes": 314523,
+        "docs": 982,
+        "nll_nats": 222347.5528564453
+      },
+      "mag.jsonl:mag": {
+        "bpb": 0.9858403180572968,
+        "bytes": 326702,
+        "docs": 1012,
+        "nll_nats": 223246.0738143921
+      },
+      "mai.jsonl:mai": {
+        "bpb": 0.903001679340947,
+        "bytes": 335359,
+        "docs": 1012,
+        "nll_nats": 209905.58059692383
+      },
+      "mar.jsonl:mar": {
+        "bpb": 0.8382983774103488,
+        "bytes": 332067,
+        "docs": 955,
+        "nll_nats": 192952.23134613037
+      },
+      "npi.jsonl:npi": {
+        "bpb": 0.6654245192038128,
+        "bytes": 337635,
+        "docs": 1007,
+        "nll_nats": 155729.79817199707
+      },
+      "san.jsonl:san": {
+        "bpb": 1.032447983910333,
+        "bytes": 341361,
+        "docs": 997,
+        "nll_nats": 244291.0429763794
+      },
+      "sealed.jsonl:Code": {
+        "bpb": 1.164244908333764,
+        "bytes": 213744,
+        "docs": 97,
+        "nll_nats": 172489.92797088623
+      },
+      "sealed.jsonl:English": {
+        "bpb": 1.2241176892387473,
+        "bytes": 15574828,
+        "docs": 3551,
+        "nll_nats": 13215143.8254776
+      },
+      "sealed.jsonl:Hindi": {
+        "bpb": 0.5903259235950711,
+        "bytes": 6735784,
+        "docs": 1082,
+        "nll_nats": 2756166.61750412
+      },
+      "sealed.jsonl:Marathi": {
+        "bpb": 0.7383659840936034,
+        "bytes": 1657714,
+        "docs": 237,
+        "nll_nats": 848411.8918170929
+      },
+      "sealed.jsonl:Math": {
+        "bpb": 1.5752206855651814,
+        "bytes": 1919689,
+        "docs": 322,
+        "nll_nats": 2096031.203371048
+      },
+      "sealed.jsonl:Nepali": {
+        "bpb": 0.4983998305134554,
+        "bytes": 37957622,
+        "docs": 22572,
+        "nll_nats": 13113008.525929928
+      },
+      "sealed.jsonl:Sanskrit": {
+        "bpb": 0.9731071027934423,
+        "bytes": 1844628,
+        "docs": 141,
+        "nll_nats": 1244213.4740447998
+      },
+      "sealed.jsonl:anp_Deva": {
+        "bpb": 0.6517031451765075,
+        "bytes": 710619,
+        "docs": 128,
+        "nll_nats": 321005.21884155273
+      },
+      "sealed.jsonl:awa_Deva": {
+        "bpb": 0.7875209257689305,
+        "bytes": 49695,
+        "docs": 15,
+        "nll_nats": 27126.905754089355
+      },
+      "sealed.jsonl:bho_Deva": {
+        "bpb": 0.8063535729626425,
+        "bytes": 283625,
+        "docs": 169,
+        "nll_nats": 158524.16876029968
+      },
+      "sealed.jsonl:gom_Deva": {
+        "bpb": 0.8385682281313374,
+        "bytes": 37381,
+        "docs": 8,
+        "nll_nats": 21727.751220703125
+      },
+      "sealed.jsonl:hne_Deva": {
+        "bpb": 0.9958604690199041,
+        "bytes": 135723,
+        "docs": 44,
+        "nll_nats": 93686.58420944214
+      },
+      "sealed.jsonl:mai_Deva": {
+        "bpb": 0.8181736927812275,
+        "bytes": 590989,
+        "docs": 234,
+        "nll_nats": 335158.60165786743
+      },
+      "sealed.jsonl:new_Deva": {
+        "bpb": 0.876992206420017,
+        "bytes": 1360875,
+        "docs": 449,
+        "nll_nats": 827255.0574350357
+      },
+      "sealed.jsonl:und_Deva": {
+        "bpb": 1.1688422950384223,
+        "bytes": 144915,
+        "docs": 18,
+        "nll_nats": 117407.19721412659
+      },
+      "sealed_npi_2000.jsonl:Nepali": {
+        "bpb": 0.49280018276280796,
+        "bytes": 10625570,
+        "docs": 2000,
+        "nll_nats": 3629514.685745716
+      },
+      "sealed_npi_misspell.jsonl:Nepali": {
+        "bpb": 0.5807742922232267,
+        "bytes": 10625570,
+        "docs": 2000,
+        "nll_nats": 4277451.3818359375
+      },
+      "sealed_npi_zwj.jsonl:Nepali": {
+        "bpb": 0.9627853005602127,
+        "bytes": 10625570,
+        "docs": 2000,
+        "nll_nats": 7090994.504126072
+      },
+      "sealed_npi_zwnj.jsonl:Nepali": {
+        "bpb": 0.9837491091844884,
+        "bytes": 10625570,
+        "docs": 2000,
+        "nll_nats": 7245394.713242054
+      }
+    },
+    "note": "bpb_on_lossless_docs scores this arm's NLL only on documents where sidskarki decode(encode(x)) == x. Pair with the matching arm-C report for the secondary A vs C comparison.",
+    "per_eval_set": {
+      "flores/awa.jsonl.zst": {
+        "docs": 1012,
+        "ok": 930,
+        "rate": 0.9189723320158103
+      },
+      "flores/bho.jsonl.zst": {
+        "docs": 1012,
+        "ok": 1012,
+        "rate": 1.0
+      },
+      "flores/eng.jsonl.zst": {
+        "docs": 1012,
+        "ok": 1012,
+        "rate": 1.0
+      },
+      "flores/hin.jsonl.zst": {
+        "docs": 1012,
+        "ok": 1006,
+        "rate": 0.9940711462450593
+      },
+      "flores/hne.jsonl.zst": {
+        "docs": 1012,
+        "ok": 982,
+        "rate": 0.9703557312252964
+      },
+      "flores/mag.jsonl.zst": {
+        "docs": 1012,
+        "ok": 1012,
+        "rate": 1.0
+      },
+      "flores/mai.jsonl.zst": {
+        "docs": 1012,
+        "ok": 1012,
+        "rate": 1.0
+      },
+      "flores/mar.jsonl.zst": {
+        "docs": 1012,
+        "ok": 955,
+        "rate": 0.9436758893280632
+      },
+      "flores/npi.jsonl.zst": {
+        "docs": 1012,
+        "ok": 1007,
+        "rate": 0.9950592885375494
+      },
+      "flores/san.jsonl.zst": {
+        "docs": 1012,
+        "ok": 997,
+        "rate": 0.9851778656126482
+      },
+      "perturb/flores_npi_misspell.jsonl.zst": {
+        "docs": 1012,
+        "ok": 1007,
+        "rate": 0.9950592885375494
+      },
+      "perturb/flores_npi_zwj.jsonl.zst": {
+        "docs": 1012,
+        "ok": 1007,
+        "rate": 0.9950592885375494
+      },
+      "perturb/flores_npi_zwnj.jsonl.zst": {
+        "docs": 1012,
+        "ok": 1007,
+        "rate": 0.9950592885375494
+      },
+      "perturb/sealed_npi_misspell.jsonl.zst": {
+        "docs": 2000,
+        "ok": 2000,
+        "rate": 1.0
+      },
+      "perturb/sealed_npi_zwj.jsonl.zst": {
+        "docs": 2000,
+        "ok": 2000,
+        "rate": 1.0
+      },
+      "perturb/sealed_npi_zwnj.jsonl.zst": {
+        "docs": 2000,
+        "ok": 2000,
+        "rate": 1.0
+      },
+      "sealed.jsonl.zst": {
+        "docs": 35623,
+        "ok": 29067,
+        "rate": 0.8159615978440895
+      },
+      "sealed_npi_2000.jsonl.zst": {
+        "docs": 2000,
+        "ok": 2000,
+        "rate": 1.0
+      }
+    },
+    "per_language": {
+      "Code": {
+        "docs": 565,
+        "ok": 97,
+        "rate": 0.17168141592920355
+      },
+      "English": {
+        "docs": 3576,
+        "ok": 3551,
+        "rate": 0.9930089485458613
+      },
+      "Hindi": {
+        "docs": 1352,
+        "ok": 1082,
+        "rate": 0.8002958579881657
+      },
+      "Marathi": {
+        "docs": 401,
+        "ok": 237,
+        "rate": 0.5910224438902744
+      },
+      "Math": {
+        "docs": 364,
+        "ok": 322,
+        "rate": 0.8846153846153846
+      },
+      "Nepali": {
+        "docs": 36094,
+        "ok": 30572,
+        "rate": 0.8470105834764781
+      },
+      "Sanskrit": {
+        "docs": 155,
+        "ok": 141,
+        "rate": 0.9096774193548387
+      },
+      "anp_Deva": {
+        "docs": 138,
+        "ok": 128,
+        "rate": 0.927536231884058
+      },
+      "awa": {
+        "docs": 1012,
+        "ok": 930,
+        "rate": 0.9189723320158103
+      },
+      "awa_Deva": {
+        "docs": 15,
+        "ok": 15,
+        "rate": 1.0
+      },
+      "bho": {
+        "docs": 1012,
+        "ok": 1012,
+        "rate": 1.0
+      },
+      "bho_Deva": {
+        "docs": 172,
+        "ok": 169,
+        "rate": 0.9825581395348837
+      },
+      "eng": {
+        "docs": 1012,
+        "ok": 1012,
+        "rate": 1.0
+      },
+      "gom_Deva": {
+        "docs": 17,
+        "ok": 8,
+        "rate": 0.47058823529411764
+      },
+      "hin": {
+        "docs": 1012,
+        "ok": 1006,
+        "rate": 0.9940711462450593
+      },
+      "hne": {
+        "docs": 1012,
+        "ok": 982,
+        "rate": 0.9703557312252964
+      },
+      "hne_Deva": {
+        "docs": 46,
+        "ok": 44,
+        "rate": 0.9565217391304348
+      },
+      "mag": {
+        "docs": 1012,
+        "ok": 1012,
+        "rate": 1.0
+      },
+      "mai": {
+        "docs": 1012,
+        "ok": 1012,
+        "rate": 1.0
+      },
+      "mai_Deva": {
+        "docs": 258,
+        "ok": 234,
+        "rate": 0.9069767441860465
+      },
+      "mar": {
+        "docs": 1012,
+        "ok": 955,
+        "rate": 0.9436758893280632
+      },
+      "new_Deva": {
+        "docs": 450,
+        "ok": 449,
+        "rate": 0.9977777777777778
+      },
+      "npi": {
+        "docs": 4048,
+        "ok": 4028,
+        "rate": 0.9950592885375494
+      },
+      "san": {
+        "docs": 1012,
+        "ok": 997,
+        "rate": 0.9851778656126482
+      },
+      "und_Deva": {
+        "docs": 20,
+        "ok": 18,
+        "rate": 0.9
+      }
+    }
+  },
+  "started_at": "2026-11-11T14:24:49Z",
+  "torch_threads": 4,
+  "unicode": {
+    "files": {
+      "DerivedCoreProperties.txt": "39d35161f2954497f69e08bdb9e701493f476a3d30222de20028feda36c1dabd",
+      "Scripts.txt": "9e88f0a677df47311106340be8ede2ecdacd9c1c931831218d2be6d5508e0039",
+      "UnicodeData.txt": "ff58e5823bd095166564a006e47d111130813dcf8bf234ef79fa51a870edb48f",
+      "auxiliary/GraphemeBreakProperty.txt": "c29360bd6f7132811d701d29069541e827eb44bfc4c8fbde8c370d6982689dc1",
+      "auxiliary/GraphemeBreakTest.txt": "ee2b9354d270ac061b29f09662cafea06341d77e704b8cc6bd72aaeeda363cb5",
+      "emoji/emoji-data.txt": "f1365a5173eee18e1f98b240cdc492e84a25f1ce7e0c9d1094eb29c41a22696a"
+    },
+    "version": "16.0.0"
+  },
+  "unicode_segmentation": "16.0.0"
+}
