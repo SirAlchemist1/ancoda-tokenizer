@@ -335,6 +335,8 @@ Denominator is UTF-8 bytes of the unmodified text.
 
 ## Plots
 
+Sealed BPB vs bytes uses only the two scored checkpoints per run (B* and final). No intermediate eval series exists (one ancoda seed-1 pilot at step 301 only). Train-loss curves use the sparse training logs.
+
 - `artifacts/m9/plots/paired_diffs_equal_tokens.png`
 - `artifacts/m9/plots/paired_diffs_equal_bytes.png`
 - `artifacts/m9/plots/bpb_vs_bytes_seed1.png`

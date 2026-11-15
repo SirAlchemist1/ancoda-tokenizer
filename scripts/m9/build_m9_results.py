@@ -293,7 +293,8 @@ def curves_block() -> dict:
             if not log.exists():
                 continue
             rows = [json.loads(l) for l in log.read_text().splitlines() if l.strip()]
-            # downsample for plot
+            # Logs are already sparse (~every 50 steps). Keep every row; do not
+            # filter on step%500 (those exact steps are never present).
             pts = [
                 {
                     "step": int(r["completed_steps"]),
@@ -301,7 +302,6 @@ def curves_block() -> dict:
                     "train_loss": float(r["loss"]),
                 }
                 for r in rows
-                if int(r["completed_steps"]) % 500 == 0 or int(r["completed_steps"]) in (1, 7630)
             ]
             evals = {}
             for kind in ("final", "bstar"):
@@ -634,6 +634,12 @@ def write_md(payload: dict) -> None:
             )
     lines.append("")
     lines.append("## Plots")
+    lines.append("")
+    lines.append(
+        "Sealed BPB vs bytes uses only the two scored checkpoints per run "
+        "(B* and final). No intermediate eval series exists (one ancoda seed-1 "
+        "pilot at step 301 only). Train-loss curves use the sparse training logs."
+    )
     lines.append("")
     for path in payload["plots"]:
         lines.append(f"- `{path}`")
