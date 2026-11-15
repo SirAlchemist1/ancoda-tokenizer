@@ -16,13 +16,13 @@ EVAL = REPO / "artifacts/m9/server_copy/evals"
 OUT_PLOT = REPO / "artifacts/m9/plots/training_stream_bpb.png"
 OUT_CSV = REPO / "artifacts/m9/plots/training_stream_bpb.csv"
 
-# Stream content tokens per UTF-8 byte (docs/PROGRESS.md / M9 shared stream).
+# Corpus content tokens per UTF-8 byte. Used only to turn nats/token into an
+# approximate training-stream BPB. The x-axis is the logged byte counter.
 TPB = {
     "A": ("ancoda-64k", 0.150967),
     "B": ("yak-64k-v1", 0.151130),
     "C": ("sidskarki-64k", 0.215758),
 }
-TOKENS_PER_STEP = 131072
 LN2 = math.log(2.0)
 
 
@@ -55,7 +55,7 @@ def main() -> None:
                 r = json.loads(line)
                 step = int(r["completed_steps"])
                 loss = float(r["loss"])
-                bytes_read = step * TOKENS_PER_STEP / tpb
+                bytes_read = int(r["bytes_seen"])
                 train_bpb = loss * tpb / LN2
                 xs.append(bytes_read)
                 ys.append(train_bpb)
@@ -74,9 +74,8 @@ def main() -> None:
                 )
                 if bstar is not None and step == bstar:
                     bstar_xy = (bytes_read, train_bpb)
-            # Mark B*: if exact step not logged, interpolate nearest log row.
+            # Mark B*: if that step was not logged, use the nearest logged step.
             if bstar_xy is None and bstar is not None and xs:
-                # nearest by reconstructing step from bytes
                 steps = [
                     int(json.loads(l)["completed_steps"])
                     for l in log.read_text(encoding="utf-8").splitlines()
@@ -108,7 +107,7 @@ def main() -> None:
                     linewidths=0.6,
                 )
 
-    ax.set_xlabel("bytes read (step × 131072 / tokens_per_byte)")
+    ax.set_xlabel("bytes covered")
     ax.set_ylabel("training-stream BPB (approximate)")
     ax.set_title("training-stream BPB (approximate)")
     ax.legend(fontsize=8, ncol=3)
