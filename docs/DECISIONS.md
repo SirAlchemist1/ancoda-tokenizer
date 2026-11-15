@@ -429,3 +429,9 @@ Outputs:
 - **Ancoda-32k:** vocab 32,768, B_d 23,522 (same Devanagari share, 48,000/64,256, of non-byte non-reserved slots)
 - **Ancoda-NE-64k:** vocab 65,536, standard single-list trainer (no script budget), Nepali-only text from n60j5 including the joiner copy
 - **Ancoda-250k:** vocab 250,000. Frontier B_d 144,000 / 160,000 / 175,000 / 190,000 × code scale 1.0 and 0.5. Pick rule: integrity + Block 1 coverage ≥ 99.95%; prefer points that beat IndicBERT v2 on Hindi AND English (whole-file CI excluding 0), beat every ~250k tokenizer on Nepali, and have code/KB ≤ IndicBERT v2's; among those the lowest Hindi; if none qualifies, the most WIN rows in the ~250k class, then the lowest Nepali. Re-run the chosen point on n60j10; use it only if Hindi or English improves with CI excluding 0. Memory cap 12 GiB; if exceeded, stop that point and report.
+
+## Tokenizer path naming (16 Nov 2026)
+
+The paper numbers and the anonymous release use **`artifacts/tokenizers/m8/ancoda-64k`** (`tokenizer.json` sha256 `c9ee0986bcb249109371b696f7004e8b664a6533539150bc92f9babe2435013e`). The anonymous release ranks table matches that build’s `tokens_hex` and layout (only path strings inside `stats` are anonymized).
+
+The older directory **`artifacts/tokenizers/ancoda-64k`** (sha256 `db6bd43e0e09ee221037d7d59642a6843179a5b45304c22ce191bb3a1f6781ed`) is **superseded**. It is an earlier n50-era build: the Figure 2a sentence `नमस्ते, तपाईंलाई कस्तो छ?` is 7 tokens there and 6 tokens under `m8/ancoda-64k`. Keep the directory on disk for provenance; do not use it for paper numbers, M9, or release.

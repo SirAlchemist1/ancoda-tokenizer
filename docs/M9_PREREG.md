@@ -180,3 +180,24 @@ Same model, shared document stream, schedule, evaluation sets, and decision rule
 
 - **A versus D**, and **A versus E**, each on sealed Nepali and on the unweighted Dev11 mean, at equal tokens and at equal bytes.
 - Report every result, including losses. Seeds are not dropped. The decision rule label is applied as locked.
+
+## Amendment draft — Arm F (matched no-joiner Ancoda-64k) — **not yet registered**
+
+Status: **draft only. Not yet registered.** Do not start training until this amendment is committed as registered and the human confirms.
+
+### Arm F (proposed)
+
+| Letter | Name | File | Seeds |
+|---|---|---|---|
+| F | ancoda-64k-nojoiner | `artifacts/tokenizers/m8/ancoda-64k-nojoiner/tokenizer.json` | 1, 2, 3 |
+
+Same M8 64k budget build as arm A (`B_d` 48,000, `covered_64k_3pct.json`, `code_math_scale` 1.0, seed 20261104), trained on the matched snapshot `data/snapshots/n60j5_nojoiner_745e14157088dc30`: identical mix and selection seeds as `n60j5`, with `joiner_share=0` so the 1% that was synthetic ZWJ/ZWNJ becomes natural Nepali (DECISIONS 3.8). The existing `n60` snapshot is **not** that match (doc_id overlap check failed). Not `ladder-final_nojoiner` (that uses n50 and is not matched). Prep report: `docs/ANALYSIS_NOJOINER_ARM.md`.
+
+### Shared procedure
+
+Same model, shared document stream, schedule, steps (7,630), B* rule (already fixed per seed from A/B/C), evaluation sets, and decision rule as the core runs. Do not re-tune.
+
+### Primary new comparisons
+
+- **A versus F** on the joiner sets (`sealed_npi_zwj`, `sealed_npi_zwnj`) and on the primary sets (sealed Nepali; unweighted Dev11 mean), at equal tokens and at equal bytes.
+- Report every result, including losses. Seeds are not dropped. The decision rule label is applied as locked.
