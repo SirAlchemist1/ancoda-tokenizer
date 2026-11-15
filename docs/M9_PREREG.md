@@ -149,3 +149,34 @@ This section amends the pre-registration. The original text above is unchanged.
 - **Secondary A vs C on lossless docs.** In addition to the primary A vs C comparisons, report BPB(A) − BPB(C) restricted to eval documents where `sidskarki.decode(sidskarki.encode(x)) == x` exactly. Report the sidskarki round-trip rate per eval set and per language. This secondary comparison does not replace the primary decision rule; it is reported beside it.
 - **Arm D** remains skipped: no 64k plain tokenizer trained on n60j5.
 - **`torch.compile`** is unavailable on the compute server (no C compiler). Training is eager for the pilot and the full runs.
+
+## Amendment — 15 Nov 2026 (M9 extension: Arms D and E)
+
+This section amends the pre-registration. The original text and the 10 Nov 2026 amendment above are unchanged. Full extension runs do not start until this amendment is committed.
+
+### Arm D (new)
+
+| Letter | Name | File | Seeds |
+|---|---|---|---|
+| D | plain-64k | `artifacts/tokenizers/m9/plain-64k/tokenizer.json` | 1, 2, 3 |
+
+Plain byte-level BPE, vocab 65,536, trained on the same n60j5 snapshot and pre-tokenizer as Ancoda-64k, with no protected units, no bans, no script budget, and no joiner copy. Purpose: separate design from data.
+
+Plain mode reserves no special-token ids. End-of-text follows the locked rule for a tokenizer without `<|eos|>` / `<|endoftext|>` / `</s>`: id `vocab_size` (65536) and model embedding size `vocab_size + 1` (65537). Token ids including end-of-text exceed 65535, so the arm-D stream uses uint32 storage.
+
+### Arm E (extended)
+
+| Letter | Name | File | Seeds |
+|---|---|---|---|
+| E | yak-64k-v2.0 | `ampixa/yak-tokenizer` `v2.0/64k`, revision `12b6d3010ec542b484ec3b673354852fe8bb85fb` | 1, 2, 3 |
+
+Seeds 2 and 3 are added. Seed 1 remains as already run under the core queue.
+
+### Shared procedure
+
+Same model, shared document stream, schedule, evaluation sets, and decision rule as the core A/B/C runs. Equal-tokens and equal-bytes checkpoints use the locked step-7630 and B* definitions from the core procedure (B* already fixed per seed from arms A, B, and C).
+
+### Primary new comparisons
+
+- **A versus D**, and **A versus E**, each on sealed Nepali and on the unweighted Dev11 mean, at equal tokens and at equal bytes.
+- Report every result, including losses. Seeds are not dropped. The decision rule label is applied as locked.
