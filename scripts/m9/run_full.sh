@@ -36,6 +36,7 @@ tokenizer_for() {
     ancoda-64k) echo "$HOME/m9/tokenizers/ancoda-64k/tokenizer.json" ;;
     yak-64k-v1) echo "$HOME/m9/tokenizers/yak-64k-v1/tokenizer.json" ;;
     yak-64k-v2.0) echo "$HOME/m9/tokenizers/yak-64k-v2.0/tokenizer.json" ;;
+    plain-64k) echo "$HOME/m9/tokenizers/plain-64k/tokenizer.json" ;;
     sidskarki-64k) echo "$SID_TOK" ;;
     *) echo "unknown arm $1" >&2; exit 1 ;;
   esac
@@ -44,6 +45,7 @@ tokenizer_for() {
 vocab_for() {
   case "$1" in
     sidskarki-64k) echo 64001 ;;
+    plain-64k) echo 65537 ;;
     *) echo 65536 ;;
   esac
 }
@@ -144,6 +146,11 @@ JOBS=(
   "yak-64k-v1 3"
   "sidskarki-64k 3"
   "yak-64k-v2.0 1"
+  "plain-64k 1"
+  "yak-64k-v2.0 2"
+  "plain-64k 2"
+  "yak-64k-v2.0 3"
+  "plain-64k 3"
 )
 
 echo "DRIVER_START $(date -u +%Y-%m-%dT%H:%M:%SZ)" | tee -a "$QUEUE_LOG"

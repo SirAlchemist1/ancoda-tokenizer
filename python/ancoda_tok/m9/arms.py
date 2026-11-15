@@ -42,6 +42,13 @@ ARMS: dict[str, ArmSpec] = {
         f"{YAK_SNAPSHOT}/v1.0/64k/tokenizer.json",
     ),
     "sidskarki-64k": ArmSpec("sidskarki-64k", "C", "sp", True, SID_MODEL),
+    "plain-64k": ArmSpec(
+        "plain-64k",
+        "D",
+        "hf",
+        False,
+        "artifacts/tokenizers/m9/plain-64k/tokenizer.json",
+    ),
     "yak-64k-v2.0": ArmSpec(
         "yak-64k-v2.0",
         "E",
