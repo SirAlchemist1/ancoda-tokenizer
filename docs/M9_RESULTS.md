@@ -10,9 +10,9 @@ Tokenizers frozen. Pre-registration: `docs/M9_PREREG.md`.
 - EOS scoring: Identical for every arm: each window is [EOS]+span; cross-entropy scores only the text-token positions; EOS is context and is never a target (docs/M9_PREREG.md Evaluation windows; python/ancoda_tok/m9/bpb.py _score_spans).
 - Same eval documents across arms: PASS (32 groups; sealed doc_id list sha256 `8501f43daeaf37dae8e729d66bed18c6803d26ce7d692792822975a15c65ff6a`).
 - Independent 300-doc recompute: PASS (tolerance 0.001 BPB).
-  - ancoda-64k: pipeline 0.487756, standalone 0.487738, |Δ|=0.000018
-  - yak-64k-v1: pipeline 0.490907, standalone 0.490874, |Δ|=0.000033
-  - sidskarki-64k: pipeline 0.511572, standalone 0.511571, |Δ|=0.000001
+  - ancoda-64k: pipeline 0.487752, standalone 0.487738, |Δ|=0.000014
+  - yak-64k-v1: pipeline 0.490893, standalone 0.490874, |Δ|=0.000019
+  - sidskarki-64k: pipeline 0.511574, standalone 0.511571, |Δ|=0.000003
 
 ## Primary verdicts (pre-registered rule)
 

@@ -4,31 +4,32 @@
   "independent_recompute": {
     "arms": [
       {
-        "abs_diff": 1.835001839606276e-05,
+        "abs_diff": 1.3976206261812063e-05,
         "arm": "ancoda-64k",
         "bytes": 1652418,
         "n_docs": 300,
-        "pipeline_bpb": 0.4877564205829396,
-        "standalone_bpb": 0.48773807056454355
+        "pipeline_bpb": 0.48775202057943606,
+        "standalone_bpb": 0.48773804437317425
       },
       {
-        "abs_diff": 3.336962966155044e-05,
+        "abs_diff": 1.9028975691171013e-05,
         "arm": "yak-64k-v1",
         "bytes": 1652418,
         "n_docs": 300,
-        "pipeline_bpb": 0.4909073934465102,
-        "standalone_bpb": 0.49087402381684864
+        "pipeline_bpb": 0.4908930207793859,
+        "standalone_bpb": 0.49087399180369473
       },
       {
-        "abs_diff": 1.024514178826763e-06,
+        "abs_diff": 2.679406391203898e-06,
         "arm": "sidskarki-64k",
         "bytes": 1652418,
         "n_docs": 300,
-        "pipeline_bpb": 0.5115723577358633,
-        "standalone_bpb": 0.5115713332216845
+        "pipeline_bpb": 0.5115739924450011,
+        "standalone_bpb": 0.5115713130386099
       }
     ],
-    "note": "Standalone uses torch+tokenizers/sentencepiece only (model arch inlined). Pipeline reference uses ancoda_tok.m9.bpb.score_ids. Ran on ancoda-server XPU.",
+    "device": "mps",
+    "note": "Standalone uses torch+tokenizers/sentencepiece only (scripts/m9/independent_bpb_recompute.py; no ancoda_tok.m9 imports). Pipeline reference uses ancoda_tok.m9.bpb.score_ids. Ran on the Mac (MPS) on 15 Nov 2026 from rsynced checkpoint-007630.pt files. Server queue was not touched.",
     "sample": "first 300 sealed Nepali docs by doc_id order",
     "sample_bytes": 1652418,
     "standalone_script": "scripts/m9/independent_bpb_recompute.py",
