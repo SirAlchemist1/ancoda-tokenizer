@@ -341,6 +341,7 @@ Sealed BPB vs bytes uses only the two scored checkpoints per run (B* and final).
 - `artifacts/m9/plots/paired_diffs_equal_bytes.png`
 - `artifacts/m9/plots/bpb_vs_bytes_seed1.png`
 - `artifacts/m9/plots/train_loss_vs_bytes.png`
+- `artifacts/m9/plots/training_stream_bpb.png` (CSV: `artifacts/m9/plots/training_stream_bpb.csv`) — training-stream BPB (approximate)
 
 ## Limitations (from the pre-registration)
 
