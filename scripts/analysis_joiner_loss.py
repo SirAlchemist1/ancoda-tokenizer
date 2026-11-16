@@ -40,6 +40,8 @@ ARMS_CORE = (
     ("B", "yak-64k-v1"),
     ("C", "sidskarki-64k"),
 )
+# Optional follow-up arm (M9 amendment 16 Nov 2026). Pass --include-f to score F.
+ARMS_F = (("F", "ancoda-64k-nojoiner"),)
 SEEDS = (1, 2, 3)
 CKPT = REPO_ROOT / "artifacts" / "m9" / "checkpoints"
 TOKENS_BIN = REPO_ROOT / "artifacts" / "m9" / "tokens" / "ancoda-64k" / "tokens.bin"
@@ -397,12 +399,22 @@ def spearman(xs: list[float], ys: list[float]) -> float | None:
 
 
 def write_md(payload: dict) -> None:
+    letter_by_arm = {name: letter for letter, name in ARMS_CORE + ARMS_F}
+    scored_arms = sorted(
+        {
+            key.rsplit("-s", 1)[0]
+            for key in payload["runs"]
+            if "-s" in key
+        }
+    )
+    arm_list = [(letter_by_arm.get(a, "?"), a) for a in scored_arms]
     lines = [
         "# Joiner loss split",
         "",
         "Analysis only. No training run, and the server queue was not touched. "
-        "Final checkpoints (step 7,630), seeds 1–3, arms A/B/C. "
-        f"Device: `{payload['device']}`. Reproduction: `scripts/analysis_joiner_loss.py`.",
+        f"Final checkpoints (step 7,630), seeds 1–3, arms {', '.join(a for _, a in arm_list)}. "
+        f"Device: `{payload['device']}`. Reproduction: `scripts/analysis_joiner_loss.py` "
+        "(add `--include-f` or `--only-f` for arm F).",
         "",
         "BPB denominator: UTF-8 bytes of the original unmodified text "
         "(`original_bytes`). Bits = NLL nats / ln 2. Scoring matches "
@@ -413,9 +425,12 @@ def write_md(payload: dict) -> None:
         "| Arm | Seed | Set | Docs | Bytes | Total bits | BPB | Bits on joiner tokens | Bits on other |",
         "|---|---:|---|---:|---:|---:|---:|---:|---:|",
     ]
-    for letter, arm_name in ARMS_CORE:
+    for letter, arm_name in arm_list:
         for seed in SEEDS:
-            block = payload["runs"][f"{arm_name}-s{seed}"]
+            key = f"{arm_name}-s{seed}"
+            if key not in payload["runs"]:
+                continue
+            block = payload["runs"][key]
             for set_name, _, _ in SETS:
                 s = block["sets"][set_name]
                 lines.append(
@@ -433,9 +448,12 @@ def write_md(payload: dict) -> None:
         "| Arm | Seed | Set | Extra bits | Extra on joiner toks | On neighbors | On rest |",
         "|---|---:|---|---:|---:|---:|---:|",
     ]
-    for letter, arm_name in ARMS_CORE:
+    for letter, arm_name in arm_list:
         for seed in SEEDS:
-            block = payload["runs"][f"{arm_name}-s{seed}"]
+            key = f"{arm_name}-s{seed}"
+            if key not in payload["runs"]:
+                continue
+            block = payload["runs"][key]
             for set_name in ("sealed_npi_zwj", "sealed_npi_zwnj"):
                 e = block["sets"][set_name]["extra"]
                 lines.append(
@@ -473,6 +491,24 @@ def write_md(payload: dict) -> None:
 
 
 def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--include-f",
+        action="store_true",
+        help="Also score arm F (ancoda-64k-nojoiner) after A/B/C",
+    )
+    parser.add_argument(
+        "--only-f",
+        action="store_true",
+        help="Score only arm F (requires F checkpoints under artifacts/m9/checkpoints)",
+    )
+    args = parser.parse_args()
+    arms = list(ARMS_F) if args.only_f else list(ARMS_CORE)
+    if args.include_f and not args.only_f:
+        arms.extend(ARMS_F)
+
     started = now_utc()
     if torch.backends.mps.is_available():
         device = torch.device("mps")
@@ -520,74 +556,72 @@ def main() -> None:
             repair_extra(block)
     save_progress(progress)
     runs: dict[str, dict] = {}
-    for letter, arm_name in ARMS_CORE:
+    for letter, arm_name in arms:
         for seed in SEEDS:
             runs[f"{arm_name}-s{seed}"] = run_one(
                 letter, arm_name, seed, device, rows_by_set, progress
             )
 
     corr = None
-    arm_a = runs["ancoda-64k-s1"]
-    try:
-        arm = load_arm("ancoda-64k")
-        jids = joiner_id_set(arm)
-        _log(f"counting stream joiner ids n={len(jids)}")
-        stream_counts = stream_joiner_counts(jids)
-        # Merge mean loss across seeds 1–3 for arm A type table.
-        merged: dict[int, list[float]] = defaultdict(list)
-        occ: dict[int, int] = defaultdict(int)
-        for seed in SEEDS:
-            block = runs[f"ancoda-64k-s{seed}"]
-            for tid_s, info in block.get("type_nll_nats", {}).items():
-                tid = int(tid_s)
-                # Reconstruct approximate sum from mean * count for correlation inputs.
-                # Prefer re-using mean_bits with occurrence weights.
-                occ[tid] += int(info["count_on_joiner_sets"])
-                merged[tid].append(
-                    (
-                        float(info["mean_nll_nats"]),
-                        int(info["count_on_joiner_sets"]),
+    if "ancoda-64k-s1" in runs:
+        try:
+            arm = load_arm("ancoda-64k")
+            jids = joiner_id_set(arm)
+            _log(f"counting stream joiner ids n={len(jids)}")
+            stream_counts = stream_joiner_counts(jids)
+            # Merge mean loss across seeds 1–3 for arm A type table.
+            merged: dict[int, list[float]] = defaultdict(list)
+            occ: dict[int, int] = defaultdict(int)
+            for seed in SEEDS:
+                block = runs[f"ancoda-64k-s{seed}"]
+                for tid_s, info in block.get("type_nll_nats", {}).items():
+                    tid = int(tid_s)
+                    occ[tid] += int(info["count_on_joiner_sets"])
+                    merged[tid].append(
+                        (
+                            float(info["mean_nll_nats"]),
+                            int(info["count_on_joiner_sets"]),
+                        )
                     )
-                )
-        types = []
-        xs: list[float] = []
-        ys: list[float] = []
-        for tid in sorted(merged):
-            weighted = 0.0
-            w = 0
-            for mean_nll, c in merged[tid]:
-                weighted += mean_nll * c
-                w += c
-            mean_nll = weighted / w if w else 0.0
-            sc = int(stream_counts.get(tid, 0))
-            row = {
-                "token_id": tid,
-                "stream_count": sc,
-                "mean_nll_nats": mean_nll,
-                "mean_bits": bits(mean_nll),
-                "count_on_joiner_sets": w,
+            types = []
+            xs: list[float] = []
+            ys: list[float] = []
+            for tid in sorted(merged):
+                weighted = 0.0
+                w = 0
+                for mean_nll, c in merged[tid]:
+                    weighted += mean_nll * c
+                    w += c
+                mean_nll = weighted / w if w else 0.0
+                sc = int(stream_counts.get(tid, 0))
+                row = {
+                    "token_id": tid,
+                    "stream_count": sc,
+                    "mean_nll_nats": mean_nll,
+                    "mean_bits": bits(mean_nll),
+                    "count_on_joiner_sets": w,
+                }
+                types.append(row)
+                if w > 0:
+                    xs.append(float(sc))
+                    ys.append(bits(mean_nll))
+            types_sorted = sorted(types, key=lambda r: (-r["mean_bits"], r["token_id"]))
+            corr = {
+                "n_types_scored": len(types),
+                "n_types_in_correlation": len(xs),
+                "spearman_stream_count_vs_mean_bits": spearman(xs, ys),
+                "top15_by_mean_bits": types_sorted[:15],
+                "all_types": types_sorted,
+                "stream_tokens": int(
+                    json.loads(TOKENS_MAN.read_text(encoding="utf-8"))["stream_tokens"]
+                ),
+                "content_tokens": int(
+                    json.loads(TOKENS_MAN.read_text(encoding="utf-8"))["content_tokens"]
+                ),
             }
-            types.append(row)
-            if w > 0:
-                xs.append(float(sc))
-                ys.append(bits(mean_nll))
-        types_sorted = sorted(types, key=lambda r: (-r["mean_bits"], r["token_id"]))
-        corr = {
-            "n_types_scored": len(types),
-            "n_types_in_correlation": len(xs),
-            "spearman_stream_count_vs_mean_bits": spearman(xs, ys),
-            "top15_by_mean_bits": types_sorted[:15],
-            "all_types": types_sorted,
-            "stream_tokens": int(
-                json.loads(TOKENS_MAN.read_text(encoding="utf-8"))["stream_tokens"]
-            ),
-            "content_tokens": int(
-                json.loads(TOKENS_MAN.read_text(encoding="utf-8"))["content_tokens"]
-            ),
-        }
-    except SystemExit as exc:
-        _log(str(exc))
-        corr = None
+        except SystemExit as exc:
+            _log(str(exc))
+            corr = None
 
     payload = {
         "kind": "analysis_joiner_loss",

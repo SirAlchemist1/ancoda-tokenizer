@@ -56,6 +56,13 @@ ARMS: dict[str, ArmSpec] = {
         False,
         f"{YAK_SNAPSHOT}/v2.0/64k/tokenizer.json",
     ),
+    "ancoda-64k-nojoiner": ArmSpec(
+        "ancoda-64k-nojoiner",
+        "F",
+        "hf",
+        False,
+        "artifacts/tokenizers/m8/ancoda-64k-nojoiner/tokenizer.json",
+    ),
 }
 CORE_ARMS = tuple(name for name, spec in ARMS.items() if spec.core)
 PILOT_ARMS = ("ancoda-64k", "sidskarki-64k", "yak-64k-v1", "yak-64k-v2.0")

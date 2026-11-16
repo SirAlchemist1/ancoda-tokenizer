@@ -181,23 +181,34 @@ Same model, shared document stream, schedule, evaluation sets, and decision rule
 - **A versus D**, and **A versus E**, each on sealed Nepali and on the unweighted Dev11 mean, at equal tokens and at equal bytes.
 - Report every result, including losses. Seeds are not dropped. The decision rule label is applied as locked.
 
-## Amendment draft — Arm F (matched no-joiner Ancoda-64k) — **not yet registered**
+## Amendment — 16 Nov 2026 (Arm F: matched no-joiner Ancoda-64k)
 
-Status: **draft only. Not yet registered.** Do not start training until this amendment is committed as registered and the human confirms.
+Registered **2026-11-16T03:40:28Z**. This amendment was written **after** the core M9 results, the joiner-set result (A loses to B/C on ZWJ/ZWNJ), and the token-level joiner-loss analysis in `docs/ANALYSIS_JOINER_LOSS.md`. It tests the hypothesis those suggested: that arm A's joiner-set loss comes from the synthetic joiner-copy recipe, not from some other Ancoda-64k design choice.
 
-### Arm F (proposed)
+The original text and earlier amendments above are unchanged.
+
+### Arm F (new)
 
 | Letter | Name | File | Seeds |
 |---|---|---|---|
-| F | ancoda-64k-nojoiner | `artifacts/tokenizers/m8/ancoda-64k-nojoiner/tokenizer.json` | 1, 2, 3 |
+| F | ancoda-64k-nojoiner | `artifacts/tokenizers/m8/ancoda-64k-nojoiner/tokenizer.json` (sha256 `7c9676fd60a829a507d7d23f647765f5ec26c11d1b61612630f75ad7b8605221`) | 1, 2, 3 |
 
-Same M8 64k budget build as arm A (`B_d` 48,000, `covered_64k_3pct.json`, `code_math_scale` 1.0, seed 20261104), trained on the matched snapshot `data/snapshots/n60j5_nojoiner_745e14157088dc30`: identical mix and selection seeds as `n60j5`, with `joiner_share=0` so the 1% that was synthetic ZWJ/ZWNJ becomes natural Nepali (DECISIONS 3.8). The existing `n60` snapshot is **not** that match (doc_id overlap check failed). Not `ladder-final_nojoiner` (that uses n50 and is not matched). Prep report: `docs/ANALYSIS_NOJOINER_ARM.md`.
+Same M8 64k budget build as arm A (`B_d` 48,000, `covered_64k_3pct.json`, `code_math_scale` 1.0, seed 20261104), trained on the matched snapshot `data/snapshots/n60j5_nojoiner_745e14157088dc30`: identical mix and selection seeds as `n60j5`, with `joiner_share=0` so the 1% synthetic ZWJ/ZWNJ joiner copy is replaced by natural Nepali (DECISIONS 3.8). Prep: `docs/ANALYSIS_NOJOINER_ARM.md`.
+
+**What F changes.** The joiner copy is replaced by natural Nepali, and the **whole merge list is retrained** on that snapshot. F therefore tests the joiner-copy recipe, not only the 644 joiner vocabulary entries of arm A. F still has **95** joiner-containing vocabulary entries, learned from natural text (56 with ZWJ, 39 with ZWNJ).
 
 ### Shared procedure
 
-Same model, shared document stream, schedule, steps (7,630), B* rule (already fixed per seed from A/B/C), evaluation sets, and decision rule as the core runs. Do not re-tune.
+Same model, shared document stream, steps (7,630), optimizer, seeds 1–3, and evaluation sets as arm A. Equal-tokens checkpoint is step 7,630. Equal-bytes checkpoint uses **each seed's existing B\* value from the core A/B/C runs**; do not recompute B\*.
 
-### Primary new comparisons
+### Main comparison (prediction written now)
 
-- **A versus F** on the joiner sets (`sealed_npi_zwj`, `sealed_npi_zwnj`) and on the primary sets (sealed Nepali; unweighted Dev11 mean), at equal tokens and at equal bytes.
-- Report every result, including losses. Seeds are not dropped. The decision rule label is applied as locked.
+**F minus A** on `sealed_npi_zwj` and `sealed_npi_zwnj`, at both checkpoints (equal tokens and equal bytes).
+
+For one set and one checkpoint, the paired difference of a seed is BPB(F) − BPB(A). Lower BPB is better. Report all three per-seed differences, the mean, and the sample SD (divisor n−1). The label is **F better** only when every difference is strictly negative and |mean| > sample SD. The label is **F worse** only when every difference is strictly positive and |mean| > sample SD. Otherwise **no measurable difference**.
+
+**Prediction (written at registration):** F is better than A on both joiner sets. If it is not, the joiner-copy explanation is weakened, and we report that.
+
+### Secondary (no prediction)
+
+**F minus A** on sealed Nepali and on the unweighted Dev11 mean, at both checkpoints, reported with the same decision rule. No prediction is attached.
