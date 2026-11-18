@@ -169,6 +169,107 @@ def score_tokenizer(tokenizer_dir: Path, words: list[tuple[str, int]] | None = N
     }
 
 
+# Nepali case markers for the boundary metric. Longest match wins.
+# This list is fixed; the spot-check sample is not allowed to change it.
+CASE_MARKERS: tuple[str, ...] = (
+    "ले",
+    "लाई",
+    "मा",
+    "को",
+    "का",
+    "की",
+    "बाट",
+    "देखि",
+    "सँग",
+    "सम्म",
+    "भन्दा",
+)
+STEM_MIN_COUNT = 20
+
+
+def case_markers_longest_first() -> tuple[str, ...]:
+    return tuple(sorted(CASE_MARKERS, key=lambda marker: (-len(marker), marker)))
+
+
+def split_case_marker(word: str, markers: tuple[str, ...] | None = None) -> tuple[str, str] | None:
+    """Return (stem, marker) when ``word`` ends in a listed marker and the stem is nonempty."""
+    ordered = markers if markers is not None else case_markers_longest_first()
+    for marker in ordered:
+        if len(word) > len(marker) and word.endswith(marker):
+            return word[: -len(marker)], marker
+    return None
+
+
+def markers_missing_from_inventory(suffixes: list[str] | set[str]) -> list[str]:
+    """Markers with no exact affix-string match in the Papaya inventory."""
+    have = set(suffixes)
+    return [marker for marker in CASE_MARKERS if marker not in have]
+
+
+def pretoken_surface(pretoken: str) -> str:
+    """Standalone-word surface of a pre-token.
+
+    The n60j5 table stores Ancoda pre-tokens, which may carry leading whitespace
+    from the pre-tokenizer. Only that leading whitespace is removed. The stored
+    text is not normalized.
+    """
+    return pretoken.lstrip()
+
+
+def classify_marker_spans(spans: list[tuple[int, int]], cut: int, nchars: int) -> str:
+    """Classify one word from token spans in word-character coordinates.
+
+    ``spans`` are half-open intervals inside the word. The leading space used at
+    encode time is already removed. ``cut`` is the stem|marker boundary.
+    """
+    if cut <= 0 or cut >= nchars:
+        raise ValueError("case-marker cut must fall inside the word")
+    if not spans:
+        return "other"
+    starts = {start for start, _end in spans}
+    ends = {end for _start, end in spans}
+    if cut in starts and cut in ends:
+        return "respected"
+    if len(spans) == 1 and spans[0] == (0, nchars):
+        return "fused"
+    if len(spans) > 1 and any(start < cut < end for start, end in spans):
+        return "crossed"
+    return "other"
+
+
+def word_spans_from_pieces(word: str, pieces: list[bytes]) -> list[tuple[int, int]] | None:
+    """Character spans of ``pieces`` inside ``word``.
+
+    ``pieces`` are the token byte strings of ``" " + word``, in order, and must
+    concatenate to that text. A token that only covers the leading space is dropped.
+    Returns None when the pieces are not a byte partition of the text.
+    """
+    text = " " + word
+    raw = text.encode("utf-8")
+    if b"".join(pieces) != raw:
+        return None
+    byte_to_char = [0] * (len(raw) + 1)
+    pos = 0
+    for index, ch in enumerate(text):
+        width = len(ch.encode("utf-8"))
+        for _ in range(width):
+            byte_to_char[pos] = index
+            pos += 1
+    byte_to_char[pos] = len(text)
+    spans: list[tuple[int, int]] = []
+    pos = 0
+    for piece in pieces:
+        start_b = pos
+        pos += len(piece)
+        start_c = byte_to_char[start_b]
+        end_c = byte_to_char[pos]
+        word_start = max(start_c, 1) - 1
+        word_end = min(end_c, len(text)) - 1
+        if word_end > word_start:
+            spans.append((word_start, word_end))
+    return spans
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--tokenizer-dir", type=Path, required=True)
