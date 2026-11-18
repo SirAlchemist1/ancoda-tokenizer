@@ -23,6 +23,9 @@ BPB denominator: UTF-8 bytes of the original unmodified text (`original_bytes`).
 | F (ancoda-64k-nojoiner) | 2 | `sealed_npi_2000` | 2000 | 10625570 | 5089682.092 | 0.479003 | 0.000 | 5089682.092 |
 | F (ancoda-64k-nojoiner) | 2 | `sealed_npi_zwj` | 2000 | 10625570 | 10067082.546 | 0.947439 | 2202821.253 | 7864261.292 |
 | F (ancoda-64k-nojoiner) | 2 | `sealed_npi_zwnj` | 2000 | 10625570 | 11907004.819 | 1.120599 | 3397584.263 | 8509420.556 |
+| F (ancoda-64k-nojoiner) | 3 | `sealed_npi_2000` | 2000 | 10625570 | 5092087.127 | 0.479230 | 0.000 | 5092087.127 |
+| F (ancoda-64k-nojoiner) | 3 | `sealed_npi_zwj` | 2000 | 10625570 | 10300169.073 | 0.969376 | 2388232.131 | 7911936.942 |
+| F (ancoda-64k-nojoiner) | 3 | `sealed_npi_zwnj` | 2000 | 10625570 | 11880948.367 | 1.118147 | 3475984.445 | 8404963.923 |
 | C (sidskarki-64k) | 1 | `sealed_npi_2000` | 2000 | 10625570 | 5329346.762 | 0.501559 | 0.000 | 5329346.762 |
 | C (sidskarki-64k) | 1 | `sealed_npi_zwj` | 2000 | 10625570 | 10201119.310 | 0.960054 | 0.000 | 10201119.310 |
 | C (sidskarki-64k) | 1 | `sealed_npi_zwnj` | 2000 | 10625570 | 10457391.714 | 0.984172 | 0.000 | 10457391.714 |
@@ -58,6 +61,8 @@ Extra = bits(perturbed) − bits(clean), paired by `doc_id`. Class columns are b
 | F (ancoda-64k-nojoiner) | 1 | `sealed_npi_zwnj` | 6930641.912 | 3419920.648 | 3909055.416 | -398334.152 |
 | F (ancoda-64k-nojoiner) | 2 | `sealed_npi_zwj` | 4977400.454 | 2202821.253 | 3505504.657 | -730925.457 |
 | F (ancoda-64k-nojoiner) | 2 | `sealed_npi_zwnj` | 6817322.727 | 3397584.263 | 3841504.782 | -421766.318 |
+| F (ancoda-64k-nojoiner) | 3 | `sealed_npi_zwj` | 5208081.946 | 2388232.131 | 3504695.537 | -684845.722 |
+| F (ancoda-64k-nojoiner) | 3 | `sealed_npi_zwnj` | 6788861.241 | 3475984.445 | 3722670.682 | -409793.887 |
 | C (sidskarki-64k) | 1 | `sealed_npi_zwj` | 4871772.548 | 0.000 | 0.000 | 4871772.548 |
 | C (sidskarki-64k) | 1 | `sealed_npi_zwnj` | 5128044.953 | 0.000 | 0.000 | 5128044.953 |
 | C (sidskarki-64k) | 2 | `sealed_npi_zwj` | 4920085.205 | 0.000 | 0.000 | 4920085.205 |
