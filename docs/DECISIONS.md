@@ -435,3 +435,15 @@ Outputs:
 The paper numbers and the anonymous release use **`artifacts/tokenizers/m8/ancoda-64k`** (`tokenizer.json` sha256 `c9ee0986bcb249109371b696f7004e8b664a6533539150bc92f9babe2435013e`). The anonymous release ranks table matches that build’s `tokens_hex` and layout (only path strings inside `stats` are anonymized).
 
 The older directory **`artifacts/tokenizers/ancoda-64k`** (sha256 `db6bd43e0e09ee221037d7d59642a6843179a5b45304c22ce191bb3a1f6781ed`) is **superseded**. It is an earlier n50-era build: the Figure 2a sentence `नमस्ते, तपाईंलाई कस्तो छ?` is 7 tokens there and 6 tokens under `m8/ancoda-64k`. Keep the directory on disk for provenance; do not use it for paper numbers, M9, or release.
+
+## Ancoda-250k snapshot provenance (18 Nov 2026)
+
+Provenance correction only. No decision changes and no tokenizer changes.
+
+`artifacts/tokenizers/m8/ancoda-250k/m8_manifest.json` lists `snapshot: data/snapshots/n60j5_20af1fffbec0fe86`. That is wrong. The adopted 250k build is the n60j10 re-run (`data/snapshots/n60j10_502301959d423052`), as the M8 selection above allows:
+
+- `artifacts/eval/m8/j10_decision.json`: `use_j10` true, reason "Hindi or English improved with CI excluding 0", adopted dir `artifacts/eval/m8/j10/ancoda-250k-bd160000-cm50-j10`. `artifacts/eval/m8/chosen.json` has `source: n60j10`.
+- The manifest's `dewa_counts_sha256` `551b0a96b252c130f2891ac787437729bcba78dd50b4a325446505e20ba0e0ec` and `latin_counts_sha256` `a6eeeb998f041cc0f6f8f1af332d62a5e264cc7a7b49a73de9001a0fe4f223ad` equal the sha256 of `artifacts/eval/m8/n60j10_counts/deva_pretoken_counts.bin` and `latin_cm50_pretoken_counts.bin`. The n60j5 frontier point `bd160000-cm50` has different counts (`bfda24fc…b4b8a6`, `b32235a2…b8a749`).
+- Cause: `train_budget` in `python/ancoda_tok/m8_final.py` writes `SNAP_J5` into every manifest, whatever counts it is given.
+
+The manifest's existing fields are unchanged. A `snapshot_correction` field was added with the true snapshot and this evidence. The file is under `artifacts/` and is not committed; the identical original copy at `artifacts/eval/m8/j10/ancoda-250k-bd160000-cm50-j10/m8_manifest.json` keeps the sha256 `3f8ceeb2…e559a2` recorded in `docs/EVIDENCE_M8.md`.
