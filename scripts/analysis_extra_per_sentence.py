@@ -11,12 +11,14 @@ o200k is tiktoken o200k_base (MIT). Does not touch the server.
 
 from __future__ import annotations
 
+import argparse
 import io
 import json
 import unicodedata
 from typing import Any
 
 import ancoda_seg
+import numpy as np
 import tokenizers
 import zstandard as zstd
 
@@ -45,6 +47,7 @@ MD_OUT = REPO_ROOT / "docs" / "RESULTS_PER_SENTENCE.md"
 SEALED = REPO_ROOT / "data" / "m9" / "eval" / "sealed.jsonl.zst"
 SECTION = "## Additional measure-only tokenizers"
 HF = REPO_ROOT / "data" / "hf_cache" / "hub"
+
 
 # Revisions are the ones recorded in docs/LICENSES.md. Paths stay in the cache.
 def _himalaya(repo: str, revision: str, filename: str) -> tuple[str, str]:
@@ -79,6 +82,36 @@ PAIRS = (
 )
 OURS_NEEDED = ("ancoda-64k", "ancoda-128k", "ancoda-250k")
 NEW_MODELS = ("himalaya-64k", "himalaya-100k", "himalaya-128k", "o200k")
+# Sealed Devanagari groups, same order as the sealed Deva-11 CI.
+DEVA11 = (
+    "Hindi",
+    "Marathi",
+    "Nepali",
+    "Sanskrit",
+    "anp_Deva",
+    "awa_Deva",
+    "bho_Deva",
+    "gom_Deva",
+    "hne_Deva",
+    "mai_Deva",
+    "new_Deva",
+)
+DEVA_SHORT = {
+    "Hindi": "Hin",
+    "Marathi": "Mar",
+    "Nepali": "Nep",
+    "Sanskrit": "San",
+    "anp_Deva": "anp",
+    "awa_Deva": "awa",
+    "bho_Deva": "bho",
+    "gom_Deva": "gom",
+    "hne_Deva": "hne",
+    "mai_Deva": "mai",
+    "new_Deva": "new",
+}
+SEALED_REMEASURE = (
+    REPO_ROOT / "artifacts" / "eval" / "m8" / "followup" / "sealed_nojjoiners_remeasure.json"
+)
 # Reported per-sentence FLORES+ Nepali fertilities. Confirmed before new rows.
 BASELINE_NPI = {"ancoda-64k": "1.4508", "yak-64k-v1": "1.4566"}
 
@@ -243,6 +276,200 @@ def ensure_100k_section(lines: list[str], row: str) -> None:
     lines[at:at] = block
 
 
+def load_sealed_groups() -> dict[str, list[str]]:
+    groups: dict[str, list[str]] = {lang: [] for lang in DEVA11}
+    dctx = zstd.ZstdDecompressor()
+    with SEALED.open("rb") as raw, dctx.stream_reader(raw) as reader:
+        for line in io.TextIOWrapper(reader, encoding="utf-8"):
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            lang = row.get("lang")
+            if lang in groups:
+                groups[lang].append(row["text"])
+    return groups
+
+
+def _pair_arrays(pairs: list[tuple[int, int]]) -> tuple[Any, Any]:
+    tokens = np.asarray([tok for tok, _words in pairs], dtype=np.int64)
+    words = np.asarray([words for _tok, words in pairs], dtype=np.int64)
+    tokens = np.where(words > 0, tokens, 0)
+    return tokens, words
+
+
+def bootstrap_sealed_deva_mean(
+    arrays: dict[str, dict[str, tuple[Any, Any]]],
+    left: str,
+    right: str,
+) -> dict[str, Any]:
+    """Doc bootstrap of the unweighted 11-group mean.
+
+    Same rule as ``ancoda_tok.m8_sid_sealed_fix.bootstrap_mean_deva``: each
+    resample redraws documents inside each group, recomputes the 11 fertilities,
+    then takes their unweighted mean. The interval is on mean(left) − mean(right).
+    Percentile indexes match ``bootstrap_fert_diff``.
+    """
+    active = [lang for lang in DEVA11 if len(arrays[left][lang][0])]
+    if active != list(DEVA11):
+        raise SystemExit(f"STOP: sealed Deva groups missing from {left}: {active}")
+
+    def mean_at(name: str, picks: dict[str, Any]) -> float:
+        vals: list[float] = []
+        for lang in active:
+            tok, wor = arrays[name][lang]
+            idx = picks[lang]
+            total_words = int(wor[idx].sum())
+            if total_words == 0:
+                continue
+            vals.append(float(tok[idx].sum()) / total_words)
+        if not vals:
+            raise SystemExit("STOP: bootstrap draw has no Devanagari words")
+        return sum(vals) / len(vals)
+
+    full = {lang: np.arange(len(arrays[left][lang][0])) for lang in active}
+    point = mean_at(left, full) - mean_at(right, full)
+    rng = np.random.default_rng(SEED)
+    diffs = np.empty(BOOT_N, dtype=np.float64)
+    for draw in range(BOOT_N):
+        picks: dict[str, Any] = {}
+        for lang in active:
+            size = len(arrays[left][lang][0])
+            picks[lang] = rng.integers(0, size, size=size)
+        diffs[draw] = mean_at(left, picks) - mean_at(right, picks)
+    diffs.sort()
+    out = {
+        "diff": float(point),
+        "lo": float(diffs[int(0.025 * (BOOT_N - 1))]),
+        "hi": float(diffs[int(0.975 * (BOOT_N - 1))]),
+        "n": BOOT_N,
+        "seed": SEED,
+        "method": "sealed-doc-within-language-unweighted-mean",
+        "langs": list(active),
+        "n_langs": len(active),
+    }
+    out["verdict"] = verdict(out)
+    return out
+
+
+def measure_sealed_deva(specs: dict[str, str]) -> dict[str, Any]:
+    """Sealed fertility on the 11 Devanagari groups for the four extra tokenizers."""
+    published = json.loads(SEALED_REMEASURE.read_text(encoding="utf-8"))
+    groups = load_sealed_groups()
+    empty = {lang: sum(1 for text in texts if not text.split()) for lang, texts in groups.items()}
+    log(f"sealed deva empty-word docs {empty}")
+    for lang in DEVA11:
+        want = int(published["by_lang"][lang]["docs"])
+        if len(groups[lang]) != want:
+            raise SystemExit(f"STOP: {lang} docs {len(groups[lang])} != published {want}")
+    names = list(OURS_NEEDED) + list(NEW_MODELS)
+    pairs: dict[str, dict[str, list[tuple[int, int]]]] = {}
+    fertility: dict[str, dict[str, float]] = {}
+    for name in names:
+        log(f"sealed-deva encode {name}")
+        enc = Encoder(specs[name])
+        pairs[name] = {}
+        fertility[name] = {}
+        for lang in DEVA11:
+            got = per_sentence_pairs(enc, groups[lang])
+            if len(got) != len(groups[lang]):
+                raise SystemExit(f"STOP: {name} {lang} pair count {len(got)}")
+            pairs[name][lang] = got
+            fertility[name][lang] = corpus_fert(got)
+        fertility[name]["mean"] = sum(fertility[name][lang] for lang in DEVA11) / len(DEVA11)
+        log(f"  nep={fertility[name]['Nepali']:.4f} mean={fertility[name]['mean']:.4f}")
+    for name in OURS_NEEDED:
+        for lang in DEVA11:
+            got = fertility[name][lang]
+            want = float(published["by_lang"][lang]["fertility"][name])
+            if abs(got - want) > 1e-9:
+                raise SystemExit(
+                    f"STOP: {name} {lang} sealed fertility {got:.10f} != published {want:.10f}"
+                )
+    log("published sealed Ancoda fertilities match")
+    arrays = {name: {lang: _pair_arrays(pairs[name][lang]) for lang in DEVA11} for name in names}
+    cells: dict[str, Any] = {}
+    for _cls, left, right in PAIRS:
+        log(f"sealed-deva CI {left} vs {right}")
+        if any(len(pairs[left][lang]) != len(pairs[right][lang]) for lang in DEVA11):
+            raise SystemExit(f"STOP: doc-count mismatch {left} vs {right}")
+        for lang in DEVA11:
+            ci = bootstrap_fert_diff(pairs[left][lang], pairs[right][lang])
+            cells[f"{left}|{right}|{lang}"] = ci
+        cells[f"{left}|{right}|mean"] = bootstrap_sealed_deva_mean(arrays, left, right)
+        hit = cells[f"{left}|{right}|mean"]
+        log(f"  mean {hit['verdict']} {hit['diff']:+.4f} [{hit['lo']:+.4f}, {hit['hi']:+.4f}]")
+    return {
+        "groups": list(DEVA11),
+        "docs": {lang: len(groups[lang]) for lang in DEVA11},
+        "empty_word_docs": empty,
+        "method": (
+            "No-joiner sealed set. Each document is encoded alone. "
+            "Group fertility is total tokens / total whitespace words. "
+            "The Deva-11 mean is the unweighted mean of the 11 group fertilities. "
+            "The mean interval redraws documents within each group, recomputes the "
+            "11 fertilities, and bootstraps that mean "
+            f"({BOOT_N} resamples, seed {SEED}). "
+            "Per-group intervals are paired document bootstraps of the same seed and size. "
+            "The difference is ours minus the competitor."
+        ),
+        "fertility": fertility,
+        "cells": cells,
+        "ancoda_matches_published": True,
+    }
+
+
+def render_sealed_deva(deva: dict[str, Any]) -> list[str]:
+    langs = list(deva["groups"])
+    header = " | ".join(DEVA_SHORT[lang] for lang in langs)
+    lines = [
+        "### Sealed Devanagari fertility",
+        "",
+        deva["method"],
+        (
+            "Ancoda rows are the same builds as the sealed remeasure; they match that file "
+            "before any new row is kept. himalaya-64k is compared with ancoda-64k. "
+            "himalaya-100k and himalaya-128k are compared with ancoda-128k. "
+            "o200k is compared with ancoda-250k."
+        ),
+        "",
+        f"| Model | {header} | mean |",
+        "|---|" + "---:|" * (len(langs) + 1),
+    ]
+    order = (
+        "ancoda-64k",
+        "himalaya-64k",
+        "ancoda-128k",
+        "himalaya-100k",
+        "himalaya-128k",
+        "ancoda-250k",
+        "o200k",
+    )
+    for name in order:
+        vals = " | ".join(fmt_fert(deva["fertility"][name][lang]) for lang in langs)
+        lines.append(f"| {name} | {vals} | {fmt_fert(deva['fertility'][name]['mean'])} |")
+    lines += [
+        "",
+        "| Ours | Competitor | Deva-11 mean |",
+        "|---|---|---|",
+    ]
+    for _cls, left, right in PAIRS:
+        lines.append(f"| {left} | {right} | {fmt_cell(deva['cells'][f'{left}|{right}|mean'])} |")
+    lines += [
+        "",
+        (
+            "Per-group intervals are paired document bootstraps. "
+            "The Deva-11 mean interval above is not the average of these eleven intervals."
+        ),
+        "",
+        f"| Ours | Competitor | {header} |",
+        "|---|---|" + "---:|" * len(langs),
+    ]
+    for _cls, left, right in PAIRS:
+        cells = [fmt_cell(deva["cells"][f"{left}|{right}|{lang}"]) for lang in langs]
+        lines.append(f"| {left} | {right} | " + " | ".join(cells) + " |")
+    return lines
+
+
 def render_extra(payload: dict[str, Any]) -> list[str]:
     fert = payload["fertility"]
     intro = (
@@ -286,7 +513,15 @@ def render_extra(payload: dict[str, Any]) -> list[str]:
         "| Model | Sealed Nepali |",
         "|---|---:|",
     ]
-    for name in ("ancoda-64k", "himalaya-64k", "ancoda-128k", "himalaya-100k", "himalaya-128k", "ancoda-250k", "o200k"):
+    for name in (
+        "ancoda-64k",
+        "himalaya-64k",
+        "ancoda-128k",
+        "himalaya-100k",
+        "himalaya-128k",
+        "ancoda-250k",
+        "o200k",
+    ):
         lines.append(f"| {name} | {fmt_fert(fert[name]['sealed_npi'])} |")
     lines += [
         "",
@@ -296,6 +531,8 @@ def render_extra(payload: dict[str, Any]) -> list[str]:
     for cls, left, right in PAIRS:
         cell = payload["sealed_cells"][f"{left}|{right}"]
         lines.append(f"| {left} | {right} | {fmt_cell(cell)} |")
+    if payload.get("sealed_deva"):
+        lines += ["", *render_sealed_deva(payload["sealed_deva"])]
     lines += [
         "",
         "### Mark-initial share and ZWJ / ZWNJ cost",
@@ -362,7 +599,37 @@ def update_markdown(payload: dict[str, Any]) -> None:
     MD_OUT.write_text(body if body.endswith("\n") else body + "\n", encoding="utf-8")
 
 
+def run_sealed_only() -> None:
+    if not OUT_JSON.is_file():
+        raise SystemExit("STOP: extra_per_sentence.json missing; run the full script first")
+    specs = load_specs()
+    for name in OURS_NEEDED:
+        if name not in specs:
+            raise SystemExit(f"STOP: missing {name}")
+    confirm_baselines(specs)
+    specs.update(himalaya_specs())
+    if specs.get("o200k") != "o200k":
+        specs["o200k"] = "o200k"
+    deva = measure_sealed_deva(specs)
+    payload = json.loads(OUT_JSON.read_text(encoding="utf-8"))
+    payload["sealed_deva"] = deva
+    OUT_JSON.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    log(f"wrote {OUT_JSON}")
+    update_markdown(payload)
+    log(f"wrote {MD_OUT}")
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--sealed-deva-only",
+        action="store_true",
+        help="Add the sealed 11-group Devanagari block to the existing extra JSON",
+    )
+    args = parser.parse_args()
+    if args.sealed_deva_only:
+        run_sealed_only()
+        return
     specs = load_specs()
     for name in OURS_NEEDED:
         if name not in specs:
@@ -429,9 +696,7 @@ def main() -> None:
             got = fertility[name][code]
             want = published["fertility"][name][code]
             if abs(got - want) >= 0.00015:
-                raise SystemExit(
-                    f"STOP: {name} {code} {got:.6f} != published {want:.6f}"
-                )
+                raise SystemExit(f"STOP: {name} {code} {got:.6f} != published {want:.6f}")
     log("published FLORES fertilities match")
 
     flat: dict[str, list[tuple[int, int]]] = {}
@@ -458,6 +723,7 @@ def main() -> None:
         ci_s["verdict"] = verdict(ci_s)
         sealed_cells[f"{left}|{right}"] = ci_s
 
+    sealed_deva = measure_sealed_deva(specs)
     payload: dict[str, Any] = {
         "kind": "extra_per_sentence",
         "tokenizers_version": tokenizers.__version__,
@@ -473,6 +739,7 @@ def main() -> None:
         "fertility": fertility,
         "flores_cells": flores_cells,
         "sealed_cells": sealed_cells,
+        "sealed_deva": sealed_deva,
         "mark_initial": mark,
         "zwj_zwnj": joiners,
         "round_trip": trips,

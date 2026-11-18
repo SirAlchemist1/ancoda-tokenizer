@@ -142,6 +142,37 @@ Each of the 28,094 Nepali documents in the no-joiner sealed set is encoded on it
 | ancoda-128k | himalaya-128k | WIN -0.0065 [-0.0083, -0.0046] |
 | ancoda-250k | o200k | WIN -0.9231 [-0.9263, -0.9200] |
 
+### Sealed Devanagari fertility
+
+No-joiner sealed set. Each document is encoded alone. Group fertility is total tokens / total whitespace words. The Deva-11 mean is the unweighted mean of the 11 group fertilities. The mean interval redraws documents within each group, recomputes the 11 fertilities, and bootstraps that mean (10000 resamples, seed 20261104). Per-group intervals are paired document bootstraps of the same seed and size. The difference is ours minus the competitor.
+Ancoda rows are the same builds as the sealed remeasure; they match that file before any new row is kept. himalaya-64k is compared with ancoda-64k. himalaya-100k and himalaya-128k are compared with ancoda-128k. o200k is compared with ancoda-250k.
+
+| Model | Hin | Mar | Nep | San | anp | awa | bho | gom | hne | mai | new | mean |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| ancoda-64k | 1.3146 | 1.7726 | 1.3077 | 2.7098 | 1.3487 | 1.6185 | 1.4694 | 2.0287 | 1.5551 | 1.5806 | 1.4358 | 1.6492 |
+| himalaya-64k | 1.4711 | 2.6384 | 1.3339 | 3.6969 | 1.5462 | 1.6732 | 1.7430 | 2.7898 | 1.8806 | 1.9717 | 2.0031 | 2.0680 |
+| ancoda-128k | 1.2512 | 1.6093 | 1.2480 | 2.4784 | 1.2872 | 1.5302 | 1.3748 | 1.8275 | 1.4548 | 1.4797 | 1.3379 | 1.5344 |
+| himalaya-100k | 1.4155 | 2.5509 | 1.2785 | 3.5784 | 1.4968 | 1.6121 | 1.6786 | 2.6875 | 1.8251 | 1.8816 | 1.9209 | 1.9933 |
+| himalaya-128k | 1.3904 | 2.4967 | 1.2545 | 3.5180 | 1.4738 | 1.5770 | 1.6507 | 2.6214 | 1.7976 | 1.8421 | 1.8925 | 1.9559 |
+| ancoda-250k | 1.2148 | 1.5011 | 1.2152 | 2.3244 | 1.2477 | 1.4859 | 1.3165 | 1.6535 | 1.3950 | 1.4190 | 1.2507 | 1.4567 |
+| o200k | 1.5783 | 2.5094 | 2.1384 | 3.9701 | 1.6155 | 1.9761 | 1.8927 | 2.9421 | 1.8952 | 2.1362 | 2.3363 | 2.2718 |
+
+| Ours | Competitor | Deva-11 mean |
+|---|---|---|
+| ancoda-64k | himalaya-64k | WIN -0.4187 [-0.4696, -0.3861] |
+| ancoda-128k | himalaya-100k | WIN -0.4588 [-0.5087, -0.4263] |
+| ancoda-128k | himalaya-128k | WIN -0.4214 [-0.4704, -0.3893] |
+| ancoda-250k | o200k | WIN -0.8151 [-0.8612, -0.7844] |
+
+Per-group intervals are paired document bootstraps. The Deva-11 mean interval above is not the average of these eleven intervals.
+
+| Ours | Competitor | Hin | Mar | Nep | San | anp | awa | bho | gom | hne | mai | new |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| ancoda-64k | himalaya-64k | WIN -0.1565 [-0.1641, -0.1489] | WIN -0.8658 [-0.8848, -0.8463] | WIN -0.0261 [-0.0281, -0.0242] | WIN -0.9871 [-1.0582, -0.9142] | WIN -0.1974 [-0.2797, -0.1333] | TIE -0.0547 [-0.4951, +0.2418] | WIN -0.2735 [-0.3007, -0.2477] | WIN -0.7611 [-0.8179, -0.7059] | WIN -0.3255 [-0.3803, -0.2477] | WIN -0.3911 [-0.4314, -0.3468] | WIN -0.5673 [-0.7690, -0.4263] |
+| ancoda-128k | himalaya-100k | WIN -0.1643 [-0.1732, -0.1556] | WIN -0.9415 [-0.9622, -0.9205] | WIN -0.0305 [-0.0325, -0.0286] | WIN -1.1000 [-1.1706, -1.0263] | WIN -0.2096 [-0.2950, -0.1412] | TIE -0.0820 [-0.5068, +0.2036] | WIN -0.3038 [-0.3291, -0.2792] | WIN -0.8600 [-0.9189, -0.8020] | WIN -0.3703 [-0.4222, -0.2912] | WIN -0.4019 [-0.4474, -0.3528] | WIN -0.5830 [-0.7894, -0.4390] |
+| ancoda-128k | himalaya-128k | WIN -0.1392 [-0.1480, -0.1308] | WIN -0.8874 [-0.9078, -0.8666] | WIN -0.0065 [-0.0083, -0.0046] | WIN -1.0397 [-1.1047, -0.9691] | WIN -0.1866 [-0.2698, -0.1196] | TIE -0.0468 [-0.4719, +0.2381] | WIN -0.2759 [-0.3000, -0.2521] | WIN -0.7939 [-0.8542, -0.7346] | WIN -0.3428 [-0.3933, -0.2619] | WIN -0.3624 [-0.4059, -0.3152] | WIN -0.5546 [-0.7550, -0.4153] |
+| ancoda-250k | o200k | WIN -0.3635 [-0.3724, -0.3545] | WIN -1.0083 [-1.0233, -0.9930] | WIN -0.9231 [-0.9263, -0.9200] | WIN -1.6457 [-1.7413, -1.5413] | WIN -0.3679 [-0.4449, -0.2938] | WIN -0.4902 [-0.7902, -0.2975] | WIN -0.5762 [-0.6183, -0.5304] | WIN -1.2886 [-1.3227, -1.2509] | WIN -0.5002 [-0.6183, -0.3670] | WIN -0.7172 [-0.7476, -0.6867] | WIN -1.0855 [-1.3695, -0.8872] |
+
 ### Mark-initial share and ZWJ / ZWNJ cost
 
 FLORES+ Nepali devtest, each sentence encoded alone. Mark-initial share is tokens whose first decoded character is a combining mark (Mn, Mc, or Me), divided by all tokens. ZWJ and ZWNJ cost is tokens on the Yak joiner rewrite divided by tokens on the original sentences. The rewrite inserts U+200D or U+200C after every virama that precedes a Devanagari consonant.
