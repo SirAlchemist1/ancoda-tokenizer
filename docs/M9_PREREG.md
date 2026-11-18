@@ -181,6 +181,12 @@ Same model, shared document stream, schedule, evaluation sets, and decision rule
 - **A versus D**, and **A versus E**, each on sealed Nepali and on the unweighted Dev11 mean, at equal tokens and at equal bytes.
 - Report every result, including losses. Seeds are not dropped. The decision rule label is applied as locked.
 
+### Note — 18 Nov 2026
+
+This note is added under the 15 Nov 2026 amendment. The amendment text above is unchanged.
+
+Arm D's tokenizer was trained on the n60j5 counts (`artifacts/counts/n60j5`), which include the 1% joiner copy. The builder adds no copy of its own. D has 405 joiner vocabulary entries (206 ZWJ, 199 ZWNJ).
+
 ## Amendment — 16 Nov 2026 (Arm F: matched no-joiner Ancoda-64k)
 
 Registered **2026-11-16T03:40:28Z**. This amendment was written **after** the core M9 results, the joiner-set result (A loses to B/C on ZWJ/ZWNJ), and the token-level joiner-loss analysis in `docs/ANALYSIS_JOINER_LOSS.md`. It tests the hypothesis those suggested: that arm A's joiner-set loss comes from the synthetic joiner-copy recipe, not from some other Ancoda-64k design choice.

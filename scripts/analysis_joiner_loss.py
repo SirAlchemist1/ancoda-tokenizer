@@ -11,7 +11,7 @@ import json
 import math
 import os
 import time
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -398,6 +398,101 @@ def spearman(xs: list[float], ys: list[float]) -> float | None:
     return num / (denx * deny)
 
 
+VIRAMA = "\u094d"
+
+
+def _esc(text: str) -> str:
+    return text.encode("unicode_escape").decode("ascii")
+
+
+def _joiner_sites(text: str, joiner: str) -> list[int]:
+    positions: list[int] = []
+    start = 0
+    while True:
+        i = text.find(joiner, start)
+        if i < 0:
+            return positions
+        if i > 0 and text[i - 1] == VIRAMA:
+            positions.append(i)
+        start = i + 1
+
+
+def _site_kind(span: str, joiner: str) -> str:
+    if span == joiner:
+        return "atomic_joiner"
+    idx = span.find(joiner)
+    if idx < 0:
+        return "split_or_uncovered"
+    left = span[:idx]
+    right = span[idx + len(joiner) :]
+    if left.endswith(VIRAMA) and right:
+        return "virama_joiner_and_following"
+    if left.endswith(VIRAMA):
+        return "ends_with_virama_joiner"
+    if not left and right:
+        return "starts_with_joiner"
+    return "other_merge"
+
+
+def virama_profile(rows_by_set: dict[str, list[dict]]) -> dict:
+    """How arms A and F tokenize a joiner that sits immediately after a virama."""
+    profiles: dict[str, dict] = {}
+    loaded = {
+        "A": load_arm("ancoda-64k"),
+        "F": load_arm("ancoda-64k-nojoiner"),
+    }
+    for set_name, joiner in (("sealed_npi_zwj", ZWJ), ("sealed_npi_zwnj", ZWNJ)):
+        rows = rows_by_set[set_name]
+        profiles[set_name] = {"joiner": _esc(joiner)}
+        for letter, arm in loaded.items():
+            assert arm._hf is not None
+            tok = arm._hf
+            kinds: Counter[str] = Counter()
+            pieces: Counter[str] = Counter()
+            sites = 0
+            following_inside = 0
+            for row in rows:
+                text = row["text"]
+                positions = _joiner_sites(text, joiner)
+                if not positions:
+                    continue
+                enc = tok.encode(text, add_special_tokens=False)
+                offsets = enc.offsets
+                ti = 0
+                n_tok = len(offsets)
+                for pos in positions:
+                    sites += 1
+                    while ti < n_tok and offsets[ti][1] <= pos:
+                        ti += 1
+                    if ti >= n_tok or not (offsets[ti][0] <= pos < offsets[ti][1]):
+                        kinds["split_or_uncovered"] += 1
+                        continue
+                    a, b = offsets[ti]
+                    span = text[a:b]
+                    kinds[_site_kind(span, joiner)] += 1
+                    pieces[span] += 1
+                    if pos + 1 < len(text) and b > pos + 1:
+                        following_inside += 1
+            top = [
+                {"count": count, "chars": len(piece), "piece": _esc(piece)}
+                for piece, count in pieces.most_common(8)
+            ]
+            block = {
+                "sites": sites,
+                "kinds": dict(sorted(kinds.items())),
+                "following_char_inside_same_token": following_inside,
+                "distinct_pieces": len(pieces),
+                "top_pieces": top,
+            }
+            profiles[set_name][letter] = block
+            _log(
+                f"virama {letter} {set_name} sites={sites} "
+                f"kinds={block['kinds']} distinct={len(pieces)} "
+                f"follow_inside={following_inside}"
+            )
+    return profiles
+
+
 def write_md(payload: dict) -> None:
     letter_by_arm = {name: letter for letter, name in ARMS_CORE + ARMS_F}
     scored_arms = sorted(
@@ -486,7 +581,69 @@ def write_md(payload: dict) -> None:
                 f"| {row['token_id']} | {row['stream_count']} | "
                 f"{row['mean_bits']:.4f} | {row['count_on_joiner_sets']} |"
             )
-    lines += ["", f"JSON: `artifacts/analysis/joiner_loss.json`.", ""]
+
+    vir = payload.get("virama_after_virama")
+    if vir:
+        virama_note = (
+            "A site is a ZWJ (U+200D) or ZWNJ (U+200C) whose previous character is "
+            "virama U+094D. Counts are over `sealed_npi_zwj` and `sealed_npi_zwnj` "
+            "(2,000 documents each). The class is the one token whose character span "
+            "covers that joiner. `ends_with_virama_joiner` means the token includes "
+            "the virama and the joiner and stops before the next character. "
+            "`following_inside` is how many sites keep the next character inside "
+            "that same token."
+        )
+        lines += [
+            "",
+            "## (e) Joiner after a virama, arm F versus arm A",
+            "",
+            virama_note,
+            "",
+            "| Set | Arm | Sites | ends with virama+joiner | virama+joiner+following | atomic joiner | other | distinct pieces | following inside |",
+            "|---|---|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+        for set_name in ("sealed_npi_zwj", "sealed_npi_zwnj"):
+            block = vir[set_name]
+            for letter in ("A", "F"):
+                row = block[letter]
+                kinds = row["kinds"]
+                other = sum(
+                    n
+                    for name, n in kinds.items()
+                    if name
+                    not in (
+                        "ends_with_virama_joiner",
+                        "virama_joiner_and_following",
+                        "atomic_joiner",
+                    )
+                )
+                lines.append(
+                    f"| `{set_name}` | {letter} | {row['sites']} | "
+                    f"{kinds.get('ends_with_virama_joiner', 0)} | "
+                    f"{kinds.get('virama_joiner_and_following', 0)} | "
+                    f"{kinds.get('atomic_joiner', 0)} | {other} | "
+                    f"{row['distinct_pieces']} | "
+                    f"{row['following_char_inside_same_token']} |"
+                )
+        lines += [
+            "",
+            "Most common token texts at those sites (unicode escapes):",
+            "",
+        ]
+        for set_name in ("sealed_npi_zwj", "sealed_npi_zwnj"):
+            lines.append(f"### `{set_name}`")
+            lines.append("")
+            for letter in ("A", "F"):
+                lines.append(f"{letter}:")
+                lines.append("")
+                lines.append("| Count | Chars | Piece |")
+                lines.append("|---:|---:|---|")
+                for piece in vir[set_name][letter]["top_pieces"]:
+                    lines.append(
+                        f"| {piece['count']} | {piece['chars']} | `{piece['piece']}` |"
+                    )
+                lines.append("")
+    lines += ["", "JSON: `artifacts/analysis/joiner_loss.json`.", ""]
     OUT_MD.write_text("\n".join(lines), encoding="utf-8")
 
 
@@ -549,6 +706,11 @@ def main() -> None:
                 "bits_class(clean) and sum to extra_bits."
             )
 
+    virama = None
+    if any(name == "ancoda-64k-nojoiner" for _, name in arms):
+        _log("virama-joiner tokenization, arm A versus arm F")
+        virama = virama_profile(rows_by_set)
+
     # Clean must be scored before joiner sets for pairing; SETS order ensures that.
     progress = load_progress()
     for block in progress.values():
@@ -558,9 +720,19 @@ def main() -> None:
     runs: dict[str, dict] = {}
     for letter, arm_name in arms:
         for seed in SEEDS:
+            ckpt = CKPT / f"{arm_name}-s{seed}" / "checkpoint-007630.pt"
+            # A finished checkpoint is 711,132,485 bytes. A shorter file is an
+            # rsync still in progress and is not a loadable zip.
+            if args.only_f and (
+                not ckpt.is_file() or ckpt.stat().st_size != 711_132_485
+            ):
+                _log(f"skip {arm_name}-s{seed}: checkpoint not complete on the Mac yet")
+                continue
             runs[f"{arm_name}-s{seed}"] = run_one(
                 letter, arm_name, seed, device, rows_by_set, progress
             )
+    if args.only_f and not runs:
+        raise SystemExit("STOP: no arm F checkpoint under artifacts/m9/checkpoints")
 
     corr = None
     if "ancoda-64k-s1" in runs:
@@ -623,6 +795,16 @@ def main() -> None:
             _log(str(exc))
             corr = None
 
+    if args.only_f and OUT_JSON.is_file():
+        old = json.loads(OUT_JSON.read_text(encoding="utf-8"))
+        merged = dict(old.get("runs") or {})
+        merged.update(runs)
+        runs = merged
+        if corr is None:
+            corr = old.get("arm_a_type_correlation")
+        if virama is None:
+            virama = old.get("virama_after_virama")
+
     payload = {
         "kind": "analysis_joiner_loss",
         "started_at": started,
@@ -631,6 +813,7 @@ def main() -> None:
         "ln2": LN2,
         "runs": runs,
         "arm_a_type_correlation": corr,
+        "virama_after_virama": virama,
     }
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")

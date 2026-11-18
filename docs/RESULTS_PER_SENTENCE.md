@@ -24,6 +24,15 @@ This scoreboard supersedes the whole-file first-byte tables in `docs/GATE_A.md` 
 | sidskarki-64k | 1.3699 | 1.6151 | 2.3458 | 1.7534 | 1.6905 | 1.6292 | 1.6589 | 2.5159 | 2.4681 | 1.6554 | 1.7476 |
 | arkios | 1.6338 | 1.9723 | 1.2508 | 2.0228 | 1.9872 | 1.9020 | 1.9543 | 2.8245 | 2.8314 | 1.9141 | 2.0424 |
 | sarvam-1 | 2.5892 | 1.4015 | 1.4347 | 1.8887 | 1.7192 | 1.5900 | 1.6267 | 2.9712 | 1.7676 | 1.6166 | 1.9695 |
+| himalaya-64k | 1.4895 | 1.5481 | 1.3121 | 1.8078 | 1.7389 | 1.6727 | 1.7137 | 3.0111 | 2.6340 | 1.6682 | 1.8545 |
+
+## Absolute fertilities — 100k
+
+himalaya-100k is the 100k SentencePiece model. Its paired comparison below is against ancoda-128k.
+
+| Model | npi | hin | eng | mai | bho | awa | mag | san | mar | hne | Deva mean |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| himalaya-100k | 1.4166 | 1.4845 | 1.2610 | 1.7239 | 1.6567 | 1.6022 | 1.6521 | 2.9099 | 2.5491 | 1.6056 | 1.7780 |
 
 ## Absolute fertilities — 128k
 
@@ -36,6 +45,7 @@ This scoreboard supersedes the whole-file first-byte tables in `docs/GATE_A.md` 
 | sarvam-m | 3.1682 | 1.9493 | 1.2706 | 2.5562 | 2.2629 | 2.2268 | 2.2698 | 3.7434 | 3.1308 | 2.2455 | 2.5966 |
 | qwen2.5 | 6.5215 | 4.7560 | 1.2612 | 4.9222 | 4.6369 | 4.6795 | 4.6214 | 7.3349 | 6.6931 | 4.6259 | 5.3532 |
 | qwen3 | 6.5215 | 4.7560 | 1.2612 | 4.9222 | 4.6369 | 4.6795 | 4.6214 | 7.3349 | 6.6931 | 4.6259 | 5.3532 |
+| himalaya-128k | 1.3854 | 1.4602 | 1.2409 | 1.6907 | 1.6263 | 1.5701 | 1.6235 | 2.8622 | 2.5037 | 1.5809 | 1.7455 |
 
 ## Absolute fertilities — 250k
 
@@ -46,6 +56,7 @@ This scoreboard supersedes the whole-file first-byte tables in `docs/GATE_A.md` 
 | bloom | 1.7230 | 1.3702 | 1.2518 | 1.7343 | 1.6422 | 1.5382 | 1.5861 | 2.6224 | 1.7544 | 1.5644 | 1.7452 |
 | gemma3 | 2.2164 | 1.3852 | 1.2380 | 1.8059 | 1.6673 | 1.5667 | 1.5993 | 2.8274 | 1.9865 | 1.6042 | 1.8669 |
 | sarvam-30b | 2.2166 | 1.3852 | 1.2384 | 1.8059 | 1.6673 | 1.5667 | 1.5993 | 2.8274 | 1.9865 | 1.6042 | 1.8669 |
+| o200k | 2.3195 | 1.6486 | 1.2270 | 1.9201 | 1.8592 | 1.8039 | 1.8424 | 3.3014 | 2.5613 | 1.8478 | 2.0993 |
 
 ## Pairwise scoreboard (ours − competitor)
 
@@ -69,6 +80,7 @@ This scoreboard supersedes the whole-file first-byte tables in `docs/GATE_A.md` 
 | ancoda-ne-64k | sidskarki-64k | LOSE +0.0352 [+0.0283, +0.0428] | WIN -0.0232 [-0.0297, -0.0164] | WIN -0.0962 [-0.1068, -0.0854] | WIN -0.0104 [-0.0173, -0.0033] | WIN -0.0166 [-0.0229, -0.0103] | WIN -0.0145 [-0.0211, -0.0076] | WIN -0.0138 [-0.0201, -0.0074] | WIN -0.0145 [-0.0259, -0.0033] | TIE +0.0067 [-0.0024, +0.0158] | WIN -0.0184 [-0.0248, -0.0121] | WIN -0.0083 [-0.0139, -0.0024] |
 | ancoda-ne-64k | arkios | WIN -0.2286 [-0.2391, -0.2179] | WIN -0.3804 [-0.3897, -0.3708] | LOSE +0.9989 [+0.9827, +1.0147] | WIN -0.2798 [-0.2890, -0.2703] | WIN -0.3134 [-0.3224, -0.3041] | WIN -0.2872 [-0.2959, -0.2787] | WIN -0.3091 [-0.3183, -0.3001] | WIN -0.3231 [-0.3375, -0.3084] | WIN -0.3566 [-0.3695, -0.3437] | WIN -0.2772 [-0.2857, -0.2684] | WIN -0.3031 [-0.3101, -0.2961] |
 | ancoda-ne-64k | sarvam-1 | WIN -1.1841 [-1.2047, -1.1626] | LOSE +0.1904 [+0.1817, +0.1987] | LOSE +0.8149 [+0.8009, +0.8284] | WIN -0.1457 [-0.1544, -0.1370] | WIN -0.0454 [-0.0539, -0.0368] | LOSE +0.0247 [+0.0156, +0.0337] | LOSE +0.0184 [+0.0101, +0.0269] | WIN -0.4697 [-0.4886, -0.4505] | LOSE +0.7071 [+0.6918, +0.7224] | LOSE +0.0204 [+0.0125, +0.0281] | WIN -0.2302 [-0.2362, -0.2240] |
+| ancoda-64k | himalaya-64k | WIN -0.0387 [-0.0500, -0.0274] | WIN -0.2082 [-0.2217, -0.1945] | LOSE +0.1021 [+0.0940, +0.1106] | WIN -0.3813 [-0.3937, -0.3684] | WIN -0.3103 [-0.3225, -0.2979] | WIN -0.2937 [-0.3068, -0.2806] | WIN -0.3079 [-0.3205, -0.2953] | WIN -0.8111 [-0.8371, -0.7844] | WIN -0.8331 [-0.8523, -0.8136] | WIN -0.2536 [-0.2653, -0.2420] | WIN -0.3359 [-0.3460, -0.3257] |
 
 ### 128k
 
@@ -80,6 +92,8 @@ This scoreboard supersedes the whole-file first-byte tables in `docs/GATE_A.md` 
 | ancoda-128k | sarvam-m | WIN -1.7939 [-1.8150, -1.7724] | WIN -0.6723 [-0.6855, -0.6590] | LOSE +0.0311 [+0.0272, +0.0352] | WIN -1.2048 [-1.2178, -1.1917] | WIN -0.9165 [-0.9302, -0.9028] | WIN -0.9100 [-0.9256, -0.8950] | WIN -0.9316 [-0.9453, -0.9180] | WIN -1.7265 [-1.7555, -1.6980] | WIN -1.4934 [-1.5122, -1.4745] | WIN -0.9056 [-0.9189, -0.8921] | WIN -1.1651 [-1.1761, -1.1543] |
 | ancoda-128k | qwen2.5 | WIN -5.1472 [-5.1939, -5.0991] | WIN -3.4790 [-3.5063, -3.4513] | LOSE +0.0405 [+0.0367, +0.0444] | WIN -3.5708 [-3.5996, -3.5421] | WIN -3.2905 [-3.3172, -3.2639] | WIN -3.3627 [-3.3933, -3.3330] | WIN -3.2832 [-3.3124, -3.2542] | WIN -5.3179 [-5.3858, -5.2517] | WIN -5.0557 [-5.0986, -5.0122] | WIN -3.2859 [-3.3148, -3.2564] | WIN -3.9216 [-3.9486, -3.8951] |
 | ancoda-128k | qwen3 | WIN -5.1472 [-5.1939, -5.0991] | WIN -3.4790 [-3.5063, -3.4513] | LOSE +0.0405 [+0.0367, +0.0444] | WIN -3.5708 [-3.5996, -3.5421] | WIN -3.2905 [-3.3172, -3.2639] | WIN -3.3627 [-3.3933, -3.3330] | WIN -3.2832 [-3.3124, -3.2542] | WIN -5.3179 [-5.3858, -5.2517] | WIN -5.0557 [-5.0986, -5.0122] | WIN -3.2859 [-3.3148, -3.2564] | WIN -3.9216 [-3.9486, -3.8951] |
+| ancoda-128k | himalaya-100k | WIN -0.0423 [-0.0533, -0.0310] | WIN -0.2075 [-0.2215, -0.1934] | LOSE +0.0407 [+0.0333, +0.0484] | WIN -0.3726 [-0.3848, -0.3599] | WIN -0.3103 [-0.3224, -0.2981] | WIN -0.2854 [-0.2983, -0.2725] | WIN -0.3139 [-0.3268, -0.3012] | WIN -0.8930 [-0.9199, -0.8656] | WIN -0.9117 [-0.9319, -0.8910] | WIN -0.2657 [-0.2773, -0.2540] | WIN -0.3464 [-0.3568, -0.3361] |
+| ancoda-128k | himalaya-128k | WIN -0.0111 [-0.0218, -0.0002] | WIN -0.1832 [-0.1970, -0.1693] | LOSE +0.0607 [+0.0532, +0.0686] | WIN -0.3394 [-0.3512, -0.3270] | WIN -0.2799 [-0.2917, -0.2681] | WIN -0.2533 [-0.2659, -0.2408] | WIN -0.2853 [-0.2981, -0.2727] | WIN -0.8452 [-0.8719, -0.8183] | WIN -0.8664 [-0.8863, -0.8458] | WIN -0.2410 [-0.2525, -0.2296] | WIN -0.3139 [-0.3241, -0.3038] |
 
 ### 250k
 
@@ -89,6 +103,7 @@ This scoreboard supersedes the whole-file first-byte tables in `docs/GATE_A.md` 
 | ancoda-250k | bloom | WIN -0.3948 [-0.4085, -0.3809] | WIN -0.1300 [-0.1379, -0.1218] | WIN -0.0233 [-0.0309, -0.0154] | WIN -0.4289 [-0.4394, -0.4181] | WIN -0.3446 [-0.3548, -0.3341] | WIN -0.2689 [-0.2784, -0.2593] | WIN -0.2919 [-0.3016, -0.2822] | WIN -0.7217 [-0.7410, -0.7034] | WIN -0.2194 [-0.2304, -0.2081] | WIN -0.2649 [-0.2743, -0.2551] | WIN -0.3687 [-0.3773, -0.3599] |
 | ancoda-250k | gemma3 | WIN -0.8882 [-0.9042, -0.8721] | WIN -0.1450 [-0.1513, -0.1388] | WIN -0.0095 [-0.0129, -0.0062] | WIN -0.5005 [-0.5092, -0.4918] | WIN -0.3697 [-0.3781, -0.3613] | WIN -0.2974 [-0.3054, -0.2896] | WIN -0.3051 [-0.3126, -0.2978] | WIN -0.9267 [-0.9478, -0.9054] | WIN -0.4514 [-0.4625, -0.4404] | WIN -0.3047 [-0.3126, -0.2968] | WIN -0.4904 [-0.4966, -0.4842] |
 | ancoda-250k | sarvam-30b | WIN -0.8884 [-0.9045, -0.8723] | WIN -0.1450 [-0.1513, -0.1388] | WIN -0.0099 [-0.0132, -0.0066] | WIN -0.5005 [-0.5092, -0.4918] | WIN -0.3697 [-0.3781, -0.3613] | WIN -0.2974 [-0.3054, -0.2896] | WIN -0.3051 [-0.3126, -0.2978] | WIN -0.9267 [-0.9478, -0.9054] | WIN -0.4514 [-0.4625, -0.4404] | WIN -0.3047 [-0.3126, -0.2968] | WIN -0.4904 [-0.4967, -0.4842] |
+| ancoda-250k | o200k | WIN -0.9913 [-1.0092, -0.9723] | WIN -0.4085 [-0.4196, -0.3971] | TIE +0.0015 [-0.0031, +0.0062] | WIN -0.6147 [-0.6263, -0.6030] | WIN -0.5616 [-0.5733, -0.5496] | WIN -0.5346 [-0.5467, -0.5227] | WIN -0.5482 [-0.5603, -0.5364] | WIN -1.4008 [-1.4294, -1.3728] | WIN -1.0263 [-1.0426, -1.0096] | WIN -0.5483 [-0.5601, -0.5364] | WIN -0.7228 [-0.7337, -0.7120] |
 
 ## Self-check
 
@@ -102,3 +117,52 @@ Independently recounted targets (must match within 0.001):
 
 Result: **passed** (seed 20261104).
 
+## Additional measure-only tokenizers
+
+Measured with the same per-sentence harness as the tables above (10000 resamples, seed 20261104, tokenizers 0.23.3). o200k is tiktoken `o200k_base` (MIT). HimalayaAI `himalaya-ai/nepali-tokenizer-bpe-{64k,100k,128k}-5b` are SentencePiece files at the revisions in `docs/LICENSES.md`. Those Hub repos state no licence: measure only, files stay in the Hugging Face cache, and nothing from them is copied or redistributed. himalaya-64k is compared with ancoda-64k. himalaya-100k and himalaya-128k are compared with ancoda-128k. o200k is compared with ancoda-250k.
+
+### Sealed Nepali fertility
+
+Each of the 28,094 Nepali documents in the no-joiner sealed set is encoded on its own. Fertility = total tokens / total whitespace-separated words. The interval is a paired document bootstrap of ours − competitor.
+
+| Model | Sealed Nepali |
+|---|---:|
+| ancoda-64k | 1.3077 |
+| himalaya-64k | 1.3339 |
+| ancoda-128k | 1.2480 |
+| himalaya-100k | 1.2785 |
+| himalaya-128k | 1.2545 |
+| ancoda-250k | 1.2152 |
+| o200k | 2.1384 |
+
+| Ours | Competitor | Sealed Nepali |
+|---|---|---|
+| ancoda-64k | himalaya-64k | WIN -0.0261 [-0.0281, -0.0242] |
+| ancoda-128k | himalaya-100k | WIN -0.0305 [-0.0325, -0.0286] |
+| ancoda-128k | himalaya-128k | WIN -0.0065 [-0.0083, -0.0046] |
+| ancoda-250k | o200k | WIN -0.9231 [-0.9263, -0.9200] |
+
+### Mark-initial share and ZWJ / ZWNJ cost
+
+FLORES+ Nepali devtest, each sentence encoded alone. Mark-initial share is tokens whose first decoded character is a combining mark (Mn, Mc, or Me), divided by all tokens. ZWJ and ZWNJ cost is tokens on the Yak joiner rewrite divided by tokens on the original sentences. The rewrite inserts U+200D or U+200C after every virama that precedes a Devanagari consonant.
+
+| Model | Mark-initial share | ZWJ cost | ZWNJ cost |
+|---|---:|---:|---:|
+| himalaya-64k | 0.025058 | 2.440101 | 2.440101 |
+| himalaya-100k | 0.019780 | 2.504265 | 2.504265 |
+| himalaya-128k | 0.017754 | 2.531090 | 2.531090 |
+| o200k | 0.256795 | 1.525278 | 1.556263 |
+
+### Round-trip
+
+Rate of `decode(encode(x)) == x`, with no special tokens added. FLORES+ Nepali is the 1,012 devtest lines that contain a word. Sealed Nepali is the same 28,094 documents.
+
+| Model | FLORES+ Nepali | Sealed Nepali |
+|---|---:|---:|
+| ancoda-64k | 1012/1012 (1.000000) | 28094/28094 (1.000000) |
+| ancoda-128k | 1012/1012 (1.000000) | 28094/28094 (1.000000) |
+| ancoda-250k | 1012/1012 (1.000000) | 28094/28094 (1.000000) |
+| himalaya-64k | 1004/1012 (0.992095) | 21864/28094 (0.778244) |
+| himalaya-100k | 1004/1012 (0.992095) | 21864/28094 (0.778244) |
+| himalaya-128k | 1004/1012 (0.992095) | 21864/28094 (0.778244) |
+| o200k | 1012/1012 (1.000000) | 28094/28094 (1.000000) |
