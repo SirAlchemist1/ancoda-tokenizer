@@ -7,6 +7,7 @@ import json
 import random
 from pathlib import Path
 
+import ancoda_seg
 import pyarrow.parquet as pq
 
 from ancoda_tok.clean.common import base_manifest, finish_manifest, save_json
@@ -156,9 +157,7 @@ def score_tokenizer(tokenizer_dir: Path, words: list[tuple[str, int]] | None = N
         "unweighted": _prf(float(tp), float(fp), float(hits), float(misses)),
         "frequency_weighted": _prf(tp_w, fp_w, hits_w, misses_w),
         "whole_word_preservation_unweighted": 0.0 if n == 0 else whole / n,
-        "whole_word_preservation_frequency_weighted": (
-            0.0 if total_w == 0 else whole_w / total_w
-        ),
+        "whole_word_preservation_frequency_weighted": (0.0 if total_w == 0 else whole_w / total_w),
         "counts": {
             "tp": tp,
             "fp": fp,
@@ -197,6 +196,44 @@ def split_case_marker(word: str, markers: tuple[str, ...] | None = None) -> tupl
     for marker in ordered:
         if len(word) > len(marker) and word.endswith(marker):
             return word[: -len(marker)], marker
+    return None
+
+
+VERB_FORM_MARKERS: tuple[str, ...] = ("को", "का", "की", "मा")
+VOWEL_SIGN_E = "\u0947"
+INDEPENDENT_E = "\u090f"
+EXCLUSION_REASONS: tuple[str, ...] = (
+    "non_devanagari",
+    "single_unit",
+    "e_sign_verb_form",
+    "independent_e_verb_form",
+)
+
+
+def is_devanagari_block(ch: str) -> bool:
+    return "\u0900" <= ch <= "\u097f"
+
+
+def case_marker_exclusion(
+    word: str, stem: str, marker: str, *, independent_e: bool = True
+) -> str | None:
+    """Reason a stem|marker candidate is not a noun plus case marker, or None to keep it.
+
+    Reasons are checked in ``EXCLUSION_REASONS`` order and the first match is returned.
+    ``single_unit`` uses the Ancoda protected unit (``ancoda_seg.aksharas``).
+    The verb-form reasons drop participles (को/का/की) and conditionals (मा) whose stem
+    ends in the vowel sign े, or in the independent vowel ए after another vowel
+    (आएको, खुलाएका). Other markers after such a stem are kept.
+    """
+    if not all(is_devanagari_block(ch) for ch in word):
+        return "non_devanagari"
+    if len(ancoda_seg.aksharas(stem)) == 1:
+        return "single_unit"
+    if marker in VERB_FORM_MARKERS:
+        if stem.endswith(VOWEL_SIGN_E):
+            return "e_sign_verb_form"
+        if independent_e and stem.endswith(INDEPENDENT_E):
+            return "independent_e_verb_form"
     return None
 
 

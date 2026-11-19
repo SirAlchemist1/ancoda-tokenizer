@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from ancoda_tok.eval.morph import (
     CASE_MARKERS,
+    case_marker_exclusion,
     classify_marker_spans,
     load_suffixes,
     markers_missing_from_inventory,
@@ -45,6 +46,27 @@ def test_split_case_marker_nonempty_stem() -> None:
     assert split_case_marker("भन्दा") is None
     assert split_case_marker("मा") is None
     assert split_case_marker("घर") is None
+
+
+def test_case_marker_exclusion() -> None:
+    def reason(word: str) -> str | None:
+        split = split_case_marker(word)
+        assert split is not None
+        return case_marker_exclusion(word, *split)
+
+    for word in ("भागेकी", "घटेमा", "बसेमा"):
+        assert reason(word) == "e_sign_verb_form"
+    for word in ("खुलाएका", "नआएको"):
+        assert reason(word) == "independent_e_verb_form"
+        split = split_case_marker(word)
+        assert split is not None
+        assert case_marker_exclusion(word, *split, independent_e=False) is None
+    assert reason("बिकी") == "single_unit"
+    assert reason("(बीमा") == "non_devanagari"
+    assert reason("घर\u200cमा") == "non_devanagari"
+    assert reason("लागिएकाले") is None
+    assert reason("नेपालको") is None
+    assert reason("घरमा") is None
 
 
 def test_classify_marker_spans() -> None:
