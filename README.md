@@ -119,6 +119,20 @@ Full tables, robustness, and PLAN 3.10 gate checks: [`docs/GATE_A.md`](docs/GATE
 
 Exports: Hugging Face `tokenizer.json` and tiktoken ranks; both must match the canonical encoder in PLAN 3.5.
 
-## License / comparison arms
+## License
+
+Copyright (c) 2026 Ancoda Labs Pvt. Ltd. Both licences below are noncommercial. **Commercial use of any part of this project needs a separate licence from Ancoda Labs.**
+
+| What | Licence |
+|---|---|
+| Code: `crates/`, `python/`, `scripts/`, `tests/`, `configs/`, `Makefile`, `Cargo.toml`, `Cargo.lock`, `pyproject.toml`, `uv.lock`, `rust-toolchain.toml` | [`LICENSE`](LICENSE), PolyForm Noncommercial 1.0.0 |
+| Ancoda tokenizer files (`tokenizer.json` and tiktoken ranks for every Ancoda build, distributed separately from this repo) | [`LICENSE-DATA`](LICENSE-DATA), CC BY-NC 4.0 |
+| Pre-registration: `docs/M9_PREREG.md` | [`LICENSE-DATA`](LICENSE-DATA), CC BY-NC 4.0 |
+| Sealed document-ID lists: `docs/sealed_test_set.json`, `docs/sealed_test_set_no_joiners.json` | [`LICENSE-DATA`](LICENSE-DATA), CC BY-NC 4.0 |
+| Everything else in the repository (other `docs/`, `artifacts/m9/` result files) | [`LICENSE`](LICENSE), PolyForm Noncommercial 1.0.0 |
+
+Third-party exception: the Unicode-to-Preeti table in `python/ancoda_tok/clean/preeti_convert.py` is from [globalpolicy/UnicodeToPreeti](https://github.com/globalpolicy/UnicodeToPreeti) and stays under its MIT licence. Third-party tokenizers, datasets and their licences are listed in [`docs/LICENSES.md`](docs/LICENSES.md); none of their files are covered by either licence above.
+
+## Comparison arms
 
 Yak, sidskarki-64k, HimalayaAI, and Arkios are evaluation-only within their licenses. Do not copy their vocab, merges, or regex into Ancoda. HimalayaAI's Hub card states no license: the section above is a local comparison only, and the model is not redistributed. FLORES+ text is never re-hosted in this repo.
