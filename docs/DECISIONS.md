@@ -286,7 +286,7 @@ A two-stage curriculum, after SuperBPE (arXiv 2503.13423): word-level merges fir
 
 ## data-plan approvals (4 Nov 2026)
 
-The human approved the following for milestone data-plan. Sections 3.1–3.13 are unchanged.
+The maintainer approved the following for milestone data-plan. Sections 3.1–3.13 are unchanged.
 
 ### Storage
 
@@ -308,7 +308,7 @@ Approved for evaluation only under CC BY 4.0, at commit `b3498528daa3435f091792e
 
 ## cleaning legacy-font detector (5 Nov 2026)
 
-The logistic-regression Preeti classifier failed the 99% precision spot-check (precision 0.05 after one retrain). The human replaced it with a **dictionary-based Preeti detector**:
+The logistic-regression Preeti classifier failed the 99% precision spot-check (precision 0.05 after one retrain). The maintainer replaced it with a **dictionary-based Preeti detector**:
 
 1. Take the 50,000 most frequent Devanagari words from Nepali training sources after UTF-8 cleanup and GlotLID keep (`npi_Deva`). Convert each with the MIT `globalpolicy/UnicodeToPreeti` converter. Keep converted forms of length ≥ 2. Write `artifacts/clean/preeti_lexicon.tsv` with sha256.
 2. A Latin-script line in a Nepali document is flagged if it has ≥ 3 whitespace tokens in that lexicon and those tokens are ≥ 50% of the line's tokens. Drop a document only if more than 20% of its lines are flagged.

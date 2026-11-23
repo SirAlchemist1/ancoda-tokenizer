@@ -29,7 +29,7 @@ Read from Hub `LICENSE.md` at revision above:
 
 ## data-plan training and eval sources
 
-The human approved option 2, the ten FineWeb-2 `nepal_pool` configs, Romanized Nepali as eval-only, and the Papaya affix inventory as CC BY 4.0 evaluation data on 4 Nov 2026. See `docs/DECISIONS.md`. Each `data/raw/<source_id>/manifest.json` records the revision below. Text stays under `data/` and is not committed.
+The maintainer approved option 2, the ten FineWeb-2 `nepal_pool` configs, Romanized Nepali as eval-only, and the Papaya affix inventory as CC BY 4.0 evaluation data on 4 Nov 2026. See `docs/DECISIONS.md`. Each `data/raw/<source_id>/manifest.json` records the revision below. Text stays under `data/` and is not committed.
 
 | ID | Revision | License (as read) | Card URL | Attribution | Share-alike | Redistribution | Training use | Notes |
 |---|---|---|---|---|---|---|---|---|
