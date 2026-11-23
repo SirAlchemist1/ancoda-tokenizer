@@ -1,4 +1,4 @@
-"""Train the M7 SentencePiece Unigram control (PLAN.md M7).
+"""Train the M7 SentencePiece Unigram control (docs/SPEC.md M7).
 
 Tokenizer-level control only: same snapshot, vocab 64k, byte_fallback=true,
 normalization_rule_name=identity. Not an algorithmic BPE-vs-Unigram comparison.

@@ -1,4 +1,4 @@
-"""Unit tests for PLAN.md 3.6 Block 1 selection."""
+"""Unit tests for docs/SPEC.md 3.6 Block 1 selection."""
 
 from __future__ import annotations
 

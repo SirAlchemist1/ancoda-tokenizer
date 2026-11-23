@@ -1,4 +1,4 @@
-"""Morphology helper checks (PLAN.md 3.9)."""
+"""Morphology helper checks (docs/SPEC.md 3.9)."""
 
 from __future__ import annotations
 

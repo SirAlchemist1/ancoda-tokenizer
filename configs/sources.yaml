@@ -1,10 +1,10 @@
 # M2 source inventory. Paths and dataset IDs were read from the Hub API and
 # dataset cards on 4 Nov 2026. Byte budgets use 1 GB = 10^9 bytes, as written
-# in PLAN.md. `amount: all` downloads every file under `paths`. A number is a
+# in docs/SPEC.md. `amount: all` downloads every file under `paths`. A number is a
 # UTF-8 text cap. `download: false` rows are listed for the human and are not
 # part of the disk total.
 #
-# Wikipedia is not a training source (PLAN.md 3.8). It is absent here on purpose.
+# Wikipedia is not a training source (docs/SPEC.md 3.8). It is absent here on purpose.
 
 gb_bytes: 1000000000
 free_floor_bytes: 50000000000

@@ -1,7 +1,7 @@
 """Gate A printer (M1).
 
 Reads Yak harness artifact JSON for a named panel tokenizer and prints:
-- PLAN.md 3.10 rows with PASS/FAIL (harness-backed rows only in M1)
+- docs/SPEC.md 3.10 rows with PASS/FAIL (harness-backed rows only in M1)
 - Yak scoreboard for yak-64k-v1 and yak-64k-v2.0 (WIN/TIE/LOSE)
 
 Ancoda-only metrics (covered violations, mark-initial vocab, equality, segmenter

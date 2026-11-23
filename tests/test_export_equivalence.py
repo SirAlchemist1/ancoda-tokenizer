@@ -1,4 +1,4 @@
-"""PLAN.md 3.5 export check.
+"""docs/SPEC.md 3.5 export check.
 
 Full merges are every split ``(A, B)`` of a vocab token ``T = A + B``, sorted by
 ``(rank(T), rank(A), rank(B))``. Hugging Face BPE uses ``ignore_merges=True``.

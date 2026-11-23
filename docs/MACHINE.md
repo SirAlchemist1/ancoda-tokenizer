@@ -1,7 +1,7 @@
 # Machine check (M0 step 2)
 
 Recorded: 4 Nov 2026 (local). Repo path: `$REPO_ROOT`.
-Re-checked after PLAN.md disk threshold update (100 GB free minimum).
+Re-checked after docs/SPEC.md disk threshold update (100 GB free minimum).
 
 ## `sw_vers`
 

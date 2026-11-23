@@ -315,7 +315,7 @@ def main() -> None:
             t3_vs_5gb=compare,
             notes={
                 "fertilities": "printed to 6 decimals",
-                "t1_coverage": "PLAN.md 3.6 from covered_64k_{5,3,2}pct.json",
+                "t1_coverage": "docs/SPEC.md 3.6 from covered_64k_{5,3,2}pct.json",
                 "t1_tail": "guarantee tail_hf_rate_lo_hi = [point, lo, hi]",
                 "t2_code_math": "same held-out samples as frontier H via held_out_code_math",
                 "5gb_bd46000": "missing from script_budget H frontier",

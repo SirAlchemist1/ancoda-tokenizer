@@ -14,9 +14,9 @@ ancoda-64k is a lossless, Nepali-first byte-level BPE. On the frozen FLORES+ sco
 
 Those Nepali gaps are **WIN** −0.0059 against Yak v1 and **WIN** −0.0193 against Yak v2.0. The bars are zoomed so the gap is visible. The full scoreboard, including the losses, is below.
 
-Companion builds: **ancoda-32k**, **ancoda-ne-64k**, **ancoda-128k**, **ancoda-250k**. Each build exports a Hugging Face `tokenizer.json` and a tiktoken rank file. Both exports reproduce the canonical encoder in [PLAN.md §3.5](PLAN.md). Tokenizer files ship separately from this repository.
+Companion builds: **ancoda-32k**, **ancoda-ne-64k**, **ancoda-128k**, **ancoda-250k**. Each build exports a Hugging Face `tokenizer.json` and a tiktoken rank file. Both exports reproduce the canonical encoder in [docs/SPEC.md §3.5](docs/SPEC.md). Tokenizer files ship separately from this repository.
 
-Frozen M8 results: [`docs/GATE_A.md`](docs/GATE_A.md). Spec: [`PLAN.md`](PLAN.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md). Evidence hashes: [`docs/EVIDENCE_M8.md`](docs/EVIDENCE_M8.md). Sentence-level comparisons: [`docs/RESULTS_PER_SENTENCE.md`](docs/RESULTS_PER_SENTENCE.md).
+Frozen M8 results: [`docs/GATE_A.md`](docs/GATE_A.md). Spec: [`docs/SPEC.md`](docs/SPEC.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md). Evidence hashes: [`docs/EVIDENCE_M8.md`](docs/EVIDENCE_M8.md). Sentence-level comparisons: [`docs/RESULTS_PER_SENTENCE.md`](docs/RESULTS_PER_SENTENCE.md).
 
 ## From text to tokens
 

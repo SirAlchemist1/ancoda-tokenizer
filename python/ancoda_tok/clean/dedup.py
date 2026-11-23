@@ -73,7 +73,7 @@ def _rewrite_removes_for_preference(
 ) -> dict[str, Any]:
     """Replace MinHash .remove lists so each cluster keeps the preferred source.
 
-    datatrove's union-find keeper is size-based, not source-preference. PLAN.md
+    datatrove's union-find keeper is size-based, not source-preference. docs/SPEC.md
     requires preference order sangraha → iriis → indiccorp → fw2 → hplt.
     """
     import pyarrow.parquet as pq
@@ -235,7 +235,7 @@ def minhash_dedup_nepali(mix: dict, *, restage: bool = False) -> dict[str, Any]:
         seed=SEED,
     )
     pref = _preference_rank(mix)
-    # Preference order for staging (PLAN.md cluster keepers).
+    # Preference order for staging (docs/SPEC.md cluster keepers).
     sources = [s for s in mix["nepali_dedup_preference"] if clean_dir(s).exists()]
     for sid in mix["buckets"]["Nepali"]["sources"]:
         if sid not in sources and clean_dir(sid).exists():

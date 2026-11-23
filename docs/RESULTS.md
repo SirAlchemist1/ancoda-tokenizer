@@ -397,7 +397,7 @@ Source: `artifacts/clean/snapshots.json`.
 
 Snapshot: `data/snapshots/n50_32fd1b6a9c068400`. Seed `20261104`.
 Counted every `aksharas()` unit with at least one U+0900–U+097F code point.
-Block 1 selection is PLAN.md 3.6 (cap 5% of vocab; stop at cap or 99.99% coverage).
+Block 1 selection is docs/SPEC.md 3.6 (cap 5% of vocab; stop at cap or 99.99% coverage).
 
 ### Default mode (`gb9c=false`)
 
@@ -601,7 +601,7 @@ Focus-only (English vs Code vs Math, Nepali ignored): English 0.652252, Code 0.1
 
 ### Unigram control — SentencePiece defaults (diagnostic note)
 
-The M7 Unigram rung called `SentencePieceTrainer.train` without setting `remove_extra_whitespaces` or `add_dummy_prefix`. SentencePiece defaults are `remove_extra_whitespaces=1` and `add_dummy_prefix=1`. That is a **deviation** from PLAN.md M7 / 3.2 (no normalization). Recorded here for the paper; the control remains tokenizer-level only.
+The M7 Unigram rung called `SentencePieceTrainer.train` without setting `remove_extra_whitespaces` or `add_dummy_prefix`. SentencePiece defaults are `remove_extra_whitespaces=1` and `add_dummy_prefix=1`. That is a **deviation** from docs/SPEC.md M7 / 3.2 (no normalization). Recorded here for the paper; the control remains tokenizer-level only.
 
 **STOP (human):** diagnostics complete. No mix pick. No further training until you reply.
 

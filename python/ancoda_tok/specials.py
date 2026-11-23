@@ -1,4 +1,4 @@
-"""The 1,024 reserved special tokens (PLAN.md 3.7).
+"""The 1,024 reserved special tokens (docs/SPEC.md 3.7).
 
 The same list is produced by ``ancoda-bpe specials``. Ordinary-text encoding must
 not treat these names as specials; see ``docs/MODEL_CARD_NOTES.md``.

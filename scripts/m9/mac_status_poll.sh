@@ -2,8 +2,8 @@
 # Mac-side read-only status poll. Never restarts training. Set M9_HOST.
 set -u
 : "${M9_HOST:?set M9_HOST to the M9 SSH host alias}"
-LOG="${HOME}/.cursor/m9_status_poll.log"
-STATUS="${HOME}/.cursor/m9_last_status.txt"
+LOG="${HOME}/.ancoda_build/m9_status_poll.log"
+STATUS="${HOME}/.ancoda_build/m9_last_status.txt"
 mkdir -p "$(dirname "$LOG")"
 exec >>"$LOG" 2>&1
 

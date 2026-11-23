@@ -1,7 +1,7 @@
 """M2 storage plan.
 
 Sizes of files we would download come from ``HfApi.list_repo_tree``. A number
-in PLAN.md written as GB is 10^9 bytes. The plan stops when the projected peak
+in docs/SPEC.md written as GB is 10^9 bytes. The plan stops when the projected peak
 would leave under 50 GB free.
 """
 
@@ -394,7 +394,7 @@ def render_markdown(
     lines.append("")
     lines.append(
         "File sizes are Hub `list_repo_tree` sizes (exact). "
-        "A bracketed PLAN.md budget is a UTF-8 cap, and 1 GB = 10^9 bytes. "
+        "A bracketed docs/SPEC.md budget is a UTF-8 cap, and 1 GB = 10^9 bytes. "
         "Stored parquet of a capped source is at most that cap. "
         f"Git commit `{commit}`."
     )
@@ -402,7 +402,7 @@ def render_markdown(
     lines.append("## Machine now")
     lines.append("")
     lines.append(f"- RAM: {ram_bytes / 1024**3:.1f} GiB (`sysctl -n hw.memsize` = {ram_bytes}).")
-    lines.append("- Under 32 GB RAM, PLAN.md 3.8 sets each snapshot to 5 GB, not 10 GB.")
+    lines.append("- Under 32 GB RAM, docs/SPEC.md 3.8 sets each snapshot to 5 GB, not 10 GB.")
     lines.append(f"- Free space: {format_bytes(free)}.")
     lines.append("")
     lines.append("```")

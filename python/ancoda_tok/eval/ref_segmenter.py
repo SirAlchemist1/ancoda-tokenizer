@@ -1,4 +1,4 @@
-"""Independent Python implementation of PLAN.md 3.3.
+"""Independent Python implementation of docs/SPEC.md 3.3.
 
 Grapheme clusters follow UAX #29 for Unicode 16.0.0, using
 ``GraphemeBreakProperty.txt``, ``DerivedCoreProperties.txt`` (InCB), and
@@ -63,9 +63,9 @@ _TABLES: Tables | None = None
 
 def repo_root() -> Path:
     for cand in Path(__file__).resolve().parents:
-        if (cand / "PLAN.md").is_file():
+        if (cand / "docs" / "SPEC.md").is_file():
             return cand
-    raise RuntimeError("PLAN.md not found")
+    raise RuntimeError("docs/SPEC.md not found")
 
 
 def unicode_dir() -> Path:
