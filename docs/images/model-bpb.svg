@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 268" role="img" aria-labelledby="bpbTitle bpbDesc">
+  <title id="bpbTitle">Change in bits per byte on sealed Nepali, equal tokens</title>
+  <desc id="bpbDesc">Mean of three seeds. (Ancoda minus other) divided by the other. Yak v1 minus 0.42 percent, Yak v2 minus 0.40 percent, sidskarki minus 4.03 percent: Ancoda better on all three. Plain BPE plus 0.16 percent: no measurable difference.</desc>
+  <style>
+    .card { fill: #fffdf8; }
+    .ink { fill: #1c1917; }
+    .muted { fill: #57534e; }
+    .better { fill: #9a3412; }
+    .tie { fill: #a8a29e; }
+    .bar { transform-box: fill-box; transform-origin: right center; animation: grow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .tiebar { transform-box: fill-box; transform-origin: left center; animation: grow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    @media (prefers-reduced-motion: reduce) {
+      .bar, .tiebar { animation: none; }
+    }
+  </style>
+  <rect class="card" x="0" y="0" width="760" height="268" rx="16"/>
+  <text class="muted" x="28" y="32" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Sealed Nepali · equal tokens · mean of 3 seeds</text>
+  <text class="ink" x="28" y="56" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="500">Change in bits per byte</text>
+  <text class="muted" x="28" y="78" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">(Ancoda − other) / other. Left of zero: Ancoda is lower.</text>
+
+  <line x1="400" y1="98" x2="400" y2="222" stroke="#a8a29e" stroke-width="1"/>
+  <text class="muted" x="200" y="248" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">−4%</text>
+  <text class="muted" x="300" y="248" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">−2%</text>
+  <text class="muted" x="400" y="248" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">0</text>
+  <text class="muted" x="450" y="248" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">+1%</text>
+
+  <g font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">
+    <text class="ink" x="28" y="122">Yak v1</text>
+    <rect class="better bar" x="379" y="108" width="21" height="16" rx="3"/>
+    <text class="ink" x="470" y="121">−0.42% · Ancoda better</text>
+
+    <text class="ink" x="28" y="156">Yak v2</text>
+    <rect class="better bar" x="380" y="142" width="20" height="16" rx="3" style="animation-delay:0.08s"/>
+    <text class="ink" x="470" y="155">−0.40% · Ancoda better</text>
+
+    <text class="ink" x="28" y="190" font-weight="500">sidskarki</text>
+    <rect class="better bar" x="198" y="176" width="202" height="16" rx="3" style="animation-delay:0.16s"/>
+    <text class="ink" x="470" y="189" font-weight="500">−4.03% · Ancoda better</text>
+
+    <text class="muted" x="28" y="224">plain BPE</text>
+    <rect class="tie tiebar" x="400" y="210" width="8" height="16" rx="3" style="animation-delay:0.24s"/>
+    <text class="muted" x="470" y="223">+0.16% · no difference</text>
+  </g>
+</svg>
