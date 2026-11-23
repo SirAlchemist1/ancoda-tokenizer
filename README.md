@@ -16,30 +16,9 @@ The write-up is *Fewer Tokens Are Not Enough* (Suryodaya Bikram Shahi, Ancoda La
   <img src="docs/images/nepali-fertility.svg" alt="FLORES+ Nepali tokens per word. Ancoda-64k 1.45, about 1.03 times its English count. Qwen3 is 6.52, about 5.17 times. sidskarki-64k is lower still, at 1.37." width="720">
 </p>
 
-<<<<<<< HEAD
-Those Nepali gaps are **WIN** −0.0059 against Yak v1 and **WIN** −0.0193 against Yak v2.0. The bars are zoomed so the gap is visible. The full scoreboard, including the losses, is below.
-
-Companion builds: **ancoda-32k**, **ancoda-ne-64k**, **ancoda-128k**, **ancoda-250k**. Each build exports a Hugging Face `tokenizer.json` and a tiktoken rank file. Both exports reproduce the canonical encoder in [docs/SPEC.md §3.5](docs/SPEC.md). Tokenizer files ship separately from this repository.
-
-Frozen final-build results: [`docs/GATE_A.md`](docs/GATE_A.md). Spec: [`docs/SPEC.md`](docs/SPEC.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md). Evidence hashes: [`docs/EVIDENCE_FINAL_BUILD.md`](docs/EVIDENCE_FINAL_BUILD.md). Sentence-level comparisons: [`docs/RESULTS_PER_SENTENCE.md`](docs/RESULTS_PER_SENTENCE.md).
-
-## From text to tokens
-
-```mermaid
-flowchart LR
-  A["UTF-8 text"] --> B["Pre-tokenizer<br/>ZWJ and ZWNJ stay in the word"]
-  B --> C["Akshara units<br/>a Devanagari letter starts each one"]
-  C --> D["Byte-level BPE<br/>covered units stay intact"]
-  D --> E["tokenizer.json"]
-  D --> F["tiktoken ranks"]
-```
-
-`स्कूल` is `स्` · `कू` · `ल`. A conjunct such as `क्ष` is `क्` · `ष`. Marks stay on their letter. BPE may join those units into a longer token. It may not cut a covered unit in half.
-=======
 <p align="center">
   <img src="docs/images/model-bpb.svg" alt="Sealed Nepali, equal tokens, three seeds. Ancoda’s bits per byte are 0.42% below Yak v1, 0.40% below Yak v2, and 4.03% below sidskarki. Plain BPE is 0.16% lower than Ancoda, and that gap is not a measurable difference." width="720">
 </p>
->>>>>>> origin/master
 
 ## Contents
 
