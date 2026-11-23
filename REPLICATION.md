@@ -16,7 +16,7 @@ Those tests check:
 - export equivalence (Hugging Face `tokenizer.json` and the tiktoken rank file match the canonical encoder in [docs/SPEC.md](docs/SPEC.md) §3.5)
 - the model-eval scoring helpers, including the bits-per-byte definition used by the independent recompute (tolerance 0.001 BPB)
 
-They do not retrain a model and they do not need the training parquet.
+They do not retrain a model and they do not need the training parquet. The full `pytest` suite also needs the downloaded corpus; `make verify` does not.
 
 ## Model-level test
 
