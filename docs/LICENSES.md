@@ -19,7 +19,7 @@ Read from Hub `LICENSE.md` at revision above:
 
 - Grant covers use, copy, modify, merge, publish, and distribute, subject to attribution, ≤ $100k annual revenue, no sublicensing to above-threshold entities, and share-alike for derivatives.
 - **Evaluation on this harness** and **proxy-model comparison (model-eval)** are forms of use → **permitted** when the revenue condition holds and attribution is given.
-- Terms are clear; no baselines STOP for ambiguity. Human must confirm revenue ≤ $100k before relying on model-eval arm 6.
+- Terms are clear; no baselines STOP for ambiguity. The maintainer confirmed on 10 Nov 2026 that Ancoda Labs' annual revenue is within the USD 100,000 threshold (docs/MODEL_EVAL_PREREG.md).
 
 ## Harness
 
