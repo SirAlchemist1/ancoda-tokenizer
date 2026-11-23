@@ -34,7 +34,7 @@ The write-up is *Fewer Tokens Are Not Enough* (Suryodaya Bikram Shahi, Ancoda La
 
 ## Using the tokenizer
 
-The five final exports are on the [tokenizers-v1 release](https://github.com/SirAlchemist1/ancoda-tokenizer/releases/tag/tokenizers-v1): one Hugging Face `tokenizer.json` and one tiktoken rank file for each of the five builds. They are trained results, licensed under [CC BY-NC 4.0](LICENSE-DATA), the same licence as the other result files.
+The five final exports are on the [tokenizers-v1 release](https://github.com/SirAlchemist1/ancoda-tokenizer/releases/tag/tokenizers-v1): one Hugging Face `tokenizer.json` and one tiktoken rank file for each of the five builds. They are also on Hugging Face at [SirAlchemist1/ancoda-tokenizer](https://huggingface.co/SirAlchemist1/ancoda-tokenizer). They are trained results, licensed under [CC BY-NC 4.0](LICENSE-DATA), the same licence as the other result files.
 
 ```bash
 gh release download tokenizers-v1 --repo SirAlchemist1/ancoda-tokenizer --pattern 'ancoda-64k.*'
