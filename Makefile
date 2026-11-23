@@ -6,7 +6,7 @@ export ANCODA_WORKERS ?= 5
 export RAYON_NUM_THREADS ?= $(ANCODA_WORKERS)
 export DATATROVE_WORKERS ?= $(ANCODA_WORKERS)
 
-.PHONY: setup storage-plan download clean-data snapshot inventory counts train export eval gate-a efficiency proxy-pilot proxy-train gate-b release
+.PHONY: setup storage-plan download clean-data snapshot inventory counts train export eval gate-a efficiency proxy-pilot proxy-train gate-b release verify
 
 setup:
 	uv sync
@@ -60,3 +60,7 @@ gate-b:
 
 release:
 	@echo "release: stub — implemented in release-candidate"
+
+verify:
+	@echo "verify: lossless round-trip, protected-unit integrity, export equivalence, and the independent BPB recompute tolerance (0.001). No GPU."
+	uv run --frozen pytest tests/test_guarantee.py tests/test_export_equivalence.py tests/test_model_eval.py -q
