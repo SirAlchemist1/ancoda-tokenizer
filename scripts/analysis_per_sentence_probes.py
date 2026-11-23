@@ -251,9 +251,9 @@ def main() -> None:
             "GATE_A.md column table npi/eng/hin/deva_mean fertilities (whole-file Yak definition)",
             "GATE_A.md ZWJ/ZWNJ columns (scoreboard ratio = whole-file for most HF tokenizers)",
             "GATE_A.md Robustness misspell/nukta/NFC/NFD ratios marked 'whole-file first-byte'",
-            "docs/RESULTS.md leaderboard 'npi' column (whole-file); 'npi per line' is already per-sentence",
-            "docs/RESULTS.md Robustness probes ZWJ/ZWNJ/typo ratios (Yak harness; often whole-file)",
-            "Orphan-mark share in RESULTS.md leaderboard for sidskarki (1.7%) and arkios (14.6%)",
+            "docs/YAK_HARNESS_RESULTS.md leaderboard 'npi' column (whole-file); 'npi per line' is already per-sentence",
+            "docs/YAK_HARNESS_RESULTS.md Robustness probes ZWJ/ZWNJ/typo ratios (Yak harness; often whole-file)",
+            "Orphan-mark share in YAK_HARNESS_RESULTS.md leaderboard for sidskarki (1.7%) and arkios (14.6%)",
         ],
     }
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)

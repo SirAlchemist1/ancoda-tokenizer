@@ -230,6 +230,8 @@ Copyright (c) 2026 Ancoda Labs Pvt. Ltd. Both licences below are noncommercial. 
 
 The Unicode-to-Preeti table in `python/ancoda_tok/clean/preeti_convert.py` is from [globalpolicy/UnicodeToPreeti](https://github.com/globalpolicy/UnicodeToPreeti) and stays under its MIT licence. Third-party tokenizers, datasets, and their licences are listed in [`docs/LICENSES.md`](docs/LICENSES.md). None of their files are covered by either Ancoda licence.
 
+docs/YAK_HARNESS_RESULTS.md is output of the Yak harness and stays under Yak's CC BY-NC 4.0 licence.
+
 ## Comparison arms
 
 Yak, sidskarki-64k, HimalayaAI, Arkios and the other tokenizers in the tables are evaluation-only, inside their own licences. Their vocabularies, merges and regexes stay out of the Ancoda build. Models trained with Yak or sidskarki are not released.

@@ -507,7 +507,7 @@ git ls-files | grep -E "Cargo.lock|uv.lock|rust-toolchain.toml"
    The sidskarki-64k model card reports its own fertility (1.26 tokens/word at 64k) on a different evaluation set. **Only numbers from this harness are ever compared.**
 
    sidskarki-64k's license is community-use-1.0. Read its terms and record in `docs/LICENSES.md` whether evaluation and proxy-model comparison are allowed. **STOP (human)** if they are not, or if the terms are unclear.
-4. Save the generated `docs/RESULTS.md` as `artifacts/eval/baseline_RESULTS.md`, with a manifest.
+4. Save the generated `docs/YAK_HARNESS_RESULTS.md` as `artifacts/eval/baseline_RESULTS.md`, with a manifest.
 5. Record the exact values Gate A compares against: every harness metric for `yak-64k-v1` and `yak-64k-v2.0` (including the orphan-mark share and ZWJ/ZWNJ probes), sidskarki-64k's Nepali fertility and probes, and Yak v1 32k and 128k Nepali and English. Write them to `configs/eval.yaml`.
 6. Write `eval/gate_a.py`. It reads harness output for a named tokenizer and prints the 3.10 rows with PASS/FAIL, plus the Yak scoreboard (3.10); our own metrics are added in final-build.
 

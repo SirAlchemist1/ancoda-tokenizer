@@ -5,13 +5,13 @@
 - [x] 1. `eval_panel.py fetch` then `run` inside `third_party/yak-tokenizer` (caffeinate)
 - [x] 2. Harness validity gate **5/5** (±0.03 Arkios-paper check)
 - [x] 3. `docs/LICENSES.md` — Yak CC BY-NC; sidskarki community-use-1.0 allows eval+proxy under ≤$100k revenue + attribution (terms clear; no STOP); Himalaya license not stated; Arkios Apache-2.0
-- [x] 4. `artifacts/eval/baseline_RESULTS.md` + `baseline_RESULTS.manifest.json`; copy also in `docs/RESULTS.md` with baselines notes
+- [x] 4. `artifacts/eval/baseline_RESULTS.md` + `baseline_RESULTS.manifest.json`; copy also in `docs/YAK_HARNESS_RESULTS.md`; baselines notes in `docs/RESULTS.md`
 - [x] 5. Gate A comparison values → `configs/eval.yaml` (incl. orphan/ZWJ/ZWNJ from baselines harness)
 - [x] 6. `python/ancoda_tok/eval/gate_a.py` — 3.10 harness rows + Yak scoreboard; Ancoda-only rows PENDING until final-build
 - [x] Acceptance: `artifacts/eval/baselines_reproduction.tsv` all PASS within ±0.003; `uv run python -m ancoda_tok.eval.gate_a --name yak-64k-v2.0` runs
 
 Acceptance:
-- Harness validity gate → **5/5 reproduced** (`docs/RESULTS.md`)
+- Harness validity gate → **5/5 reproduced** (`docs/YAK_HARNESS_RESULTS.md`)
 - `artifacts/eval/baselines_reproduction.tsv` → **18/18 PASS** (abs diff ≤ 0.003); FAIL count `0`
 - `uv run python -m ancoda_tok.eval.gate_a --name yak-64k-v2.0` → prints 3.10 rows + Yak scoreboard (see `artifacts/eval/baselines_gate_a_yak64v2.txt`)
 - Panel mapping: PLAN “Yak v1 128k” → `yak-128k-v1`; “Yak v2 128k” → `yak-128k-v2.0`; “Yak v1 128k-phrase” → `yak-128k-v1-phrase` (recorded in `configs/eval.yaml`)
