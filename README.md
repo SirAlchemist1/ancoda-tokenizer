@@ -44,6 +44,7 @@ flowchart LR
 - [Builds](#builds)
 - [License](#license)
 - [Comparison arms](#comparison-arms)
+- [Replication](REPLICATION.md)
 
 ## How to read a verdict
 
