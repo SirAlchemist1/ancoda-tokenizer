@@ -1,6 +1,6 @@
 # Storage plan (M2 step 1)
 
-File sizes are Hub `list_repo_tree` sizes (exact). A bracketed PLAN.md budget is a UTF-8 cap, and 1 GB = 10^9 bytes. Stored parquet of a capped source is at most that cap. Git commit `e7f14539841d6d8d1419b5b6bf0f0b20c94136d4`.
+File sizes are Hub `list_repo_tree` sizes (exact). A bracketed PLAN.md budget is a UTF-8 cap, and 1 GB = 10^9 bytes. Stored parquet of a capped source is at most that cap. Git commit `be29daf4cff030a2f71dcd8650aca204fd63859c`.
 
 ## Machine now
 
