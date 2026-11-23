@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 292" role="img" aria-labelledby="fertTitle fertDesc">
-  <title id="fertTitle">FLORES+ Nepali fertility, whole file</title>
-  <desc id="fertDesc">Tokens per word. Lower is better. Axis runs from 1.44 to 1.48. ancoda-64k is 1.4509, yak-64k-v1 is 1.4568, yak-64k-v2.0 is 1.4702. Diffs are minus 0.0059 and minus 0.0193, both wins.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 456" role="img" aria-labelledby="fertTitle fertDesc">
+  <title id="fertTitle">Nepali tokens per word on FLORES+</title>
+  <desc id="fertDesc">Each sentence encoded separately. Lower is better. Qwen3 6.52, Llama-3 3.75, Sarvam-1 2.59, GPT-4o 2.32, Gemma 3 2.22, BLOOM 1.72, IndicBERT v2 1.58, HimalayaAI 64k 1.49, Yak v2 64k 1.47, Ancoda-64k 1.45. The bracket is the ratio to that tokenizer's English count. sidskarki-64k is lower still, at 1.37.</desc>
   <style>
     .card { fill: #fffdf8; }
     .ink { fill: #1c1917; }
@@ -9,38 +9,64 @@
     .ours { fill: #9a3412; }
     .theirs { fill: #44403c; }
     .bar { transform-box: fill-box; transform-origin: left center; animation: grow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
-    .d2 { animation-delay: 0.12s; }
-    .d3 { animation-delay: 0.24s; }
-    @keyframes grow {
-      from { transform: scaleX(0); }
-      to { transform: scaleX(1); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .bar { animation: none; }
-    }
+    @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    @media (prefers-reduced-motion: reduce) { .bar { animation: none; } }
   </style>
-  <rect class="card" x="0" y="0" width="760" height="292" rx="16"/>
-  <text class="muted" x="32" y="36" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">FLORES+ Nepali · whole file · first byte</text>
-  <text class="ink" x="32" y="64" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="500">Lower fertility is better</text>
-  <text class="muted" x="32" y="88" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Axis zoomed from 1.44 to 1.48 tokens per word</text>
+  <rect class="card" x="0" y="0" width="760" height="456" rx="16"/>
+  <text class="muted" x="28" y="32" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">FLORES+ Nepali · each sentence encoded alone</text>
+  <text class="ink" x="28" y="58" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="500">Tokens per word. Lower is better.</text>
+  <text class="muted" x="28" y="80" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">The bracket is tokens per Nepali word divided by tokens per English word.</text>
 
-  <text class="ink" x="32" y="132" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="500">ancoda-64k</text>
-  <rect class="track" x="168" y="116" width="400" height="22" rx="4"/>
-  <rect class="ours bar" x="168" y="116" width="109" height="22" rx="4"/>
-  <text class="ink" x="584" y="132" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="500">1.4509</text>
+  <g font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">
+    <text class="muted" x="28" y="116">Qwen3</text>
+    <rect class="track" x="150" y="104" width="390" height="16" rx="3"/>
+    <rect class="theirs bar" x="150" y="104" width="390" height="16" rx="3"/>
+    <text class="ink" x="552" y="116">6.52 (5.17×)</text>
 
-  <text class="muted" x="32" y="178" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">yak-64k-v1</text>
-  <rect class="track" x="168" y="162" width="400" height="22" rx="4"/>
-  <rect class="theirs bar d2" x="168" y="162" width="168" height="22" rx="4"/>
-  <text class="ink" x="584" y="178" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">1.4568</text>
+    <text class="muted" x="28" y="148">Llama-3</text>
+    <rect class="track" x="150" y="136" width="390" height="16" rx="3"/>
+    <rect class="theirs bar" x="150" y="136" width="224" height="16" rx="3" style="animation-delay:0.04s"/>
+    <text class="ink" x="552" y="148">3.75 (3.03×)</text>
 
-  <text class="muted" x="32" y="224" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">yak-64k-v2.0</text>
-  <rect class="track" x="168" y="208" width="400" height="22" rx="4"/>
-  <rect class="theirs bar d3" x="168" y="208" width="302" height="22" rx="4"/>
-  <text class="ink" x="584" y="224" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">1.4702</text>
+    <text class="muted" x="28" y="180">Sarvam-1</text>
+    <rect class="track" x="150" y="168" width="390" height="16" rx="3"/>
+    <rect class="theirs bar" x="150" y="168" width="155" height="16" rx="3" style="animation-delay:0.08s"/>
+    <text class="ink" x="552" y="180">2.59 (1.80×)</text>
 
-  <line x1="168" y1="248" x2="568" y2="248" stroke="#a8a29e" stroke-width="1"/>
-  <text class="muted" x="168" y="270" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">1.44</text>
-  <text class="muted" x="352" y="270" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">1.46</text>
-  <text class="muted" x="548" y="270" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">1.48</text>
+    <text class="muted" x="28" y="212">GPT-4o</text>
+    <rect class="track" x="150" y="200" width="390" height="16" rx="3"/>
+    <rect class="theirs bar" x="150" y="200" width="139" height="16" rx="3" style="animation-delay:0.12s"/>
+    <text class="ink" x="552" y="212">2.32 (1.89×)</text>
+
+    <text class="muted" x="28" y="244">Gemma 3</text>
+    <rect class="track" x="150" y="232" width="390" height="16" rx="3"/>
+    <rect class="theirs bar" x="150" y="232" width="133" height="16" rx="3" style="animation-delay:0.16s"/>
+    <text class="ink" x="552" y="244">2.22 (1.79×)</text>
+
+    <text class="muted" x="28" y="276">BLOOM</text>
+    <rect class="track" x="150" y="264" width="390" height="16" rx="3"/>
+    <rect class="theirs bar" x="150" y="264" width="103" height="16" rx="3" style="animation-delay:0.20s"/>
+    <text class="ink" x="552" y="276">1.72 (1.38×)</text>
+
+    <text class="muted" x="28" y="308">IndicBERT v2</text>
+    <rect class="track" x="150" y="296" width="390" height="16" rx="3"/>
+    <rect class="theirs bar" x="150" y="296" width="95" height="16" rx="3" style="animation-delay:0.24s"/>
+    <text class="ink" x="552" y="308">1.58 (1.28×)</text>
+
+    <text class="muted" x="28" y="340">HimalayaAI 64k</text>
+    <rect class="track" x="150" y="328" width="390" height="16" rx="3"/>
+    <rect class="theirs bar" x="150" y="328" width="89" height="16" rx="3" style="animation-delay:0.28s"/>
+    <text class="ink" x="552" y="340">1.49 (1.14×)</text>
+
+    <text class="muted" x="28" y="372">Yak v2 64k</text>
+    <rect class="track" x="150" y="360" width="390" height="16" rx="3"/>
+    <rect class="theirs bar" x="150" y="360" width="88" height="16" rx="3" style="animation-delay:0.32s"/>
+    <text class="ink" x="552" y="372">1.47 (1.04×)</text>
+
+    <text class="ink" x="28" y="404" font-weight="500">Ancoda-64k</text>
+    <rect class="track" x="150" y="392" width="390" height="16" rx="3"/>
+    <rect class="ours bar" x="150" y="392" width="87" height="16" rx="3" style="animation-delay:0.36s"/>
+    <text class="ink" x="552" y="404" font-weight="500">1.45 (1.03×)</text>
+  </g>
+  <text class="muted" x="28" y="436" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">sidskarki-64k, Nepali only, is lower: 1.37. It is not on this ladder.</text>
 </svg>
