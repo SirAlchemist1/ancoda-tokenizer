@@ -74,7 +74,7 @@
 
 ## 2. Non-negotiable rules
 
-In setup, write the local rules file `docs/local-rules.mdc` with exactly this content:
+In setup, write the local rules file `docs/PROJECT_RULES.md` with exactly this content:
 
 ```markdown
 ---
@@ -88,13 +88,13 @@ alwaysApply: true
 - The canonical encoder is defined in docs/SPEC.md 3.5. Both exports must reproduce it exactly.
 - Every produced artifact (snapshot, count table, tokenizer, eval result, model run) gets a manifest.json with: input file sha256s, config sha256, git commit, library versions, unicode-segmentation version, Unicode data version and file sha256s, seed, start/end time.
 - Determinism: fixed seeds, sorted iteration, documented tie-breaking. The same inputs must give byte-identical outputs.
-- Commit Cargo.lock, uv.lock and rust-toolchain.toml. Never upgrade a pinned dependency without the human's approval.
+- Commit Cargo.lock, uv.lock and rust-toolchain.toml. Never upgrade a pinned dependency without the maintainer's approval.
 - Yak tokenizer files are CC BY-NC 4.0. Use them only as an evaluation or proxy-model comparison arm. Never copy their vocab, merges or regex into our build.
 - sidskarki-64k (community-use-1.0), HimalayaAI and Arkios files are comparison arms only, within their licenses. Never copy their vocab, merges, data or settings into our build.
 - Synthetic joiner-augmented text (docs/SPEC.md 3.8) is generated only from training documents, tagged `synthetic` in every manifest, and stored separately; original text is never modified.
 - No training corpus may contain evaluation text. Decontamination (docs/SPEC.md cleaning step 5) must run before any tokenizer is trained.
 - A milestone is done only when its acceptance commands pass, with outputs recorded in docs/PROGRESS.md.
-- Do not change decisions in docs/DECISIONS.md without the human's explicit approval.
+- Do not change decisions in docs/DECISIONS.md without the maintainer's explicit approval.
 - Rust: cargo fmt, cargo clippy -D warnings, cargo test must pass. Python: ruff and pytest must pass.
 - This project runs on macOS. Any job expected to take more than 10 minutes runs under `caffeinate -dimsu`, writes output shard by shard, and skips completed shards, so it resumes after interruption.
 - All Hugging Face downloads go to HF_HOME=./data/hf_cache on the repo drive.
@@ -399,7 +399,7 @@ ancoda-tokenizer/
   pyproject.toml  uv.lock            # uv, Python 3.11
   Cargo.toml  Cargo.lock  rust-toolchain.toml
   .gitignore                         # data/, artifacts/, third_party/, .venv/, target/
-  docs/local-rules.mdc
+  docs/PROJECT_RULES.md
   configs/
     sources.yaml  mix.yaml  eval.yaml  proxy.yaml
     build_{32k,64k,128k}.yaml  phrase_{64k,128k}.yaml
@@ -904,7 +904,7 @@ The budget is set **after the pilot** (step 3). Planning figures only: Arkios's 
 - [ ] task …
 Acceptance:
 - <command> → <one-line result>
-Needs the human:
+Needs the maintainer:
 - …
 ```
 
@@ -912,6 +912,6 @@ Needs the human:
 
 - Never invent a dataset ID, config, file name, version or license.
 - Never train a tokenizer before decontamination and its audit have passed.
-- Never publish, push to a public repo, or delete data without the human's explicit go-ahead.
+- Never publish, push to a public repo, or delete data without the maintainer's explicit go-ahead.
 - Never weaken a test or a pass bar to make it pass.
 - Never upgrade a pinned dependency on your own.

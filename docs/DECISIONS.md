@@ -1,6 +1,6 @@
 # Fixed decisions (the spec)
 
-Source of truth copied from docs/SPEC.md section 3 (v2.6). Do not change without the human's explicit approval.
+Source of truth copied from docs/SPEC.md section 3 (v2.6). Do not change without the maintainer's explicit approval.
 
 ### 3.1 Pre-tokenizer
 
@@ -387,7 +387,7 @@ The first n45 independent audit reported `{'exact': 0, 'segment': 200, '13gram':
 
 ## Human correction (8 Nov 2026) — Ban 1 reading and special-token encoding
 
-Recorded at the human's instruction during trainer. The section 3 text above is unchanged; this note is only the corrected reading.
+Recorded at the maintainer's instruction during trainer. The section 3 text above is unchanged; this note is only the corrected reading.
 
 1. **Ban 1, second clause.** `M` lies within one character's UTF-8 encoding: valid lead byte, valid continuation bytes for each later position, and `len(M)` no greater than that lead's width. Proper prefixes such as `E6 97` are allowed. The clause does not mean "exactly one scalar value has an encoding that starts with M". The first clause (both sides complete valid UTF-8) is unchanged.
 2. **Ordinary-text encoding.** Tests set `Tokenizer.encode_special_tokens = True` (tokenizers 0.23.3) so literal special-token strings are plain text, like tiktoken `encode_ordinary`. See `docs/MODEL_CARD_NOTES.md`.

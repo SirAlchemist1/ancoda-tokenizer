@@ -137,7 +137,7 @@ No **blocking** specification defects were found. Several **non-blocking** ambig
 
 ### A2 — `hf auth whoami` vs human login STOP — non-blocking
 - **Where:** setup STOP vs acceptance.
-- **Issue:** Acceptance cannot pass until the human completes `uv run hf auth login` and FLORES+ terms.
+- **Issue:** Acceptance cannot pass until the maintainer completes `uv run hf auth login` and FLORES+ terms.
 - **Why non-blocking:** Intentional human gate; agent STOPs and waits.
 
 ### A3 — No command checks free-disk / RAM thresholds — non-blocking

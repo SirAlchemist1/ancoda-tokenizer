@@ -18,7 +18,7 @@ Acceptance:
 - Extra recorded: Yak v1 64k-phrase Nepali ≈ 1.373937; Sanskrit harness values in eval.yaml; languages-of-Nepal **not comparable**
 - `airavata` failed gated 403 (not in acceptance table)
 
-Needs the human:
+Needs the maintainer:
 - Confirm Ancoda Labs annual revenue ≤ USD $100,000 before using sidskarki-64k as model-eval proxy arm (license allows eval/proxy only under that threshold). Not an baselines blocker.
 - HimalayaAI Hub repos state no license; comparison-only; do not redistribute.
 
@@ -428,7 +428,7 @@ The tail interval is the 10M snapshot lines that contain an uncovered Devanagari
 
 Acceptance: passed. mix-sweep has not been started.
 
-Needs the human:
+Needs the maintainer:
 - Choose the model-eval tier: reduced, full, or none.
 
 ## mix-sweep — Mix sweep and ablation ladder — blocked (STOP human, option-3 diagnostics done)
@@ -461,7 +461,7 @@ Needs the human:
 Acceptance:
 - STOP (human). No mix pick. No further training until reply.
 
-Needs the human:
+Needs the maintainer:
 - Read option-3 tables. Choose a fix path (65% Nepali, cap-bound covered set, or other). Decisions unchanged until you say so.
 
 ## final-build — Final builds, Gate A, efficiency — done (Gate A written; STOP human for review)
@@ -475,7 +475,7 @@ Needs the human:
 Acceptance:
 - Gate A document and evidence hashes are recorded. Flagship files are frozen for model-eval comparison (arm A).
 
-Needs the human:
+Needs the maintainer:
 - Gate A review before treating final-build as closed for product decisions. model-eval proxy runs proceed under the separate model-eval pre-registration.
 
 ## model-eval — Proxy pretraining — core A/B/C done (E-s1 still running)
