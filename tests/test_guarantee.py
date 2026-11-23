@@ -1,4 +1,4 @@
-"""docs/SPEC.md M6 guarantee: equality, covered integrity, marks, round-trip, coverage."""
+"""docs/SPEC.md trainer guarantee: equality, covered integrity, marks, round-trip, coverage."""
 
 from __future__ import annotations
 

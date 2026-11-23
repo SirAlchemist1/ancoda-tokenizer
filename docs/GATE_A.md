@@ -1,6 +1,6 @@
 # Gate A
 
-> **11 Nov 2026.** The whole-file first-byte FLORES scoreboard in this document is superseded by [`docs/RESULTS_PER_SENTENCE.md`](RESULTS_PER_SENTENCE.md) (from `artifacts/eval/m8/followup/flores_per_sentence.json`) for all tokenizer comparisons. Each FLORES sentence is encoded separately. Gate A pass/fail bars below stay as originally written; the old tables are not edited.
+> **11 Nov 2026.** The whole-file first-byte FLORES scoreboard in this document is superseded by [`docs/RESULTS_PER_SENTENCE.md`](RESULTS_PER_SENTENCE.md) (from `artifacts/eval/final_build/followup/flores_per_sentence.json`) for all tokenizer comparisons. Each FLORES sentence is encoded separately. Gate A pass/fail bars below stay as originally written; the old tables are not edited.
 
 Ancoda-64k is the flagship. Selection is the mechanical lookup in `docs/DECISIONS.md`.
 
@@ -30,7 +30,7 @@ Ancoda-64k is the flagship. Selection is the mechanical lookup in `docs/DECISION
 | Whole-character coverage | PASS | coverage_failures=0 on U+0900–U+097F plus ZWJ/ZWNJ, so 128/128 |
 | Covered-unit integrity, both exports | PASS | same counts as covered violations |
 | Orphan marks inside a covered akshara | PASS | orphan_inside_covered=0 |
-| Segmenter agreement | PASS | M3 differential, 0 disagreements; segmenter unchanged in M8 |
+| Segmenter agreement | PASS | pretokenizer differential, 0 disagreements; segmenter unchanged in final-build |
 | Languages of Nepal | not comparable | Yak's 14 held-out sets are private |
 
 ## Tail break rate
@@ -271,7 +271,7 @@ Language field: index lang (bucket name, or glotlid label inside a pool). Sealed
 
 ### Superseded table (zip misalignment)
 
-The first sealed measurement (`artifacts/eval/m8/sealed.json`) zipped `fetch_texts` output (shard-sorted) with index metadata in scan order, so many documents were scored under the wrong language label. **That table is superseded and must not be used.** Kept below for audit only.
+The first sealed measurement (`artifacts/eval/final_build/sealed.json`) zipped `fetch_texts` output (shard-sorted) with index metadata in scan order, so many documents were scored under the wrong language label. **That table is superseded and must not be used.** Kept below for audit only.
 
 | Model | Code | English | Hindi | Marathi | Math | Nepali | Sanskrit | anp_Deva | awa_Deva | bho_Deva | gom_Deva | hne_Deva | mai_Deva | new_Deva | und_Deva |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -300,7 +300,7 @@ The first sealed measurement (`artifacts/eval/m8/sealed.json`) zipped `fetch_tex
 
 ### Corrected table (join by doc_id)
 
-Re-measured with frozen M8 tokenizers; texts joined to metadata by `doc_id`. Source: `artifacts/eval/m8/followup/sealed_relabel.json`. Fertility is whitespace words. Document-level bootstrap CIs (10k, seed 20261104) for each Ancoda build vs its size-class competitors are in that JSON under `corrected_groups[*].cis`.
+Re-measured with frozen final-build tokenizers; texts joined to metadata by `doc_id`. Source: `artifacts/eval/final_build/followup/sealed_relabel.json`. Fertility is whitespace words. Document-level bootstrap CIs (10k, seed 20261104) for each Ancoda build vs its size-class competitors are in that JSON under `corrected_groups[*].cis`.
 
 | Model | Code | English | Hindi | Marathi | Math | Nepali | Sanskrit | anp_Deva | awa_Deva | bho_Deva | gom_Deva | hne_Deva | mai_Deva | new_Deva | und_Deva |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -336,7 +336,7 @@ Hub ships only `nepali_bpe_64k.model` (no `tokenizer.json`). Both paths use `sen
 | whole-file | `'\n'.join(lines)` then one `encode()` | 27019 | 0 | 0 | 0 | 1011 | 1.4448 | exact False (content OK) |
 | per-line | `encode(line)` per line, sum | 25619 | 0 | 0 | 0 | 0 | 1.3699 | exact rate 0.9951 |
 
-M8 scoreboard / misspell absolute used whole-file (1.4448 = Yak `fertility`). The whitespace follow-up FLORES number used per-line (1.3699 = Yak `fertility_segments` / npi-per-line). Sealed, Aya and fw2 already encode each document alone via `Encoder` → SentencePiece `.model`.
+final-build scoreboard / misspell absolute used whole-file (1.4448 = Yak `fertility`). The whitespace follow-up FLORES number used per-line (1.3699 = Yak `fertility_segments` / npi-per-line). Sealed, Aya and fw2 already encode each document alone via `Encoder` → SentencePiece `.model`.
 
 **Chosen path:** per-unit SentencePiece `.model` (FLORES: per line; Aya/fw2/sealed: per doc). No special tokens added; closest to lossless; no cross-unit newline byte tokens. Recomputed fertilities (chosen path):
 
@@ -347,7 +347,7 @@ M8 scoreboard / misspell absolute used whole-file (1.4448 = Yak `fertility`). Th
 | fw2_npi_test | 1.2928 | 1.2475 | 1.2361 | LOSE +0.0567 [+0.0560,+0.0574] | LOSE +0.0114 [+0.0108,+0.0119] |
 | sealed Nepali (full) | 1.3077 | 1.2631 | 1.2323 | LOSE +0.0754 [+0.0738,+0.0769] | LOSE +0.0307 [+0.0293,+0.0322] |
 
-Detail: `artifacts/eval/m8/followup/sidskarki_flores_path_audit.json`, `sidskarki_chosen_path_recompute.json`.
+Detail: `artifacts/eval/final_build/followup/sidskarki_flores_path_audit.json`, `sidskarki_chosen_path_recompute.json`.
 
 ### Sealed list without joiner sources
 
@@ -402,5 +402,5 @@ Unweighted mean of 11 Devanagari groups (Hin, Mar, Nep, San, anp, awa, bho, gom,
 | ancoda-250k vs gemma3 | WIN −0.5547 [−0.5942,−0.5284] |
 | ancoda-250k vs sarvam-30b | WIN −0.5548 [−0.5942,−0.5285] |
 
-Full JSON: `artifacts/eval/m8/followup/sealed_nojjoiners_remeasure.json`. Sealed remains report-only.
+Full JSON: `artifacts/eval/final_build/followup/sealed_nojjoiners_remeasure.json`. Sealed remains report-only.
 

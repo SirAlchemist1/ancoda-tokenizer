@@ -16,7 +16,7 @@ Those Nepali gaps are **WIN** −0.0059 against Yak v1 and **WIN** −0.0193 aga
 
 Companion builds: **ancoda-32k**, **ancoda-ne-64k**, **ancoda-128k**, **ancoda-250k**. Each build exports a Hugging Face `tokenizer.json` and a tiktoken rank file. Both exports reproduce the canonical encoder in [docs/SPEC.md §3.5](docs/SPEC.md). Tokenizer files ship separately from this repository.
 
-Frozen M8 results: [`docs/GATE_A.md`](docs/GATE_A.md). Spec: [`docs/SPEC.md`](docs/SPEC.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md). Evidence hashes: [`docs/EVIDENCE_M8.md`](docs/EVIDENCE_M8.md). Sentence-level comparisons: [`docs/RESULTS_PER_SENTENCE.md`](docs/RESULTS_PER_SENTENCE.md).
+Frozen final-build results: [`docs/GATE_A.md`](docs/GATE_A.md). Spec: [`docs/SPEC.md`](docs/SPEC.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md). Evidence hashes: [`docs/EVIDENCE_FINAL_BUILD.md`](docs/EVIDENCE_FINAL_BUILD.md). Sentence-level comparisons: [`docs/RESULTS_PER_SENTENCE.md`](docs/RESULTS_PER_SENTENCE.md).
 
 ## From text to tokens
 
@@ -233,7 +233,7 @@ Copyright (c) 2026 Ancoda Labs Pvt. Ltd. Both licences below are noncommercial. 
 | Code: `crates/`, `python/`, `scripts/`, `tests/`, `configs/`, `Makefile`, `Cargo.toml`, `Cargo.lock`, `pyproject.toml`, `uv.lock`, `rust-toolchain.toml` | [`LICENSE`](LICENSE), PolyForm Noncommercial 1.0.0 |
 | Ancoda tokenizer files (`tokenizer.json` and tiktoken ranks for every Ancoda build, distributed separately from this repo) | [`LICENSE-DATA`](LICENSE-DATA), CC BY-NC 4.0 |
 | All of `docs/` (including pre-registration, evidence, and sealed document-ID lists) | [`LICENSE-DATA`](LICENSE-DATA), CC BY-NC 4.0 |
-| Result and snapshot files: `artifacts/` (local, not committed), `docs/m9_server_copy/` | [`LICENSE-DATA`](LICENSE-DATA), CC BY-NC 4.0 |
+| Result and snapshot files: `artifacts/` (local, not committed), `docs/model_eval_logs/` | [`LICENSE-DATA`](LICENSE-DATA), CC BY-NC 4.0 |
 
 The Unicode-to-Preeti table in `python/ancoda_tok/clean/preeti_convert.py` is from [globalpolicy/UnicodeToPreeti](https://github.com/globalpolicy/UnicodeToPreeti) and stays under its MIT licence. Third-party tokenizers, datasets, and their licences are listed in [`docs/LICENSES.md`](docs/LICENSES.md). None of their files are covered by either Ancoda licence.
 

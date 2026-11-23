@@ -1,4 +1,4 @@
-"""M2 storage plan.
+"""data-plan storage plan.
 
 Sizes of files we would download come from ``HfApi.list_repo_tree``. A number
 in docs/SPEC.md written as GB is 10^9 bytes. The plan stops when the projected peak
@@ -371,8 +371,8 @@ def render_markdown(
 ) -> str:
     floor = int(spec["free_floor_bytes"])
     snap = int(spec["snapshot_bytes"])
-    snap_m4 = int(spec["snapshot_count_m4"])
-    snap_m2 = int(spec["snapshot_count_m2_wording"])
+    snap_cleaning = int(spec["snapshot_count_cleaning"])
+    snap_data_plan = int(spec["snapshot_count_data_plan_wording"])
     counts = int(spec["counts_allowance_bytes"])
     active = [row for row in rows if row.download]
     held = [row for row in rows if not row.download]
@@ -380,17 +380,17 @@ def render_markdown(
     other = sum(row.stored_bytes for row in active if row.role != "train")
     raw = train + other
     transient = max((row.transient_bytes for row in active), default=0)
-    snapshots_m4 = snap * snap_m4
-    snapshots_m2 = snap * snap_m2
+    snapshots_cleaning = snap * snap_cleaning
+    snapshots_data_plan = snap * snap_data_plan
     peak_dl = download_peak(raw, transient)
-    rejected = resident_peak(train, other, snapshots_m4, counts)
-    peak = approved_peak(train, other, snapshots_m4, counts)
-    peak_if_m2_count = approved_peak(train, other, snapshots_m2, counts)
+    rejected = resident_peak(train, other, snapshots_cleaning, counts)
+    peak = approved_peak(train, other, snapshots_cleaning, counts)
+    peak_if_data_plan_count = approved_peak(train, other, snapshots_data_plan, counts)
     remain = free - peak
     remain_dl = free - peak_dl
     stop = remain < floor or remain_dl < floor
     lines: list[str] = []
-    lines.append("# Storage plan (M2 step 1)")
+    lines.append("# Storage plan (data-plan step 1)")
     lines.append("")
     lines.append(
         "File sizes are Hub `list_repo_tree` sizes (exact). "
@@ -440,8 +440,8 @@ def render_markdown(
         f"Not a second resident copy. {format_bytes(train)} |"
     )
     lines.append(
-        f"| snapshots | {snapshots_m4} | M4 writes {snap_m4} × {snap} bytes "
-        f"(5 GB because RAM < 32 GB). M2's wording of 3 snapshots would be {snapshots_m2}. |"
+        f"| snapshots | {snapshots_cleaning} | CLEANING writes {snap_cleaning} × {snap} bytes "
+        f"(5 GB because RAM < 32 GB). DATA_PLAN's wording of 3 snapshots would be {snapshots_data_plan}. |"
     )
     lines.append(
         f"| counts, tokenizers, eval | {counts} | planning allowance, not an API figure. "
@@ -469,7 +469,7 @@ def render_markdown(
     lines.append("")
     lines.append(f"- Approved peak (stored files + 4 snapshots + counts): {format_bytes(peak)}.")
     lines.append(
-        f"- Same peak with the 3 snapshots in the M2 wording: {format_bytes(peak_if_m2_count)}."
+        f"- Same peak with the 3 snapshots in the DATA_PLAN wording: {format_bytes(peak_if_data_plan_count)}."
     )
     lines.append(f"- Download peak (raw + one cache): {format_bytes(peak_dl)}.")
     lines.append(f"- Free now minus approved peak: {format_bytes(remain)}.")
@@ -512,7 +512,7 @@ def render_markdown(
     lines.append(
         "- `und_Deva` is a real FineWeb-2 config. The card calls it undetermined "
         "language and says it was uploaded without deduplication or filtering. "
-        "It is inside `deva_pool_fw2` because M2 says every other `*_Deva` config. "
+        "It is inside `deva_pool_fw2` because data-plan says every other `*_Deva` config. "
         "Its file size is exact; the decision to train on it is the plan's."
     )
     lines.append(
@@ -585,7 +585,7 @@ def build(spec_path: Path, doc_path: Path) -> int:
     )
     doc_path.write_text(text)
     floor = int(spec["free_floor_bytes"])
-    snap = int(spec["snapshot_bytes"]) * int(spec["snapshot_count_m4"])
+    snap = int(spec["snapshot_bytes"]) * int(spec["snapshot_count_cleaning"])
     counts = int(spec["counts_allowance_bytes"])
     active = [row for row in rows if row.download]
     train = sum(row.stored_bytes for row in active if row.role == "train")

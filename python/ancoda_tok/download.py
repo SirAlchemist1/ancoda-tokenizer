@@ -1,4 +1,4 @@
-"""Download M2 sources into ``data/raw/<source_id>/``.
+"""Download data-plan sources into ``data/raw/<source_id>/``.
 
 Text sources become zstd parquet with columns ``doc_id``, ``text``, ``source``
 and ``license``. Tool files are copied as themselves. Each directory gets a
@@ -311,7 +311,7 @@ def raw_deletion_policy(role: str) -> str:
         return (
             "Delete this raw parquet only after the cleaned parquet is written "
             "and verified against its manifest. The revision recorded here is "
-            "the re-download key. Do not delete it during M2."
+            "the re-download key. Do not delete it during data-plan."
         )
     return "Never delete. Eval-only, decontamination-only and tool files stay."
 
@@ -1390,7 +1390,7 @@ def write_report(sources_path: Path) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Download M2 sources into data/raw.")
+    parser = argparse.ArgumentParser(description="Download data-plan sources into data/raw.")
     parser.add_argument("--report", action="store_true")
     parser.add_argument("--only", action="append", default=None)
     parser.add_argument("--sources", type=Path, default=REPO_ROOT / "configs" / "sources.yaml")

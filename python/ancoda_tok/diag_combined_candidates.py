@@ -50,11 +50,11 @@ from ancoda_tok.frontier_common import (
 )
 from ancoda_tok.frontier_metrics import attach_extra_metrics, fertility_on_texts
 from ancoda_tok.inventory import INVENTORY_DIR, select_block1
-from ancoda_tok.m7 import _caffeinate
+from ancoda_tok.mix_sweep import _caffeinate
 from ancoda_tok.storage import REPO_ROOT
 
-OUT = REPO_ROOT / "artifacts" / "eval" / "m7" / "combined_candidates"
-M7 = REPO_ROOT / "artifacts" / "eval" / "m7"
+OUT = REPO_ROOT / "artifacts" / "eval" / "mix_sweep" / "combined_candidates"
+MIX_SWEEP = REPO_ROOT / "artifacts" / "eval" / "mix_sweep"
 FLORES = (
     REPO_ROOT / "third_party" / "yak-tokenizer" / "data" / "eval" / "flores_plus" / "devtest"
 )
@@ -281,8 +281,8 @@ def build_5gb_n60_joiner() -> Path:
 
 def choose_snapshot() -> dict:
     """Apply ΔNepali rule vs 5GB n60 frontier; return choice metadata + path."""
-    t3_path = M7 / "t3_10gb_joiner" / "frontier.json"
-    h = json.loads((M7 / "script_budget" / "frontier.json").read_text(encoding="utf-8"))
+    t3_path = MIX_SWEEP / "t3_10gb_joiner" / "frontier.json"
+    h = json.loads((MIX_SWEEP / "script_budget" / "frontier.json").read_text(encoding="utf-8"))
     h_by = {int(r["B_d"]): r for r in h["rows"]}
     comparisons = []
     if t3_path.is_file():
@@ -675,7 +675,7 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
 
     # Ensure T3 frontier exists for choice rule (Prompt 1).
-    if not (M7 / "t3_10gb_joiner" / "frontier.json").is_file():
+    if not (MIX_SWEEP / "t3_10gb_joiner" / "frontier.json").is_file():
         raise SystemExit(
             "STOP: Prompt 1 T3 frontier missing — finish diag_t3 first"
         )
@@ -792,7 +792,7 @@ def main() -> None:
             OUT / f"covered_64k_{pct}.json",
         )
         # Prefer T1 copies if identical
-        t1c = M7 / "t1_block1_cap" / f"covered_64k_{pct}.json"
+        t1c = MIX_SWEEP / "t1_block1_cap" / f"covered_64k_{pct}.json"
         if t1c.is_file():
             covered_64[pct] = t1c
         covered_128[pct] = write_covered(

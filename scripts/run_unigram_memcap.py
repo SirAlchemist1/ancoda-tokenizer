@@ -90,7 +90,7 @@ def main() -> int:
                     except subprocess.TimeoutExpired:
                         proc.kill()
                         proc.wait(timeout=10)
-                    note = REPO / "artifacts" / "eval" / "m7" / "unigram_skipped.json"
+                    note = REPO / "artifacts" / "eval" / "mix_sweep" / "unigram_skipped.json"
                     note.parent.mkdir(parents=True, exist_ok=True)
                     note.write_text(
                         (

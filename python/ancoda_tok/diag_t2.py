@@ -20,11 +20,11 @@ from ancoda_tok.frontier_common import (
     write_side_config,
 )
 from ancoda_tok.frontier_metrics import attach_extra_metrics
-from ancoda_tok.m7 import _caffeinate
+from ancoda_tok.mix_sweep import _caffeinate
 from ancoda_tok.storage import REPO_ROOT
 N60_SNAP = REPO_ROOT / "data" / "snapshots" / "n60_cf8066dbbdd0da93"
 
-OUT = REPO_ROOT / "artifacts" / "eval" / "m7" / "t2_latin_rebalance"
+OUT = REPO_ROOT / "artifacts" / "eval" / "mix_sweep" / "t2_latin_rebalance"
 SNAP = REPO_ROOT / "data" / "snapshots" / "n60_cf8066dbbdd0da93"
 COVERED = REPO_ROOT / "artifacts" / "inventory" / "covered_64k.json"
 MERGEABLE = 64512
@@ -141,7 +141,7 @@ def main() -> None:
         # Shared Devanagari side for this B_d (5% Block1).
         dewa_tag = f"bd{b_d}_deva"
         # Reuse T1 side-deva if present.
-        t1_deva = REPO_ROOT / "artifacts/eval/m7/t1_block1_cap" / f"bd{b_d}_5pct" / "side-deva"
+        t1_deva = REPO_ROOT / "artifacts/eval/mix_sweep/t1_block1_cap" / f"bd{b_d}_5pct" / "side-deva"
         dewa_out = OUT / dewa_tag / "side-deva"
         if t1_deva.is_dir() and (t1_deva / "ranks.json").is_file():
             if not (dewa_out / "ranks.json").is_file():
@@ -170,8 +170,8 @@ def main() -> None:
                 block0=BLOCK0,
                 block1=block1,
                 block1_path="artifacts/inventory/covered_64k.json",
-                dewa_counts_rel="artifacts/eval/m7/t2_latin_rebalance/deva_pretoken_counts.bin",
-                latin_counts_rel="artifacts/eval/m7/t2_latin_rebalance/latin_pretoken_counts.bin",
+                dewa_counts_rel="artifacts/eval/mix_sweep/t2_latin_rebalance/deva_pretoken_counts.bin",
+                latin_counts_rel="artifacts/eval/mix_sweep/t2_latin_rebalance/latin_pretoken_counts.bin",
             )
             # train_sides trains both; we only need dewa — ok.
 

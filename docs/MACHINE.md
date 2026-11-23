@@ -1,4 +1,4 @@
-# Machine check (M0 step 2)
+# Machine check (setup step 2)
 
 Recorded: 4 Nov 2026 (local). Repo path: `$REPO_ROOT`.
 Re-checked after docs/SPEC.md disk threshold update (100 GB free minimum).
@@ -38,13 +38,13 @@ Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on
 
 - Available: **156 GiB**
 - Threshold: ≥ 100 GB free → **PASS**
-- Note: M2 measures real storage need before downloads; STOP later only if under 50 GB would remain after a >20 GB write.
+- Note: data-plan measures real storage need before downloads; STOP later only if under 50 GB would remain after a >20 GB write.
 
 ## Verdict
 
-**PASS.** Continue M0 from step 3.
+**PASS.** Continue setup from step 3.
 
-## M6 trainer benchmark (8 Nov 2026)
+## trainer benchmark (8 Nov 2026)
 
 1 GB slice: `artifacts/counts/n50_1gb/pretoken_counts.bin` (1,950,607 unique pre-tokens, 20,046,751 key bytes, 1,000,000,996 text bytes). Config `configs/bench_64k_1gb.yaml` (block0, block1, bans, vocab 65536). Release binary, `RAYON_NUM_THREADS=5`.
 

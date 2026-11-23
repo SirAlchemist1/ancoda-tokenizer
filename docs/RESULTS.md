@@ -309,20 +309,20 @@ Built by `uv run python scripts/eval_panel.py fetch`. Licenses and attribution a
 
 ---
 
-## M1 notes (Ancoda)
+## baselines notes (Ancoda)
 
 - Harness validity gate: **5/5** (Arkios-paper ±0.03 check).
-- Reproduction vs Yak published table: see `artifacts/eval/m1_reproduction.tsv` (all rows PASS within ±0.003).
-- Yak v1 64k-phrase Nepali fertility (harness): see `configs/eval.yaml` → `m1.yak_64k_phrase_nepali`.
+- Reproduction vs Yak published table: see `artifacts/eval/baselines_reproduction.tsv` (all rows PASS within ±0.003).
+- Yak v1 64k-phrase Nepali fertility (harness): see `configs/eval.yaml` → `baselines.yak_64k_phrase_nepali`.
 - Sanskrit: harness `san_Deva` values recorded in `configs/eval.yaml`; IndicBERT v2 matches the reported 2.067; Yak blog 2.126 differs from this harness’s Yak measurement.
 - **Languages of Nepal:** Yak’s 14 held-out sets are private and **not comparable**. This harness can rerun FLORES+ for `npi_Deva`, `mai_Deva`, `bho_Deva`, `awa_Deva`, `mag_Deva` (and `hin_Deva` / `san_Deva` / `eng_Latn`, plus non-Deva `bod_Tibt` / `sat_Olck`).
-- Panel failure: `airavata` gated 403 (not required for M1 acceptance rows).
+- Panel failure: `airavata` gated 403 (not required for baselines acceptance rows).
 
 ---
 
 ---
 
-## M4 — Training snapshots (Ancoda)
+## cleaning — Training snapshots (Ancoda)
 
 Four 5 GB snapshots (RAM < 32 GB → 5 GB each). Seed `20261104`.
 Legacy-font filter disabled (dictionary Preeti detector precision 0.89 < 0.99).
@@ -393,7 +393,7 @@ Source: `artifacts/clean/snapshots.json`.
 
 ---
 
-## M5 — Akshara inventory and Block 1 covered set
+## akshara-inventory — Akshara inventory and Block 1 covered set
 
 Snapshot: `data/snapshots/n50_32fd1b6a9c068400`. Seed `20261104`.
 Counted every `aksharas()` unit with at least one U+0900–U+097F code point.
@@ -416,7 +416,7 @@ Block 1 selection is docs/SPEC.md 3.6 (cap 5% of vocab; stop at cap or 99.99% co
 | 64k | 3276 | 3276 | 3262 | 0.9997618985 | 168722 | cap | `a4d5b9a76dc81ff817a1d13fbe750294f9efc50d1deea51bdb0c8fb7f1d9d826` |
 | 128k | 6553 | 6553 | 6490 | 0.9998031057 | 139522 | cap | `8842fadd737786a1904a10c76702c99063091f00027e0ca9aff6d80877cb7e98` |
 
-![Coverage vs Block 1 merges (default)](figures/m5_coverage_vs_block1.svg)
+![Coverage vs Block 1 merges (default)](figures/akshara_inventory_coverage_vs_block1.svg)
 
 ### Ablation (`gb9c=true`)
 
@@ -435,15 +435,15 @@ Block 1 selection is docs/SPEC.md 3.6 (cap 5% of vocab; stop at cap or 99.99% co
 | 64k | 3276 | 3276 | 2999 | 0.9968672877 | 1974440 | cap | `3c8b9557b9317bcea29ccbc010f0f89781d2a7363451de507a906da4530ff11b` |
 | 128k | 6553 | 6553 | 5995 | 0.9989564205 | 657732 | cap | `763e40e2df4665d2214245a3ff05867da0540c04a5f70499929b92579b33da0f` |
 
-![Coverage vs Block 1 merges (gb9c=true)](figures/m5_coverage_vs_block1_gb9c.svg)
+![Coverage vs Block 1 merges (gb9c=true)](figures/akshara_inventory_coverage_vs_block1_gb9c.svg)
 
 Determinism: `uv run python -m ancoda_tok.inventory --verify-deterministic` re-ran 3.6 from each TSV; all six covered JSON sha256s matched.
 
 ---
 
-## M7 — Mix sweep and ablation ladder
+## mix-sweep — Mix sweep and ablation ladder
 
-Seed `20261104`. Block 1 frozen from `artifacts/inventory/covered_64k.json` (n50 M5 selection) so the mix sweep isolates Block 2 / data effects.
+Seed `20261104`. Block 1 frozen from `artifacts/inventory/covered_64k.json` (n50 akshara-inventory selection) so the mix sweep isolates Block 2 / data effects.
 
 ### Mix sweep (64k final config)
 
@@ -460,7 +460,7 @@ Seed `20261104`. Block 1 frozen from `artifacts/inventory/covered_64k.json` (n50
 
 ---
 
-## M7 — Option 3 diagnostics (no mix pick)
+## mix-sweep — Option 3 diagnostics (no mix pick)
 
 Diagnostic only. No mix was picked. Decisions unchanged.
 
@@ -491,7 +491,7 @@ Diagnostic only. No mix was picked. Decisions unchanged.
 
 † Unigram control, SentencePiece, subsampled 1M sentences for memory. Violations counted against the default (gb9c=false) covered set.
 ‡ Violations counted against the `covered_64k_gb9c.json` unit set (3.5 guarantee does not apply).
-`final_nojoiner` uses the M4 `n50_nojoiner` counts (only no-joiner snapshot); all other rungs use n60 counts.
+`final_nojoiner` uses the cleaning `n50_nojoiner` counts (only no-joiner snapshot); all other rungs use n60 counts.
 
 ### Nepali-only ceiling (not a candidate)
 
@@ -594,14 +594,14 @@ Frequency over `str.split()` on FLORES+ npi_Deva devtest. Each word is encoded a
 | Nepali | 26929 | 0.410904 |
 | unused in 50MB×4 sample | 3221 | 0.049149 |
 
-Focus-only (English vs Code vs Math, Nepali ignored): English 0.652252, Code 0.128494, Math 0.125549, unused-in-focus 0.091309. Source: `artifacts/eval/m7/diag_vocab_slots.json`.
+Focus-only (English vs Code vs Math, Nepali ignored): English 0.652252, Code 0.128494, Math 0.125549, unused-in-focus 0.091309. Source: `artifacts/eval/mix_sweep/diag_vocab_slots.json`.
 
 **Top-50 word splits:** on the 50 most frequent FLORES+ npi words (leading-space form), n60, Yak v1 64k and sidskarki-64k agree on all 50 after normalizing SentencePiece `▁` to a leading space. Full table under Option 3 above.
 
 
 ### Unigram control — SentencePiece defaults (diagnostic note)
 
-The M7 Unigram rung called `SentencePieceTrainer.train` without setting `remove_extra_whitespaces` or `add_dummy_prefix`. SentencePiece defaults are `remove_extra_whitespaces=1` and `add_dummy_prefix=1`. That is a **deviation** from docs/SPEC.md M7 / 3.2 (no normalization). Recorded here for the paper; the control remains tokenizer-level only.
+The mix-sweep Unigram rung called `SentencePieceTrainer.train` without setting `remove_extra_whitespaces` or `add_dummy_prefix`. SentencePiece defaults are `remove_extra_whitespaces=1` and `add_dummy_prefix=1`. That is a **deviation** from docs/SPEC.md mix-sweep / 3.2 (no normalization). Recorded here for the paper; the control remains tokenizer-level only.
 
 **STOP (human):** diagnostics complete. No mix pick. No further training until you reply.
 

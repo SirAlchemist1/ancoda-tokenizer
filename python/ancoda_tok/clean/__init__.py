@@ -1,1 +1,1 @@
-"""M4 cleaning, decontamination and snapshots."""
+"""cleaning, decontamination and snapshots."""

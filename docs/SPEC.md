@@ -1,38 +1,38 @@
 # Ancoda Nepali Tokenizer — Design and Build Record (v2.6, 4 Nov 2026)
 
 > **Record**
-> This file is the design and build record. It lives at `docs/SPEC.md`. The work needs a drive with **at least 100 GB free** (the Mac's own disk is fine; an APFS-formatted external drive also works). Milestones M0–M8 and M10 run on the Mac; no GPU is needed. Only M9 (the model check) needs a rented Linux GPU machine, reached over SSH. The Mac stays plugged in, lid open, on stable internet. Long jobs run under `caffeinate` and resume if interrupted. A **STOP** means the step needs a person before the work continues. One milestone runs at a time. The specification audit is M0 step 1. Section 2 is followed, and no decision in section 3 is changed. A milestone is finished when its acceptance checks pass, and the result is recorded in `docs/PROGRESS.md`.
+> This file is the design and build record. It lives at `docs/SPEC.md`. The work needs a drive with **at least 100 GB free** (the Mac's own disk is fine; an APFS-formatted external drive also works). Milestones setup–final-build and release-candidate run on the Mac; no GPU is needed. Only model-eval (the model check) needs a rented Linux GPU machine, reached over SSH. The Mac stays plugged in, lid open, on stable internet. Long jobs run under `caffeinate` and resume if interrupted. A **STOP** means the step needs a person before the work continues. One milestone runs at a time. The specification audit is setup step 1. Section 2 is followed, and no decision in section 3 is changed. A milestone is finished when its acceptance checks pass, and the result is recorded in `docs/PROGRESS.md`.
 >
 > **What changed in v2.6 (4 Nov 2026): after a third external review (targeted fixes, no redesign)**
 > - **Segmentation rule made exact (3.3):** start from Unicode 16.0.0 grapheme clusters, then apply one override: **every Devanagari letter begins a new unit.** This is described as an override, not as "undoing GB9c". It covers every virama pattern (including Extend characters between virama and consonant) and Prepend characters.
 > - **Eligibility for protection (3.6):** only units that start with a Devanagari letter and contain only Block 0 characters can be covered. This is what makes the guarantee provable.
-> - **Written proof of the guarantee (3.5),** with the conditions it needs, and exhaustive tests per covered unit (M6). The `gb9c=true` ablation has no guarantee; its violations are measured.
+> - **Written proof of the guarantee (3.5),** with the conditions it needs, and exhaustive tests per covered unit (trainer). The `gb9c=true` ablation has no guarantee; its violations are measured.
 > - **Block 1 coverage formula** written out exactly (3.6).
 > - **Joiner copy accounting:** 1% of the snapshot, taken out of Nepali's 50%, so totals stay 100%.
 > - **Morphology metric:** a whole-word token no longer counts as a matched boundary; whole-word preservation is reported separately.
 > - **Gate B fairness:** fixed-token and fixed-byte comparisons both run (for arms 1, 2 and 5 in the full tier); bytes, tokens, compute and documents are reported for every run; 3 seeds for arms 1 and 2; two-seed results are labelled preliminary.
-> - **Tolerances clarified (M1):** ±0.03 is the harness's own check against papers; ±0.003 is our reproduction of Yak's table. M1 prints published, reproduced, absolute and relative difference.
+> - **Tolerances clarified (baselines):** ±0.03 is the harness's own check against papers; ±0.003 is our reproduction of Yak's table. baselines prints published, reproduced, absolute and relative difference.
 > - **Equality corpus** gains random-Unicode and adversarial strings and is a release condition; phrase-pattern tests get their own corpus; the Unigram control's limits are stated.
 >
 > **What changed in v2.5 (4 Nov 2026): after a second external review; no annotators**
 > - The protected unit is defined by an explicit boundary table (3.3), and the plan says plainly that it is not the conventional orthographic akshara: conjuncts are split.
 > - The mechanism is stated (3.4): byte-level BPE whose rank order protects units; there are no special atoms outside the merge table. Integrity is tested separately on each export, not only through their equality.
-> - No human annotators. The 500-word human gold set is replaced by automated checks: Unicode's test file, a second, independent implementation of 3.3 written in Python, and ICU where it installs (M3 step 6).
+> - No human annotators. The 500-word human gold set is replaced by automated checks: Unicode's test file, a second, independent implementation of 3.3 written in Python, and ICU where it installs (pretokenizer step 6).
 > - Coverage is reported in four separate rows: byte-level representability, whole-character coverage of U+0900–U+097F, coverage of the extended Devanagari blocks, and covered-unit integrity.
 > - Morphology alignment becomes precision, recall and F1, also frequency-weighted and on unseen words (3.9).
 > - Phrase builds report whitespace-crossing share, superword frequency and unused vocabulary (3.13).
-> - Data quality is audited automatically per language: language-ID confidence, script contamination, bytes before and after cleaning. Nothing is ever upsampled (3.8, M4).
-> - A tokenizer-level Unigram control is added to the M7 ladder, so BPE is not assumed to win.
+> - Data quality is audited automatically per language: language-ID confidence, script contamination, bytes before and after cleaning. Nothing is ever upsampled (3.8, cleaning).
+> - A tokenizer-level Unigram control is added to the mix-sweep ladder, so BPE is not assumed to win.
 >
 > **What changed in v2.4 (4 Nov 2026): best Devanagari tokenizer overall, three builds**
 > - Yak's numbers are now verified at the source (its GitHub README and blog, read 4 Nov 2026). Yak v2 128k's languages-of-Nepal mean is 1.629 (v2 64k: 1.843). Those 14 test sets are private and cannot be rerun, so that row is reported as "not comparable", never claimed.
-> - Three builds ship: **Ancoda-64k** (flagship), **Ancoda-128k**, and **Ancoda-Phrase-128k**, whose tokens may span up to 4 words, like Yak's phrase build (3.13, M8b).
+> - Three builds ship: **Ancoda-64k** (flagship), **Ancoda-128k**, and **Ancoda-Phrase-128k**, whose tokens may span up to 4 words, like Yak's phrase build (3.13, phrase-build).
 > - The training mix now covers every Devanagari language with open data: Nepali, Hindi, Marathi and Sanskrit, plus a pooled share for the smaller ones (Maithili, Bhojpuri, Awadhi, Magahi, Konkani, Bodo, Dogri, Doteli, Chhattisgarhi, Angika) and a languages-of-Nepal pool where licensed data exists (3.8).
-> - Joiner robustness: a small synthetic copy of Nepali training text with ZWJ or ZWNJ inserted after viramas (3.8). It is kept only if the M7 ladder shows it helps. Target: beat Yak v2's joiner probes.
+> - Joiner robustness: a small synthetic copy of Nepali training text with ZWJ or ZWNJ inserted after viramas (3.8). It is kept only if the mix-sweep ladder shows it helps. Target: beat Yak v2's joiner probes.
 > - New reported metrics: fertility on every FLORES+ Devanagari language, morphology alignment against Papaya's open Nepali affix list, and cross-language token reuse (3.9).
 >
 > **What changed in v2.3 (4 Nov 2026): built from scratch, aimed at Yak**
-> - Disk: no fixed 250 GB budget. M0 needs 100 GB free; M2 measures the real need and stops only if under 50 GB would remain.
+> - Disk: no fixed 250 GB budget. setup needs 100 GB free; data-plan measures the real need and stops only if under 50 GB would remain.
 > - Nothing from earlier internal work is used: no earlier code, lexicon, root list or test run. The `roots.py` check and its `sandhi_roots_290.tsv` file are removed.
 > - sidskarki-64k is an outside tokenizer (Hugging Face account `sidskarki`, license community-use-1.0). Like HimalayaAI's and Arkios's, it is a comparison arm only.
 > - Gate A is re-anchored on Yak. The 64k build must beat Yak v2 64k (the newest Yak build on its 3 Nov 2026 leaderboard) on every word-level row and have the lowest Nepali count of any 64k tokenizer on Yak's leaderboard. Beating Yak v1 64k on English and Hindi too is the stretch. A Yak scoreboard prints WIN, TIE or LOSE on every row where Yak's harness reports a number, so no loss is hidden.
@@ -46,7 +46,7 @@
 > - Decontamination adds exact-segment matching. Word lists are no longer used for it.
 > - Wikipedia (share-alike license) is dropped from training.
 > - Comparison tokenizer sources are confirmed (sidskarki-64k and HimalayaAI's are SentencePiece models). The code dataset is read file by file, because its loader is a script.
-> - v2.2: the gold-set check is now blind, with a written guide, an integrity check, agreement statistics and a three-way mismatch rule (M3 step 6). Encoding-variant costs are measured and reported (3.9). Normalization stays off; tested: NFC/NFKC do not unify the two eyelash-ra spellings.
+> - v2.2: the gold-set check is now blind, with a written guide, an integrity check, agreement statistics and a three-way mismatch rule (pretokenizer step 6). Encoding-variant costs are measured and reported (3.9). Normalization stays off; tested: NFC/NFKC do not unify the two eyelash-ra spellings.
 > - A human-annotated akshara test set, a plain-BPE control arm, a GPU pilot run, separator and scoring rules for the model check, an efficiency report and slip rules are added.
 
 ---
@@ -74,7 +74,7 @@
 
 ## 2. Non-negotiable rules
 
-In M0, write the local rules file `docs/local-rules.mdc` with exactly this content:
+In setup, write the local rules file `docs/local-rules.mdc` with exactly this content:
 
 ```markdown
 ---
@@ -92,7 +92,7 @@ alwaysApply: true
 - Yak tokenizer files are CC BY-NC 4.0. Use them only as an evaluation or proxy-model comparison arm. Never copy their vocab, merges or regex into our build.
 - sidskarki-64k (community-use-1.0), HimalayaAI and Arkios files are comparison arms only, within their licenses. Never copy their vocab, merges, data or settings into our build.
 - Synthetic joiner-augmented text (docs/SPEC.md 3.8) is generated only from training documents, tagged `synthetic` in every manifest, and stored separately; original text is never modified.
-- No training corpus may contain evaluation text. Decontamination (docs/SPEC.md M4 step 5) must run before any tokenizer is trained.
+- No training corpus may contain evaluation text. Decontamination (docs/SPEC.md cleaning step 5) must run before any tokenizer is trained.
 - A milestone is done only when its acceptance commands pass, with outputs recorded in docs/PROGRESS.md.
 - Do not change decisions in docs/DECISIONS.md without the human's explicit approval.
 - Rust: cargo fmt, cargo clippy -D warnings, cargo test must pass. Python: ruff and pytest must pass.
@@ -105,7 +105,7 @@ alwaysApply: true
 
 ## 3. Fixed decisions (the spec)
 
-Copy this section into `docs/DECISIONS.md` in M0. It is the source of truth.
+Copy this section into `docs/DECISIONS.md` in setup. It is the source of truth.
 
 ### 3.1 Pre-tokenizer
 
@@ -147,7 +147,7 @@ None, in the tokenizer or the stored corpus.
 | Devanagari letter followed by a non-Devanagari mark (for example U+0301 or a Vedic sign) | one unit, but **not eligible** for protection (3.6) | |
 | digits, danda, double danda | one unit each | |
 
-**Checked on 4 Nov 2026 with `unicode-segmentation` 1.12.0 (Unicode 16.0.0):** the only Devanagari-block characters that join a letter's cluster are marks (Mn/Mc) and ZWJ/ZWNJ; no Devanagari-block character acts as Prepend; क्ष, क्+ZWJ+ष, क्+nukta+ष and क्+्+ष are each one raw cluster (so the override is needed for all of them); क्+ZWNJ+ष is already two raw clusters; र+ZWJ+्+य is one raw cluster. M3 repeats these as unit tests.
+**Checked on 4 Nov 2026 with `unicode-segmentation` 1.12.0 (Unicode 16.0.0):** the only Devanagari-block characters that join a letter's cluster are marks (Mn/Mc) and ZWJ/ZWNJ; no Devanagari-block character acts as Prepend; क्ष, क्+ZWJ+ष, क्+nukta+ष and क्+्+ष are each one raw cluster (so the override is needed for all of them); क्+ZWNJ+ष is already two raw clusters; र+ZWJ+्+य is one raw cluster. pretokenizer repeats these as unit tests.
 
 **Implementation.**
 
@@ -158,7 +158,7 @@ None, in the tokenizer or the stored corpus.
 2. Compute extended grapheme clusters.
 3. **Override:** inside every cluster, insert a boundary before each Devanagari letter that is not the cluster's first code point. Everything between the virama and that letter (ZWJ, ZWNJ, nukta or any other Extend character) stays with the unit on the left. This removes every conjunct join GB9c makes, and any join made by a Prepend character before a Devanagari letter.
 4. The Devanagari letter set = `General_Category=Lo ∩ Script=Devanagari`, read from Unicode **16.0.0** `UnicodeData.txt` and `Scripts.txt`. Never hand-code it.
-5. **Mode `gb9c=true`:** return the raw clusters from step 2 (conjuncts joined). This is used only for the M7 and M9 ablation. **The 3.5 guarantee does not hold in this mode** (a unit can hold two letters); its violations are measured and reported, never gated.
+5. **Mode `gb9c=true`:** return the raw clusters from step 2 (conjuncts joined). This is used only for the mix-sweep and model-eval ablation. **The 3.5 guarantee does not hold in this mode** (a unit can hold two letters); its violations are measured and reported, never gated.
 
 **Required unit tests (default mode):**
 
@@ -196,7 +196,7 @@ None, in the tokenizer or the stored corpus.
 
 **Rank order = ID order:** bytes < Block 0 < Block 1 < Block 2 < reserved.
 
-**Mechanism (stated so it is never confused):** the vocabulary is an ordinary byte-level BPE rank table. There are no special atom symbols outside it. Every input, valid or not, encodes from bytes, so nothing ever fails to encode and decoding is byte-exact. A covered unit stays whole only because its own merges (Blocks 0 and 1) all rank below every Block 2 merge (3.5). Both exports carry this rank table unchanged, and M6 tests integrity on each export separately.
+**Mechanism (stated so it is never confused):** the vocabulary is an ordinary byte-level BPE rank table. There are no special atom symbols outside it. Every input, valid or not, encodes from bytes, so nothing ever fails to encode and decoding is byte-exact. A covered unit stays whole only because its own merges (Blocks 0 and 1) all rank below every Block 2 merge (3.5). Both exports carry this rank table unchanged, and trainer tests integrity on each export separately.
 
 ### 3.5 Canonical encoder and exports
 
@@ -221,7 +221,7 @@ Proof:
 4. No other merge can happen inside U first. A Block 1 token cannot start at U's second or later character, because those are marks. Pieces of a character cannot join other material (C5).
 5. Once U is one symbol, later merges only join whole symbols, so U stays whole inside any larger token.
 
-Both exports reproduce this encoder exactly (tested), so the claim holds for tokenizer.json and tiktoken alike. **The M6 tests check it independently on each export**; if a test ever fails, the proof's conditions are wrong and the work **STOPS**.
+Both exports reproduce this encoder exactly (tested), so the claim holds for tokenizer.json and tiktoken alike. **The trainer tests check it independently on each export**; if a test ever fails, the proof's conditions are wrong and the work **STOPS**.
 
 **Hugging Face export:**
 
@@ -231,7 +231,7 @@ Both exports reproduce this encoder exactly (tested), so the claim holds for tok
 - Decoder `decoders.ByteLevel()`. Post-processor `TemplateProcessing(single="<|bos|> $A", pair="<|bos|> $A <|bos|> $B")`.
 - Also write `tokenizer_config.json` and `special_tokens_map.json`.
 
-Verified 4 Nov 2026 with tokenizers 0.23.3 and tiktoken 0.14.0: **0 mismatches in 200,000 random words over 1,000 random vocabularies**. Exporting only the training merges, or only splits with lower-ranked parts, produced mismatches. M3 repeats this test; M6 repeats it on the real vocabulary.
+Verified 4 Nov 2026 with tokenizers 0.23.3 and tiktoken 0.14.0: **0 mismatches in 200,000 random words over 1,000 random vocabularies**. Exporting only the training merges, or only splits with lower-ranked parts, produced mismatches. pretokenizer repeats this test; trainer repeats it on the real vocabulary.
 
 **tiktoken export:** a `.tiktoken` rank file (base64 token bytes, a space, the rank, one per line), plus `tiktoken.json` with the pattern and special tokens.
 
@@ -267,23 +267,23 @@ Verified 4 Nov 2026 with tokenizers 0.23.3 and tiktoken 0.14.0: **0 mismatches i
 
 ### 3.8 Training mix (by UTF-8 bytes)
 
-| Bucket | Share | Sources (M2) |
+| Bucket | Share | Sources (data-plan) |
 |---|---|---|
 | Nepali | 50% | fw2_npi, iriis, sangraha_nep, indiccorp_npi, hplt_npi |
 | English | 20% | fwedu_en |
 | Hindi | 10% | fw2_hin, sangraha_hin |
 | Marathi | 3% | fw2_mar, sangraha_mar |
 | Sanskrit | 3% | fw2_san, sangraha_san |
-| Smaller Devanagari languages (pool) | 4% | Maithili, Bhojpuri, Awadhi, Magahi, Konkani, Bodo, Dogri, Doteli, Chhattisgarhi, Angika: every `*_Deva` config that exists in FineWeb-2, Sangraha verified and HPLT v2 (M2) |
-| Languages of Nepal (pool) | 2% | only sources found and licence-checked in M2 (for example Newar, Tharu, Tamang, Magar, Gurung, Limbu). If none are found, this share goes to Nepali |
+| Smaller Devanagari languages (pool) | 4% | Maithili, Bhojpuri, Awadhi, Magahi, Konkani, Bodo, Dogri, Doteli, Chhattisgarhi, Angika: every `*_Deva` config that exists in FineWeb-2, Sangraha verified and HPLT v2 (data-plan) |
+| Languages of Nepal (pool) | 2% | only sources found and licence-checked in data-plan (for example Newar, Tharu, Tamang, Magar, Gurung, Limbu). If none are found, this share goes to Nepali |
 | Code | 5% | code |
 | Math | 3% | owm |
 
 - **This is a language-balanced training mixture, not a vocabulary budget:** shares set how much text each language contributes; BPE then decides which merges each language gets.
 - **Inside each pool,** sample languages with temperature τ = 0.3 on their available bytes: share ∝ bytes^0.3. A language with less data than its share contributes everything it has; the remainder is redistributed inside the pool. **No document is ever repeated (no upsampling).** A language's support is claimed only from its own measured results.
-- **Joiner augmentation (on by default, removed if the M7 ladder says so):** 1% of the snapshot's bytes, **taken out of Nepali's share** (so Nepali is 49% natural + 1% synthetic, and the total stays 100%), made from Nepali training documents not otherwise sampled. In the ladder's no-joiner snapshot that 1% is natural Nepali. Half the documents get U+200D (ZWJ) after every virama that precedes a consonant; the other half get U+200C (ZWNJ) at the same sites. Exactly the sites Yak's probe uses (3.9). Tagged `synthetic`.
+- **Joiner augmentation (on by default, removed if the mix-sweep ladder says so):** 1% of the snapshot's bytes, **taken out of Nepali's share** (so Nepali is 49% natural + 1% synthetic, and the total stays 100%), made from Nepali training documents not otherwise sampled. In the ladder's no-joiner snapshot that 1% is natural Nepali. Half the documents get U+200D (ZWJ) after every virama that precedes a consonant; the other half get U+200C (ZWNJ) at the same sites. Exactly the sites Yak's probe uses (3.9). Tagged `synthetic`.
 - **Size:** 10 GB total. If the Mac has less than 32 GB of RAM, use 5 GB with the same shares. Never mix sizes within a sweep.
-- **Sweep (M7):** Nepali at 45%, 50% and 60%, others scaled pro rata. **Pick rule:** the point that meets every Gate A fertility row with the lowest Nepali fertility; on a tie, the lower English fertility.
+- **Sweep (mix-sweep):** Nepali at 45%, 50% and 60%, others scaled pro rata. **Pick rule:** the point that meets every Gate A fertility row with the lowest Nepali fertility; on a tie, the lower English fertility.
 - **Excluded from training:**
   - Wikipedia: its CC BY-SA share-alike license complicates releasing the vocabulary, and it is about 0.5% of public Nepali text.
   - All evaluation sets, including FLORES+ dev and devtest for every language.
@@ -308,7 +308,7 @@ All counts use `add_special_tokens=False`.
 | Byte pieces | tokens that are not whole UTF-8 characters or character sequences ÷ all tokens |
 | ZWJ / ZWNJ probe | tokens of the devtest rewritten with a ZWJ (or ZWNJ) after every virama that precedes a consonant ÷ tokens of the original. Yak's `robustness.py`. |
 | Round-trip | share of segments with `decode(encode(x)) == x` byte-exactly |
-| Segmenter agreement | share of words on which `aksharas()` equals the independent Python reference (M3 step 6) on 1M distinct training-snapshot words plus all eval words |
+| Segmenter agreement | share of words on which `aksharas()` equals the independent Python reference (pretokenizer step 6) on 1M distinct training-snapshot words plus all eval words |
 | Byte-level representability | share of eval segments that encode and decode byte-exactly (always 100% by construction; reported, not claimed as coverage) |
 | Whole-character coverage | of the 128 code points U+0900–U+097F, how many are single tokens |
 | Extended-block coverage (reported) | for Devanagari Extended (U+A8E0–U+A8FF), Vedic Extensions (U+1CD0–U+1CFF) and Devanagari Extended-A (U+11B00–U+11B5F): assigned code points that are single tokens, and their frequency in the training snapshot |
@@ -320,7 +320,7 @@ All counts use `add_special_tokens=False`.
 
 ### 3.10 Gate A targets (65,536 build, FLORES+ devtest via Yak's harness, unless noted)
 
-**What "beat Yak" means here.** Better than Yak v2 64k (the newest Yak build on its 3 Nov 2026 leaderboard) on every word-level row below, and a lower Nepali count than every 64k tokenizer on Yak's leaderboard. References are from Yak's public `docs/RESULTS.md` (generated 3 Nov 2026) and its blog, both read 4 Nov 2026. M1 re-measures them; the M1 values are the ones the gate uses.
+**What "beat Yak" means here.** Better than Yak v2 64k (the newest Yak build on its 3 Nov 2026 leaderboard) on every word-level row below, and a lower Nepali count than every 64k tokenizer on Yak's leaderboard. References are from Yak's public `docs/RESULTS.md` (generated 3 Nov 2026) and its blog, both read 4 Nov 2026. baselines re-measures them; the baselines values are the ones the gate uses.
 
 | Check | Pass bar | Reference (64k) |
 |---|---|---|
@@ -329,7 +329,7 @@ All counts use `add_special_tokens=False`.
 | Hindi fertility | below 1.385 | Yak v2 1.385; Yak v1 1.376 |
 | Covered-akshara violations (all eval texts plus 10M snapshot lines) | 0 | Yak measures but does not guarantee this |
 | Mark-initial vocab entries | 0 | — |
-| Orphan-mark share, Nepali FLORES+ | below Yak v2 64k's exact value measured in M1 (reported as 0.2%), and every occurrence inside an uncovered akshara or malformed sequence | Yak v2 0.2%; Yak v1 9.2%; sidskarki-64k 1.7% |
+| Orphan-mark share, Nepali FLORES+ | below Yak v2 64k's exact value measured in baselines (reported as 0.2%), and every occurrence inside an uncovered akshara or malformed sequence | Yak v2 0.2%; Yak v1 9.2%; sidskarki-64k 1.7% |
 | Orphan-mark share, everyday Nepali (Aya) | reported; same explanation rule | — |
 | Exact round-trip; unknown tokens | 100%; 0 | Yak 100%; 0. sidskarki-64k 99.1% |
 | Whole-character coverage, U+0900–U+097F | 128 of 128 | Yak 128; sidskarki-64k 102 |
@@ -337,8 +337,8 @@ All counts use `add_special_tokens=False`.
 | Nepali byte pieces | ≤ 0.05% | Yak v2 0.02%; Yak v1 0.07% |
 | Newline gap | ≤ 0.010 | Yak 0.000; sidskarki-64k 0.075 |
 | Hugging Face IDs == tiktoken IDs | 100% of eval texts plus 1M lines | — |
-| ZWJ and ZWNJ probes | below Yak v2 64k's exact values measured in M1 (reported as 1.504 and 1.691). If missed, **STOP (human)** with the numbers | Yak v1 1.661 and 1.965; sidskarki-64k 2.560 and 2.560 |
-| Segmenter agreement (M3 step 6) | 100% | — |
+| ZWJ and ZWNJ probes | below Yak v2 64k's exact values measured in baselines (reported as 1.504 and 1.691). If missed, **STOP (human)** with the numbers | Yak v1 1.661 and 1.965; sidskarki-64k 2.560 and 2.560 |
+| Segmenter agreement (pretokenizer step 6) | 100% | — |
 
 - **Stretch (beat both Yak 64k builds):** English below 1.388 and Hindi below 1.376.
 - **Yak scoreboard** (in `docs/GATE_A.md`): for every metric the harness reports for `yak-64k-v1` and `yak-64k-v2.0`, print ours, both Yak values and WIN, TIE or LOSE. This includes everyday Nepali on Aya (Yak v1 1.446, Yak v2 1.455) and the mean over the languages of Nepal (Yak v2 1.843). No row is hidden or dropped.
@@ -360,7 +360,7 @@ If the schedule slips, cut in this order:
 
 1. The 128k build.
 2. The 32k build.
-3. Ancoda-Phrase-128k (keep the 64k phrase result from the M8b sweep as the phrase entry).
+3. Ancoda-Phrase-128k (keep the 64k phrase result from the phrase-build sweep as the phrase entry).
 4. The full GPU tier, falling back to reduced.
 5. The model-level conjunct ablation arm; it stays at the tokenizer level.
 6. The efficiency extras.
@@ -375,9 +375,9 @@ A two-stage curriculum, after SuperBPE (arXiv 2503.13423): word-level merges fir
 2. **Stage 2:** continue learning merges with the **phrase pattern**, built in code from `configs/pretokenizer_pattern.txt` (never retyped): its first two branches (the letter branches) are wrapped as one group repeated `{1,4}`, so up to 4 consecutive words become one pre-token. All other branches (digits, punctuation, newlines, whitespace runs) are unchanged, so numbers and line breaks still split. Assert that on the 3.1 examples, splitting each phrase pre-token with the 3.1 pattern gives back exactly the 3.1 pre-tokens.
 3. **Stage-2 bans,** on top of all 3.4 bans: a token holds at most 4 words; it never ends in a space; it never contains a newline, digit or punctuation character.
 4. **Ranks:** stage-2 merges rank above every stage-1 merge, so the 3.5 guarantee and both exports carry over unchanged. Only the exported pre-tokenizer pattern changes, to the phrase pattern.
-5. **Phrase metrics (reported, M8b):** tokens per word, bytes per token, share of tokens that cross a space, the frequency distribution of stage-2 tokens, and the share of vocabulary entries used fewer than 10 times on a held-out 100 MB slice.
+5. **Phrase metrics (reported, phrase-build):** tokens per word, bytes per token, share of tokens that cross a space, the frequency distribution of stage-2 tokens, and the share of vocabulary entries used fewer than 10 times on a held-out 100 MB slice.
 6. **Word-level consistency (reported):** on FLORES+ npi, the share of phrase-build tokens that are either stage-2 tokens or identical to the stage-1 build's tokens over the same byte span. Covered-akshara violations must still be 0.
-7. **Sweep (M8b), at 64k:** `t` = 10%, 25% and 50% of Block 2. **Pick rule:** the lowest Nepali fertility whose English fertility is within 2% of the 64k word-level build's English fertility. Then build 128k with the chosen fraction.
+7. **Sweep (phrase-build), at 64k:** `t` = 10%, 25% and 50% of Block 2. **Pick rule:** the lowest Nepali fertility whose English fertility is within 2% of the 64k word-level build's English fertility. Then build 128k with the chosen fraction.
 
 **Gate P (phrase builds, FLORES+ devtest via Yak's harness):**
 
@@ -391,7 +391,7 @@ A two-stage curriculum, after SuperBPE (arXiv 2503.13423): word-level merges fir
 
 ---
 
-## 4. Repository layout (create in M0)
+## 4. Repository layout (create in setup)
 
 ```
 ancoda-tokenizer/
@@ -404,7 +404,7 @@ ancoda-tokenizer/
     sources.yaml  mix.yaml  eval.yaml  proxy.yaml
     build_{32k,64k,128k}.yaml  phrase_{64k,128k}.yaml
     ladder_{plain,b0,b0b1,final}.yaml  ablation_gb9c.yaml
-    pretokenizer_pattern.txt         # generated in M3
+    pretokenizer_pattern.txt         # generated in pretokenizer
   crates/
     ancoda-seg/                      # pre-tokenizer, akshara segmenter, counting; PyO3 via maturin
     ancoda-bpe/                      # trainer CLI: Blocks 0/1/2, bans, canonical encoder
@@ -426,7 +426,7 @@ ancoda-tokenizer/
 
 ## 5. Milestones
 
-### M0 — Audit, environment and repo (target: 5 Nov)
+### setup — Audit, environment and repo (target: 5 Nov)
 
 1. **Specification audit, before writing any code.** Read sections 1–5 critically and write `docs/SPEC_AUDIT.md` covering:
    - contradictions
@@ -441,7 +441,7 @@ ancoda-tokenizer/
    - `sysctl -n hw.perflevel0.physicalcpu` (on an Intel Mac, `hw.physicalcpu`)
    - `df -h .`
 
-   **STOP** if free disk is under 100 GB or RAM is under 16 GB. Space is managed as the build goes: M2 step 1 measures the real need before anything is downloaded.
+   **STOP** if free disk is under 100 GB or RAM is under 16 GB. Space is managed as the build goes: data-plan step 1 measures the real need before anything is downloaded.
 3. **Toolchain (macOS).** Skip any line whose tool is already installed.
    ```bash
    xcode-select --install
@@ -491,7 +491,7 @@ git ls-files | grep -E "Cargo.lock|uv.lock|rust-toolchain.toml"
 
 ---
 
-### M1 — Baselines on Yak's harness (target: 7 Nov)
+### baselines — Baselines on Yak's harness (target: 7 Nov)
 
 1. Run `uv run python scripts/eval_panel.py fetch`, then `... run`, inside `third_party/yak-tokenizer`.
 2. Confirm the harness's own validity gate passes **5 of 5**. That gate is the harness's check against numbers published in papers, at its built-in tolerance of ±0.03; it is separate from the ±0.003 reproduction of Yak's table in the acceptance below.
@@ -509,9 +509,9 @@ git ls-files | grep -E "Cargo.lock|uv.lock|rust-toolchain.toml"
    sidskarki-64k's license is community-use-1.0. Read its terms and record in `docs/LICENSES.md` whether evaluation and proxy-model comparison are allowed. **STOP (human)** if they are not, or if the terms are unclear.
 4. Save the generated `docs/RESULTS.md` as `artifacts/eval/baseline_RESULTS.md`, with a manifest.
 5. Record the exact values Gate A compares against: every harness metric for `yak-64k-v1` and `yak-64k-v2.0` (including the orphan-mark share and ZWJ/ZWNJ probes), sidskarki-64k's Nepali fertility and probes, and Yak v1 32k and 128k Nepali and English. Write them to `configs/eval.yaml`.
-6. Write `eval/gate_a.py`. It reads harness output for a named tokenizer and prints the 3.10 rows with PASS/FAIL, plus the Yak scoreboard (3.10); our own metrics are added in M8.
+6. Write `eval/gate_a.py`. It reads harness output for a named tokenizer and prints the 3.10 rows with PASS/FAIL, plus the Yak scoreboard (3.10); our own metrics are added in final-build.
 
-**Acceptance:** the gate shows 5/5. Write `artifacts/eval/m1_reproduction.tsv` with, for every row below: published value, reproduced value, absolute difference, relative difference, PASS/FAIL. Each value must match within ±0.003. **STOP (human)** on any FAIL; never continue with an unexplained difference.
+**Acceptance:** the gate shows 5/5. Write `artifacts/eval/baselines_reproduction.tsv` with, for every row below: published value, reproduced value, absolute difference, relative difference, PASS/FAIL. Each value must match within ±0.003. **STOP (human)** on any FAIL; never continue with an unexplained difference.
 
 | Panel name | Nepali | English | Hindi |
 |---|---|---|---|
@@ -528,7 +528,7 @@ If the panel names differ, use the names in `configs/eval_panel.yaml` and record
 
 ---
 
-### M2 — Storage plan, downloads, license log (target: 10 Nov)
+### data-plan — Storage plan, downloads, license log (target: 10 Nov)
 
 1. **Storage plan first.**
    - Using the Hugging Face Hub API (`HfApi().list_repo_tree(..., recursive=True)` file sizes, or the dataset's parquet listing), sum the exact on-disk size of every file you will download. Never estimate when the API gives a number.
@@ -575,7 +575,7 @@ If the panel names differ, use the names in `configs/eval_panel.yaml` and record
 
 ---
 
-### M3 — Pre-tokenizer, segmenter, export check (target: 14 Nov)
+### pretokenizer — Pre-tokenizer, segmenter, export check (target: 14 Nov)
 
 1. `pattern.py` builds the pattern exactly per 3.1, with the asserted counts and both sources compared, and writes `configs/pretokenizer_pattern.txt`.
 2. **`crates/ancoda-seg`:**
@@ -615,13 +615,13 @@ If the panel names differ, use the names in `configs/eval_panel.yaml` and record
    - **c. Differential test.** Compare `aksharas()` with the reference on 1M distinct words sampled from the training snapshot (seed 20261104) plus every word in the eval sets, in both modes. Every disagreement is a bug in one of them: fix it, add the word to `akshara_cases.tsv`, and rerun. **Pass:** 0 disagreements.
    - **d. ICU, if available.** Try `brew install icu4c` and `uv add PyICU`. If both install, compare `gb9c=true` mode with ICU's character break iterator on the same words and report agreement and ICU's version. If they do not install, record that and continue; this check is optional.
 
-   M3 may close once a–c pass.
+   pretokenizer may close once a–c pass.
 
 **Acceptance:** `cargo test -p ancoda-seg` and `uv run pytest tests/test_seg.py tests/test_pattern.py tests/test_export_equivalence.py` pass, with cross-engine mismatches = 0.
 
 ---
 
-### M4 — Cleaning, decontamination, snapshots (target: 17 Nov)
+### cleaning — Cleaning, decontamination, snapshots (target: 17 Nov)
 
 Run these steps in order, on training sources only. Write `data/clean/<source_id>/` and log counts before and after each step to `artifacts/clean/report.json`.
 
@@ -662,14 +662,14 @@ Run these steps in order, on training sources only. Write `data/clean/<source_id
 7. **Snapshots:**
    - Sample the 3.8 mix at the 3.8 size, by bytes, at document level, seed 20261104. Pools use τ = 0.3 (3.8).
    - Write zstd parquet to `data/snapshots/<sha>/`, with `manifest.json` (per-shard sha256, per-source docs and bytes, mix, seed) and `doc_ids.parquet` (source, doc_id, license).
-   - Build the 50% snapshot, plus 45% and 60% for M7, and one 50% snapshot **without** the joiner copy for the ladder.
+   - Build the 50% snapshot, plus 45% and 60% for mix-sweep, and one 50% snapshot **without** the joiner copy for the ladder.
 8. **Independent audit:** re-run all three decontamination rules on each finished snapshot. All three must report 0.
 
 **Acceptance:** `make snapshot` builds four snapshots with at least 50 GB still free. `docs/RESULTS.md` lists bytes per language per snapshot. The audit shows 0 on all rules. `uv run pytest tests/test_clean.py` passes.
 
 ---
 
-### M5 — Akshara inventory and covered set (target: 19 Nov)
+### akshara-inventory — Akshara inventory and covered set (target: 19 Nov)
 
 1. Run `aksharas()` over the 50% snapshot's Devanagari text. Write `artifacts/inventory/akshara_counts.tsv` (akshara, code points, count).
 2. Run the 3.6 algorithm for 32k, 64k and 128k. Write `covered_{32k,64k,128k}.json` with every 3.6 step 8 field.
@@ -680,7 +680,7 @@ Run these steps in order, on training sources only. Write `data/clean/<source_id
 
 ---
 
-### M6 — Trainer, exporter and the guarantee (target: 24 Nov)
+### trainer — Trainer, exporter and the guarantee (target: 24 Nov)
 
 **Counting** (`ancoda-seg counts`): stream a snapshot, pre-tokenize, and count unique pre-tokens as byte strings. Output a sorted `(bytes, u64 count)` table, plus a manifest.
 
@@ -693,7 +693,7 @@ Run these steps in order, on training sources only. Write `data/clean/<source_id
    - Duplicates follow the 3.4 rule.
    - Stop at the 3.7 Block 2 size.
 3. Write `ranks.json` (byte string to rank, which equals the ID) and a manifest.
-4. **Config switches:** `block0`, `block1`, `bans`, `gb9c`. These are needed for the M7 ladder.
+4. **Config switches:** `block0`, `block1`, `bans`, `gb9c`. These are needed for the mix-sweep ladder.
 
 **Memory:** counting and training stream from disk and never hold raw text in RAM. Before the full build, benchmark the trainer on a 1 GB slice and record peak RAM and time in `docs/MACHINE.md`; **STOP** if peak RAM would exceed 14 GB at full size.
 
@@ -723,11 +723,11 @@ Run these steps in order, on training sources only. Write `data/clean/<source_id
 
 **Acceptance:** all of the above pass, and `plain_vs_hf.md` is written.
 
-**STOP (human):** choose the M9 tier (see M9: reduced, full or none) before continuing.
+**STOP (human):** choose the model-eval tier (see model-eval: reduced, full or none) before continuing.
 
 ---
 
-### M7 — Mix sweep and ablation ladder (target: 1 Dec)
+### mix-sweep — Mix sweep and ablation ladder (target: 1 Dec)
 
 1. Train the final config at 64k on the 45%, 50% and 60% snapshots.
 2. Export each, run the guarantee tests, and run the harness:
@@ -747,7 +747,7 @@ Run these steps in order, on training sources only. Write `data/clean/<source_id
 
    The `unigram` rung is a tokenizer-level control: SentencePiece Unigram at 64k on the same snapshot, with `byte_fallback=true` and no normalization (`normalization_rule_name=identity`), evaluated with the same harness and metrics. It differs from our trainer in pre-tokenization and has no protected units, so it compares tokenizers, not BPE versus Unigram as algorithms; the paper says so.
 
-   The two "final" rungs differ only in the joiner copy (the M4 snapshot without it). **Keep the joiner copy** only if it lowers both joiner probes and costs no more than 0.005 Nepali fertility; record the decision in `docs/DECISIONS.md`.
+   The two "final" rungs differ only in the joiner copy (the cleaning snapshot without it). **Keep the joiner copy** only if it lowers both joiner probes and costs no more than 0.005 Nepali fertility; record the decision in `docs/DECISIONS.md`.
 
    Run the harness and our metrics on every rung. Report fertility, bytes per token, orphan share, violations, tail, joiner probes and morphology alignment per rung in `docs/RESULTS.md`.
 
@@ -755,15 +755,15 @@ Run these steps in order, on training sources only. Write `data/clean/<source_id
 
 ---
 
-### M8 — Final builds, Gate A, efficiency (target: 8 Dec)
+### final-build — Final builds, Gate A, efficiency (target: 8 Dec)
 
-1. Build 32k, 64k and 128k on the chosen mix (with or without the joiner copy, per M7), and export each.
+1. Build 32k, 64k and 128k on the chosen mix (with or without the joiner copy, per mix-sweep), and export each.
 2. Run the harness on all of them plus the panel. Add our metrics:
    - `akshara.py`: violations, tail, and matra-detach, virama-detach and conjunct-split rates
    - `equality.py`
    - `multilang.py`: fertility on every FLORES+ Devanagari language and the mean, for ours and every panel tokenizer
    - `morph.py`: morphology alignment and cross-language reuse (3.9)
-   - segmenter agreement (M3 step 6)
+   - segmenter agreement (pretokenizer step 6)
    - coverage rows (3.9): byte-level representability, whole-character coverage, extended-block coverage
    - encoding-variant cost (3.9), reported only
 3. **`efficiency.py`**, on the same Mac, best of 3, for ours, Yak v1 64k, sidskarki-64k and o200k:
@@ -777,44 +777,46 @@ Run these steps in order, on training sources only. Write `data/clean/<source_id
 4. Loading: `AutoTokenizer.from_pretrained(<dir>)` must work. vLLM loading is marked "pending (GPU box)".
 5. `make gate-a` writes `docs/GATE_A.md`: every 3.10 row PASS/FAIL, the stretch, 32k and 128k rows, the Yak scoreboard and the separate phrase-build table.
 
-**STOP (human):** Gate A review. M9 needs approval.
+**STOP (human):** Gate A review. model-eval needs approval.
 
 ---
 
-### M8b — Phrase build and Gate P (target: 12 Dec)
+### phrase-build — Phrase build and Gate P (target: 12 Dec)
 
 1. Add the 3.13 stage 2 to `ancoda-bpe` (`--phrase-fraction`), with the phrase pattern and stage-2 bans. Write `tests/data/phrase_cases.tsv` and test that pre-tokens and tokens never exceed 4 words, never cross a newline, never absorb digits or punctuation, never end in a space, keep Devanagari marks and joiners inside words, and handle leading spaces and runs of spaces correctly.
 2. Sweep `t` = 10%, 25%, 50% at 64k on the chosen mix; pick per 3.13.
 3. Build Ancoda-Phrase-128k with the chosen fraction. Export both formats.
-4. Rerun every M6 guarantee test on it (equality, covered integrity, mark-initial, round-trip, coverage, fuzzing).
+4. Rerun every trainer guarantee test on it (equality, covered integrity, mark-initial, round-trip, coverage, fuzzing).
 5. Run the harness with `--add`, and `make gate-p` writes `docs/GATE_P.md` against Yak's phrase builds.
 
 **Acceptance:** guarantee tests pass; `docs/GATE_P.md` is written. **STOP (human):** Gate P review.
 
 ---
 
-### M9 — Proxy pretraining and Gate B (target: 18 Dec, on a rented Linux GPU box)
+### model-eval — Proxy pretraining and Gate B (target: 18 Dec, on a rented Linux GPU box)
+
+Called M9 in the accompanying paper.
 
 This is the only milestone that does not run on the Mac.
 
 **STOP (human):** provide SSH access to a Linux machine with H100 (or A100 80GB) GPUs, and confirm the tier in `configs/proxy.yaml`.
 
-**Arms** (tokenizer sources come from M1's records):
+**Arms** (tokenizer sources come from baselines's records):
 
 1. Ancoda 64k final
 2. ladder `plain` (same data, pre-tokenizer and size; no blocks or bans)
 3. ladder `b0` (no Block 1)
 4. `gb9c`
 5. Yak v1 64k (`ampixa/yak-tokenizer`, `subfolder="v1.0/64k"`; research use only)
-6. sidskarki-64k (outside tokenizer; only if M1 recorded that its license allows this)
+6. sidskarki-64k (outside tokenizer; only if baselines recorded that its license allows this)
 7. Arkios (`sajalregmi4/arkios-tokenizer`)
-8. Ancoda-Phrase (the 64k phrase pick from M8b, so vocab size matches arm 1)
+8. Ancoda-Phrase (the 64k phrase pick from phrase-build, so vocab size matches arm 1)
 
 **Tiers:**
 
 - **reduced:** arms 1, 2, 5 and 8, seed 1 only.
 - **full:** all 8 arms, seeds 1 and 2; seed 3 for arms 1 and 2; plus fixed-byte runs (step 4) for arms 1, 2 and 5.
-- **none:** skip M9 entirely. Gate B is recorded as "not run", and every model-level claim is dropped (3.11).
+- **none:** skip model-eval entirely. Gate B is recorded as "not run", and every model-level claim is dropped (3.11).
 
 The budget is set **after the pilot** (step 3). Planning figures only: Arkios's comparable runs took about 5.3 H100-hours per 4B tokens. That suggests roughly 21 H100-hours for reduced and roughly 110 for full (21 runs).
 
@@ -876,7 +878,7 @@ The budget is set **after the pilot** (step 3). Planning figures only: Arkios's 
 
 ---
 
-### M10 — Release candidate and Gate C (target: 22 Dec)
+### release-candidate — Release candidate and Gate C (target: 22 Dec)
 
 1. **Vocab audit:** decode every token. Write Devanagari tokens of 6 or more characters to `artifacts/audit/long_tokens.tsv` for human review of personal names.
 2. **Model card:**
@@ -897,7 +899,7 @@ The budget is set **after the pilot** (step 3). Planning figures only: Arkios's 
 ## 6. Progress file format (`docs/PROGRESS.md`)
 
 ```
-## M<n> — <name> — <not started | in progress | done | blocked>
+## <stage> — <name> — <not started | in progress | done | blocked>
 - [x] task …
 - [ ] task …
 Acceptance:

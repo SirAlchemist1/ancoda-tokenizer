@@ -1,4 +1,4 @@
-"""M4 step 1: UTF-8 validity and control stripping. No normalization."""
+"""cleaning step 1: UTF-8 validity and control stripping. No normalization."""
 
 from __future__ import annotations
 

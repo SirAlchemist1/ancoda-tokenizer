@@ -2,7 +2,7 @@
 
 Analysis only. No training run, and the server queue was not touched. Final checkpoints (step 7,630), seeds 1–3, arms ancoda-64k, ancoda-64k-nojoiner, sidskarki-64k, yak-64k-v1. Device: `mps`. Reproduction: `scripts/analysis_joiner_loss.py` (add `--include-f` or `--only-f` for arm F).
 
-BPB denominator: UTF-8 bytes of the original unmodified text (`original_bytes`). Bits = NLL nats / ln 2. Scoring matches `ancoda_tok.m9.bpb` (EOS context-only, non-overlapping 1,023-token windows).
+BPB denominator: UTF-8 bytes of the original unmodified text (`original_bytes`). Bits = NLL nats / ln 2. Scoring matches `ancoda_tok.model_eval.bpb` (EOS context-only, non-overlapping 1,023-token windows).
 
 ## (a)(b) Total bits, BPB, joiner vs other
 

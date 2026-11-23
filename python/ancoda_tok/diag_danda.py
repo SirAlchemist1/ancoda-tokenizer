@@ -123,7 +123,7 @@ def main() -> None:
             "tokens, like '.' in English. Recorded 8 Nov 2026."
         ),
     }
-    dest = REPO_ROOT / "artifacts" / "eval" / "m7" / "diag_danda.json"
+    dest = REPO_ROOT / "artifacts" / "eval" / "mix_sweep" / "diag_danda.json"
     save_json(dest, finish_manifest(base_manifest(kind="danda_diag", **out)))
     print(json.dumps(out, indent=2, ensure_ascii=False), flush=True)
 

@@ -1,8 +1,8 @@
-"""Arm F minus arm A, and M9 training hours. Analysis only.
+"""Arm F minus arm A, and model-eval training hours. Analysis only.
 
-Reads eval JSON already pulled to artifacts/m9/server_copy. Does not train and
+Reads eval JSON already pulled to artifacts/model_eval/server_copy. Does not train and
 does not touch the server queue. The decision rule is the 16 Nov 2026 amendment
-in docs/M9_PREREG.md: difference is BPB(F) − BPB(A).
+in docs/MODEL_EVAL_PREREG.md: difference is BPB(F) − BPB(A).
 """
 
 from __future__ import annotations
@@ -13,12 +13,12 @@ import statistics
 from datetime import datetime
 from pathlib import Path
 
-from ancoda_tok.m9.common import DEVA11, FULL_STEPS, FULL_STREAM_TOKENS
+from ancoda_tok.model_eval.common import DEVA11, FULL_STEPS, FULL_STREAM_TOKENS
 
 REPO = Path(__file__).resolve().parents[1]
-EVAL = REPO / "artifacts" / "m9" / "server_copy" / "evals"
-RUNS = REPO / "artifacts" / "m9" / "server_copy" / "runs"
-BSTAR = REPO / "artifacts" / "m9" / "server_copy" / "bstar.json"
+EVAL = REPO / "artifacts" / "model_eval" / "server_copy" / "evals"
+RUNS = REPO / "artifacts" / "model_eval" / "server_copy" / "runs"
+BSTAR = REPO / "artifacts" / "model_eval" / "server_copy" / "bstar.json"
 OUT_JSON = REPO / "artifacts" / "analysis" / "arm_f.json"
 OUT_MD = REPO / "docs" / "ANALYSIS_ARM_F.md"
 
@@ -211,7 +211,7 @@ def render(checks: list[dict], comparisons: dict, hours: list[dict]) -> str:
         "",
         "Analysis only. The server queue was not changed. Eval JSON and run",
         "manifests were pulled with rsync. The decision rule is the 16 Nov 2026",
-        "amendment in `docs/M9_PREREG.md`. Difference is BPB(F) − BPB(A). Lower BPB",
+        "amendment in `docs/MODEL_EVAL_PREREG.md`. Difference is BPB(F) − BPB(A). Lower BPB",
         "is better. **F better** requires every seed difference strictly negative and",
         "|mean| > sample SD (divisor n−1). **F worse** requires every difference",
         "strictly positive and the same mean test. Otherwise **no measurable",

@@ -303,7 +303,7 @@ def build(
         f"key_bytes={stats['key_bytes']} text_bytes={manifest['text_bytes']}",
         flush=True,
     )
-    # The 1 GB slice is only for the M6 plain-vs-HF check on n50. Other
+    # The 1 GB slice is only for the trainer plain-vs-HF check on n50. Other
     # snapshots must not overwrite artifacts/counts/n50_1gb.
     if out_dir.name == "n50" and bucket is None:
         _build_one_gb(metas, out_dir.parent / "n50_1gb", snapshot)

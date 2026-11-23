@@ -1,4 +1,4 @@
-"""Script-budget frontier diagnostic (M7 follow-up H).
+"""Script-budget frontier diagnostic (mix-sweep follow-up H).
 
 Split n60 pretokens into Devanagari vs Latin/other, train final-config sides
 with fixed Devanagari budgets, interleave Block 2 merges by count, evaluate.
@@ -17,14 +17,14 @@ from ancoda_tok.clean.common import base_manifest, finish_manifest, save_json, s
 from ancoda_tok.counts import iter_entries, write_counts
 from ancoda_tok.export_cli import export_dir
 from ancoda_tok.export_hf import load_hf
-from ancoda_tok.m7 import M7_DIR, TOK_DIR, _caffeinate, _env, harness_add
+from ancoda_tok.mix_sweep import MIX_SWEEP_DIR, TOK_DIR, _caffeinate, _env, harness_add
 from ancoda_tok.storage import REPO_ROOT
 
 SEED = 20261104
 COUNTS_N60 = REPO_ROOT / "artifacts" / "counts" / "n60" / "pretoken_counts.bin"
 COVERED = REPO_ROOT / "artifacts" / "inventory" / "covered_64k.json"
 UNICODE = REPO_ROOT / "third_party" / "unicode" / "16.0.0" / "UnicodeData.txt"
-OUT_ROOT = REPO_ROOT / "artifacts" / "eval" / "m7" / "script_budget"
+OUT_ROOT = REPO_ROOT / "artifacts" / "eval" / "mix_sweep" / "script_budget"
 
 # Devanagari-related blocks used for the side split of pretokens / tokens.
 DEVA_RANGES = (
@@ -166,7 +166,7 @@ def train_sides(b_d: int) -> tuple[Path, Path]:
     latin_out = OUT_ROOT / tag / "side-latin"
     dewa_cfg = _write_side_config(
         name=f"{tag}_deva",
-        counts_rel="artifacts/eval/m7/script_budget/deva_pretoken_counts.bin",
+        counts_rel="artifacts/eval/mix_sweep/script_budget/deva_pretoken_counts.bin",
         output_rel=str(dewa_out.relative_to(REPO_ROOT)),
         vocab_size=dewa_vocab,
         block0=True,
@@ -174,7 +174,7 @@ def train_sides(b_d: int) -> tuple[Path, Path]:
     )
     latin_cfg = _write_side_config(
         name=f"{tag}_latin",
-        counts_rel="artifacts/eval/m7/script_budget/latin_pretoken_counts.bin",
+        counts_rel="artifacts/eval/mix_sweep/script_budget/latin_pretoken_counts.bin",
         output_rel=str(latin_out.relative_to(REPO_ROOT)),
         vocab_size=latin_vocab,
         block0=False,
@@ -463,7 +463,7 @@ def main() -> None:
             }
         )
     harness_add(adds, "script_budget")
-    harness = json.loads((M7_DIR / "harness_script_budget.json").read_text(encoding="utf-8"))
+    harness = json.loads((MIX_SWEEP_DIR / "harness_script_budget.json").read_text(encoding="utf-8"))
     # Enrich with FLORES Deva fertilities from harness JSON files
     for row in rows:
         tag = f"bd{row['B_d']}"
@@ -474,7 +474,7 @@ def main() -> None:
         row["hin"] = h.get("hin")
         row["orphan"] = h.get("npi_orphan_mark_rate")
         # per-language from raw yak artifact
-        raw = M7_DIR / f"script_budget_{name}.json"
+        raw = MIX_SWEEP_DIR / f"script_budget_{name}.json"
         if raw.is_file():
             rec = json.loads(raw.read_text(encoding="utf-8"))
             results = rec.get("results") or {}

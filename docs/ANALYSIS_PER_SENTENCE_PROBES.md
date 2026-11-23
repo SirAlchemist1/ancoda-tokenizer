@@ -1,6 +1,6 @@
 # Per-sentence recount of robustness probes
 
-Analysis only. Each FLORES+ Nepali sentence is encoded separately. Old values come from `artifacts/eval/m8/scoreboard.json` and `robustness.json` (many marked `whole-file first-byte`). Reproduction: `scripts/analysis_per_sentence_probes.py`.
+Analysis only. Each FLORES+ Nepali sentence is encoded separately. Old values come from `artifacts/eval/final_build/scoreboard.json` and `robustness.json` (many marked `whole-file first-byte`). Reproduction: `scripts/analysis_per_sentence_probes.py`.
 
 ## Mark-initial (orphan) share — sidskarki & Arkios
 
@@ -35,7 +35,7 @@ Analysis only. Each FLORES+ Nepali sentence is encoded separately. Old values co
 | gemma3 | 1.3182524729156853 | 1.3260151028975367 | 1.4472444653791805 | 1.458153393326739 |
 | sarvam-30b | 1.3182224943481538 | 1.3259836441270836 | 1.447202336096458 | 1.4581091838950135 |
 
-## Misspelled Nepali (10% M8 misspell)
+## Misspelled Nepali (10% final-build misspell)
 
 Old column is token ratio. New columns: per-sentence ratio and fertility of the misspelled text (tokens/words).
 

@@ -9,7 +9,7 @@ from ancoda_tok.clean.common import base_manifest, finish_manifest, save_json, s
 from ancoda_tok.counts import iter_entries, write_counts
 from ancoda_tok.export_cli import export_dir
 from ancoda_tok.export_hf import load_hf
-from ancoda_tok.m7 import M7_DIR, _caffeinate, harness_add
+from ancoda_tok.mix_sweep import MIX_SWEEP_DIR, _caffeinate, harness_add
 from ancoda_tok.storage import REPO_ROOT
 
 SEED = 20261104
@@ -46,7 +46,7 @@ def split_counts(dest_dir: Path, counts_path: Path = COUNTS_N60) -> dict:
         print("split counts already present", flush=True)
         return json.loads(manifest.read_text(encoding="utf-8"))
     # Reuse H split if identical source.
-    h_dir = REPO_ROOT / "artifacts" / "eval" / "m7" / "script_budget"
+    h_dir = REPO_ROOT / "artifacts" / "eval" / "mix_sweep" / "script_budget"
     h_man = h_dir / "split_manifest.json"
     if h_man.is_file() and counts_path.resolve() == COUNTS_N60.resolve():
         h = json.loads(h_man.read_text(encoding="utf-8"))
@@ -330,7 +330,7 @@ def guarantee(
     snapshot: Path | None = None,
     snapshot_line_limit: int = 1_000_000,
 ) -> dict:
-    """Run guarantee tests. Diagnostics use 1M snapshot lines (M8 does 10M)."""
+    """Run guarantee tests. Diagnostics use 1M snapshot lines (final-build does 10M)."""
     if report.is_file():
         data = json.loads(report.read_text(encoding="utf-8"))
         if not data.get("failures") and data.get("snapshot_lines") == snapshot_line_limit:
@@ -405,7 +405,7 @@ def held_out_code_math(
 
 
 def enrich_from_harness(row: dict, harness_tag: str, name: str) -> None:
-    hpath = M7_DIR / f"harness_{harness_tag}.json"
+    hpath = MIX_SWEEP_DIR / f"harness_{harness_tag}.json"
     if not hpath.is_file():
         return
     harness = json.loads(hpath.read_text(encoding="utf-8"))
@@ -416,7 +416,7 @@ def enrich_from_harness(row: dict, harness_tag: str, name: str) -> None:
     row["orphan"] = h.get("npi_orphan_mark_rate")
     row["zwj"] = h.get("zwj")
     row["zwnj"] = h.get("zwnj")
-    raw = M7_DIR / f"{harness_tag}_{name}.json"
+    raw = MIX_SWEEP_DIR / f"{harness_tag}_{name}.json"
     if raw.is_file():
         rec = json.loads(raw.read_text(encoding="utf-8"))
         results = rec.get("results") or {}

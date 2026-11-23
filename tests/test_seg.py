@@ -198,7 +198,7 @@ def test_pretokenizer_adversarial_and_sample_agree() -> None:
             break
     assert bad == [], bad
     write_result(
-        "m3_pretokenizer",
+        "pretokenizer_pretokenizer",
         {"lines": len(lines), "sampled_lines": len(sampled), "mismatches": 0},
         opened,
         started,
@@ -237,7 +237,7 @@ def test_segmenter_differential() -> None:
     bad = _disagreements(eval_words)
     assert bad == [], bad
     write_result(
-        "m3_segmenter",
+        "pretokenizer_segmenter",
         {
             "training_words": len(training),
             "eval_words": len(eval_words),
@@ -245,7 +245,7 @@ def test_segmenter_differential() -> None:
             "modes": ["default", "gb9c"],
             "sample": (
                 "1e6 distinct words from training-role raw parquet shuffled with "
-                "Random(20261104); the M4 snapshot does not exist yet. Eval words are "
+                "Random(20261104); the cleaning snapshot does not exist yet. Eval words are "
                 "distinct words from role=eval sources and harness FLORES+ dev/devtest."
             ),
         },

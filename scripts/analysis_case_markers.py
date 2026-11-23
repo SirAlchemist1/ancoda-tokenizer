@@ -39,19 +39,19 @@ from ancoda_tok.eval.morph import (
     split_case_marker,
     word_spans_from_pieces,
 )
-from ancoda_tok.m8_final import BOOT_N, REPO_ROOT, SEED, Encoder, verdict
-from ancoda_tok.m8_flores_per_sentence import flores_path, read_sentences
-from ancoda_tok.m8_followup_report import load_specs
+from ancoda_tok.final_build_final import BOOT_N, REPO_ROOT, SEED, Encoder, verdict
+from ancoda_tok.final_build_flores_per_sentence import flores_path, read_sentences
+from ancoda_tok.final_build_followup_report import load_specs
 
 OUT_JSON = REPO_ROOT / "artifacts" / "analysis" / "case_markers.json"
 OUT_MANIFEST = REPO_ROOT / "artifacts" / "analysis" / "case_markers.manifest.json"
 LABEL_CACHE = REPO_ROOT / "artifacts" / "analysis" / "case_markers_labels"
 OUT_MD = REPO_ROOT / "docs" / "ANALYSIS_CASE_MARKERS.md"
 SPOT = REPO_ROOT / "docs" / "case_marker_spotcheck.tsv"
-SEALED = REPO_ROOT / "data" / "m9" / "eval" / "sealed.jsonl.zst"
+SEALED = REPO_ROOT / "data" / "model_eval" / "eval" / "sealed.jsonl.zst"
 COUNTS = REPO_ROOT / "artifacts" / "counts" / "n60j5" / "pretoken_counts.bin"
 COUNTS_MANIFEST = REPO_ROOT / "artifacts" / "counts" / "n60j5" / "manifest.json"
-PLAIN = REPO_ROOT / "artifacts" / "tokenizers" / "m9" / "plain-64k" / "tokenizer.json"
+PLAIN = REPO_ROOT / "artifacts" / "tokenizers" / "model_eval" / "plain-64k" / "tokenizer.json"
 
 CLASS_OURS = {
     "32k": ["ancoda-32k"],

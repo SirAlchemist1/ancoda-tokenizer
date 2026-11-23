@@ -2,7 +2,7 @@
 
 Analysis only. No training run, and the server was not used. Reproduction: `scripts/analysis_sealed_code_math_kb.py` (tokenizers 0.23.3).
 
-Same panel and counting as the code/math tokens-per-KB table from `artifacts/eval/m8/followup/code_math_kb.json`: each document is encoded whole with `Encoder.ids`, and tokens per KB is 1,024 × total tokens ÷ total UTF-8 bytes. That table used held-out n60j5 snapshot files (778 Code, 551 Math). This one uses the sealed holdout groups: Code 565 documents (3,589,870 bytes) and Math 364 documents (2,402,282 bytes), from `data/m9/eval/sealed.jsonl.zst`. Sealed numbers are report-only.
+Same panel and counting as the code/math tokens-per-KB table from `artifacts/eval/final_build/followup/code_math_kb.json`: each document is encoded whole with `Encoder.ids`, and tokens per KB is 1,024 × total tokens ÷ total UTF-8 bytes. That table used held-out n60j5 snapshot files (778 Code, 551 Math). This one uses the sealed holdout groups: Code 565 documents (3,589,870 bytes) and Math 364 documents (2,402,282 bytes), from `data/model_eval/eval/sealed.jsonl.zst`. Sealed numbers are report-only.
 
 Lower is better.
 

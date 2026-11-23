@@ -1,4 +1,4 @@
-"""Unit tests for M4 cleaning helpers."""
+"""Unit tests for cleaning helpers."""
 
 from __future__ import annotations
 

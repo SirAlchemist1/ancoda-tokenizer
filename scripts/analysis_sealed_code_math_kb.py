@@ -1,6 +1,6 @@
 """Tokens per KB on the sealed Code and Math groups. Does not train and does not touch the server.
 
-Same panel and counting as ``m8_ws_report.code_math_kb`` (whole-document ``Encoder.ids``,
+Same panel and counting as ``final_build_ws_report.code_math_kb`` (whole-document ``Encoder.ids``,
 1,024 x tokens / UTF-8 bytes), measured on held-out sealed documents instead of the
 n60j5 snapshot. Text is never normalized and never written out.
 """
@@ -17,11 +17,11 @@ import tokenizers
 import zstandard as zstd
 
 from ancoda_tok.clean.common import base_manifest, finish_manifest, save_json, sha256_file
-from ancoda_tok.m8_final import BOOT_N, REPO_ROOT, SEED, Encoder, verdict
-from ancoda_tok.m8_followup_report import load_specs
+from ancoda_tok.final_build_final import BOOT_N, REPO_ROOT, SEED, Encoder, verdict
+from ancoda_tok.final_build_followup_report import load_specs
 
-SEALED = REPO_ROOT / "data" / "m9" / "eval" / "sealed.jsonl.zst"
-SNAPSHOT_KB = REPO_ROOT / "artifacts" / "eval" / "m8" / "followup" / "code_math_kb.json"
+SEALED = REPO_ROOT / "data" / "model_eval" / "eval" / "sealed.jsonl.zst"
+SNAPSHOT_KB = REPO_ROOT / "artifacts" / "eval" / "final_build" / "followup" / "code_math_kb.json"
 OUT_JSON = REPO_ROOT / "artifacts" / "analysis" / "sealed_code_math_kb.json"
 OUT_MANIFEST = REPO_ROOT / "artifacts" / "analysis" / "sealed_code_math_kb.manifest.json"
 OUT_MD = REPO_ROOT / "docs" / "ANALYSIS_SEALED_CODE_MATH_KB.md"
@@ -103,13 +103,13 @@ def write_md(payload: dict[str, Any]) -> None:
         "",
         (
             "Same panel and counting as the code/math tokens-per-KB table from "
-            "`artifacts/eval/m8/followup/code_math_kb.json`: each document is encoded whole "
+            "`artifacts/eval/final_build/followup/code_math_kb.json`: each document is encoded whole "
             "with `Encoder.ids`, and tokens per KB is 1,024 × total tokens ÷ total UTF-8 bytes. "
             "That table used held-out n60j5 snapshot files "
             f"({snap['code_docs']} Code, {snap['math_docs']} Math). This one uses the sealed "
             f"holdout groups: Code {payload['docs']['Code']} documents "
             f"({payload['bytes']['Code']:,} bytes) and Math {payload['docs']['Math']} documents "
-            f"({payload['bytes']['Math']:,} bytes), from `data/m9/eval/sealed.jsonl.zst`. "
+            f"({payload['bytes']['Math']:,} bytes), from `data/model_eval/eval/sealed.jsonl.zst`. "
             "Sealed numbers are report-only."
         ),
         "",
