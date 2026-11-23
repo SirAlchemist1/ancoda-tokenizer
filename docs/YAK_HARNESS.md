@@ -1,4 +1,4 @@
-# Yak harness clone (M0 step 7)
+# Yak harness clone (setup step 7)
 
 - Remote: `https://github.com/Ampixa/yak-tokenizer`
 - Local (gitignored): `third_party/yak-tokenizer`

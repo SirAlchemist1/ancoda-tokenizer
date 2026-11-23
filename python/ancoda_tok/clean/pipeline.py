@@ -1,4 +1,4 @@
-"""M4 steps 1–3: per-source UTF-8, GlotLID, and legacy-font filtering."""
+"""cleaning steps 1–3: per-source UTF-8, GlotLID, and legacy-font filtering."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""M5: akshara inventory and Block 1 covered-set selection (docs/SPEC.md 3.6).
+"""akshara-inventory: akshara inventory and Block 1 covered-set selection (docs/SPEC.md 3.6).
 
 Counts every unit containing at least one Devanagari-block code point
 (U+0900–U+097F) over the 50% training snapshot, then runs the exact 3.6
@@ -511,7 +511,7 @@ def run_selection_suite(
     )
     art_svg = out_dir / svg_name
     write_coverage_svg(curves, art_svg, title=title)
-    fig_svg = FIGURES_DIR / ("m5_" + svg_name)
+    fig_svg = FIGURES_DIR / ("akshara_inventory_" + svg_name)
     write_coverage_svg(curves, fig_svg, title=title)
     results["plot"] = {
         "artifacts": str(art_svg.relative_to(REPO_ROOT)),

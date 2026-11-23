@@ -1,4 +1,4 @@
-"""M4 step 3: dictionary-based Preeti / Kantipur legacy-font detector.
+"""cleaning step 3: dictionary-based Preeti / Kantipur legacy-font detector.
 
 Replaces the logistic classifier (failed 99% precision). Decision recorded in
 docs/DECISIONS.md (5 Nov 2026).

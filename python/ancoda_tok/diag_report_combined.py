@@ -10,7 +10,7 @@ from ancoda_tok.export_hf import load_hf
 from ancoda_tok.frontier_metrics import fertility_on_texts, fw2_npi_test_texts
 from ancoda_tok.storage import REPO_ROOT
 
-M7 = REPO_ROOT / "artifacts" / "eval" / "m7"
+MIX_SWEEP = REPO_ROOT / "artifacts" / "eval" / "mix_sweep"
 FLORES_HIN = (
     REPO_ROOT
     / "third_party/yak-tokenizer/data/eval/flores_plus/devtest/hin_Deva.txt"
@@ -20,7 +20,7 @@ YAK = (
     / "data/hf_cache/hub/models--ampixa--yak-tokenizer/snapshots"
     / "12b6d3010ec542b484ec3b673354852fe8bb85fb"
 )
-OUT = M7 / "combined_frontier_report.json"
+OUT = MIX_SWEEP / "combined_frontier_report.json"
 FERT_KEYS = (
     "npi",
     "eng",
@@ -58,7 +58,7 @@ def _harness_fert(res: dict, key: str) -> float | None:
 
 def competitor_rows() -> list[dict]:
     rows: list[dict] = []
-    t4 = _load(M7 / "script_budget_128k/frontier.json")
+    t4 = _load(MIX_SWEEP / "script_budget_128k/frontier.json")
     t4_by = {r["label"]: r for r in t4["rows"]}
 
     specs = [
@@ -84,13 +84,13 @@ def competitor_rows() -> list[dict]:
             "128k",
             "yak_v1_128k",
             YAK / "v1.0/128k/tokenizer.json",
-            "artifacts/eval/m7/t4_128k_yak_v1_128k.json",
+            "artifacts/eval/mix_sweep/t4_128k_yak_v1_128k.json",
         ),
         (
             "128k",
             "yak_v2_128k",
             YAK / "v2.0/128k/tokenizer.json",
-            "artifacts/eval/m7/t4_128k_yak_v2_128k.json",
+            "artifacts/eval/mix_sweep/t4_128k_yak_v2_128k.json",
         ),
     ]
 
@@ -216,7 +216,7 @@ def enrich_t1(rows: list[dict]) -> list[dict]:
     out = []
     for r in rows:
         rr = dict(r)
-        g_path = M7 / "t1_block1_cap" / f"guarantee_bd{r['B_d']}_{r['block1_cap']}.json"
+        g_path = MIX_SWEEP / "t1_block1_cap" / f"guarantee_bd{r['B_d']}_{r['block1_cap']}.json"
         if g_path.is_file():
             g = _load(g_path)
             rr["tail_hf_rate"] = (g.get("tail_hf_rate_lo_hi") or [None])[0]
@@ -225,7 +225,7 @@ def enrich_t1(rows: list[dict]) -> list[dict]:
             ci = r.get("tail_hf_rate_lo_hi")
             rr["tail_hf_rate"] = (ci or [None])[0]
             rr["tail_hf_ci95"] = ci
-        covered = M7 / "t1_block1_cap" / f"covered_64k_{r['block1_cap']}.json"
+        covered = MIX_SWEEP / "t1_block1_cap" / f"covered_64k_{r['block1_cap']}.json"
         if covered.is_file():
             rr["block1_coverage"] = _load(covered)["coverage"]
         out.append(rr)
@@ -288,11 +288,11 @@ def _print_row(arm: str, label: str, r: dict) -> None:
 
 
 def main() -> None:
-    t4 = _load(M7 / "script_budget_128k/frontier.json")
-    t1 = _load(M7 / "t1_block1_cap/frontier.json")
-    t2 = _load(M7 / "t2_latin_rebalance/frontier.json")
-    t3 = _load(M7 / "t3_10gb_joiner/frontier.json")
-    h = _load(M7 / "script_budget/frontier.json")
+    t4 = _load(MIX_SWEEP / "script_budget_128k/frontier.json")
+    t1 = _load(MIX_SWEEP / "t1_block1_cap/frontier.json")
+    t2 = _load(MIX_SWEEP / "t2_latin_rebalance/frontier.json")
+    t3 = _load(MIX_SWEEP / "t3_10gb_joiner/frontier.json")
+    h = _load(MIX_SWEEP / "script_budget/frontier.json")
 
     t1_rows = enrich_t1(t1["rows"])
     # T2 already has code/math tokens_per_kb on held-out samples from frontier H path

@@ -1,7 +1,7 @@
 """Joiner loss split on sealed_npi_{zwj,zwnj,2000}. Analysis only; MPS/CPU.
 
 Does not train and does not touch the server queue. Uses the same scoring path
-as ancoda_tok.m9.bpb (EOS context-only, original_bytes denominator).
+as ancoda_tok.model_eval.bpb (EOS context-only, original_bytes denominator).
 """
 
 from __future__ import annotations
@@ -22,14 +22,14 @@ import torch.nn.functional as F
 import zstandard as zstd
 
 from ancoda_tok.export_hf import bytes_to_unicode
-from ancoda_tok.m9.arms import ARMS, load_arm, mac_path
-from ancoda_tok.m9.common import REPO_ROOT, bpb, now_utc, text_windows
-from ancoda_tok.m9.model import Llama
+from ancoda_tok.model_eval.arms import ARMS, load_arm, mac_path
+from ancoda_tok.model_eval.common import REPO_ROOT, bpb, now_utc, text_windows
+from ancoda_tok.model_eval.model import Llama
 
 ZWJ = "\u200d"
 ZWNJ = "\u200c"
 LN2 = math.log(2)
-EVAL = REPO_ROOT / "data" / "m9" / "eval"
+EVAL = REPO_ROOT / "data" / "model_eval" / "eval"
 SETS = (
     ("sealed_npi_2000", EVAL / "sealed_npi_2000.jsonl.zst", False),
     ("sealed_npi_zwj", EVAL / "perturb" / "sealed_npi_zwj.jsonl.zst", True),
@@ -40,12 +40,12 @@ ARMS_CORE = (
     ("B", "yak-64k-v1"),
     ("C", "sidskarki-64k"),
 )
-# Optional follow-up arm (M9 amendment 16 Nov 2026). Pass --include-f to score F.
+# Optional follow-up arm (model-eval amendment 16 Nov 2026). Pass --include-f to score F.
 ARMS_F = (("F", "ancoda-64k-nojoiner"),)
 SEEDS = (1, 2, 3)
-CKPT = REPO_ROOT / "artifacts" / "m9" / "checkpoints"
-TOKENS_BIN = REPO_ROOT / "artifacts" / "m9" / "tokens" / "ancoda-64k" / "tokens.bin"
-TOKENS_MAN = REPO_ROOT / "artifacts" / "m9" / "tokens" / "ancoda-64k" / "manifest.json"
+CKPT = REPO_ROOT / "artifacts" / "model_eval" / "checkpoints"
+TOKENS_BIN = REPO_ROOT / "artifacts" / "model_eval" / "tokens" / "ancoda-64k" / "tokens.bin"
+TOKENS_MAN = REPO_ROOT / "artifacts" / "model_eval" / "tokens" / "ancoda-64k" / "manifest.json"
 OUT_JSON = REPO_ROOT / "artifacts" / "analysis" / "joiner_loss.json"
 OUT_MD = REPO_ROOT / "docs" / "ANALYSIS_JOINER_LOSS.md"
 PROGRESS = REPO_ROOT / "artifacts" / "analysis" / "joiner_loss_progress.json"
@@ -320,10 +320,10 @@ def run_one(
 
 
 def stream_joiner_counts(joiner_ids: set[int]) -> dict[int, int]:
-    """Count joiner-token occurrences in the M9 training stream.
+    """Count joiner-token occurrences in the model-eval training stream.
 
     Prefer the uint16 tokens.bin (content tokens only). If it is missing or
-    incomplete, fall back to encoding data/m9/text with ancoda-64k.
+    incomplete, fall back to encoding data/model_eval/text with ancoda-64k.
     """
     man = json.loads(TOKENS_MAN.read_text(encoding="utf-8")) if TOKENS_MAN.is_file() else {}
     expected = int(man.get("content_tokens", 0)) * 2  # uint16 content tokens
@@ -340,8 +340,8 @@ def stream_joiner_counts(joiner_ids: set[int]) -> dict[int, int]:
             counts += np.bincount(part, minlength=65536)
         return {int(tid): int(counts[tid]) for tid in sorted(joiner_ids)}
 
-    _log("tokens.bin incomplete; counting by encoding data/m9/text")
-    from ancoda_tok.m9.arms import load_arm
+    _log("tokens.bin incomplete; counting by encoding data/model_eval/text")
+    from ancoda_tok.model_eval.arms import load_arm
 
     arm = load_arm("ancoda-64k")
     wanted = np.zeros(65536, dtype=np.uint8)
@@ -349,7 +349,7 @@ def stream_joiner_counts(joiner_ids: set[int]) -> dict[int, int]:
         if tid < 65536:
             wanted[tid] = 1
     counts = np.zeros(65536, dtype=np.int64)
-    stream = REPO_ROOT / "data" / "m9" / "text"
+    stream = REPO_ROOT / "data" / "model_eval" / "text"
     shards = sorted(stream.glob("shard-*.jsonl.zst"))
     docs = 0
     for shard in shards:
@@ -513,7 +513,7 @@ def write_md(payload: dict) -> None:
         "",
         "BPB denominator: UTF-8 bytes of the original unmodified text "
         "(`original_bytes`). Bits = NLL nats / ln 2. Scoring matches "
-        "`ancoda_tok.m9.bpb` (EOS context-only, non-overlapping 1,023-token windows).",
+        "`ancoda_tok.model_eval.bpb` (EOS context-only, non-overlapping 1,023-token windows).",
         "",
         "## (a)(b) Total bits, BPB, joiner vs other",
         "",
@@ -659,7 +659,7 @@ def main() -> None:
     parser.add_argument(
         "--only-f",
         action="store_true",
-        help="Score only arm F (requires F checkpoints under artifacts/m9/checkpoints)",
+        help="Score only arm F (requires F checkpoints under artifacts/model_eval/checkpoints)",
     )
     args = parser.parse_args()
     arms = list(ARMS_F) if args.only_f else list(ARMS_CORE)
@@ -732,7 +732,7 @@ def main() -> None:
                 letter, arm_name, seed, device, rows_by_set, progress
             )
     if args.only_f and not runs:
-        raise SystemExit("STOP: no arm F checkpoint under artifacts/m9/checkpoints")
+        raise SystemExit("STOP: no arm F checkpoint under artifacts/model_eval/checkpoints")
 
     corr = None
     if "ancoda-64k-s1" in runs:

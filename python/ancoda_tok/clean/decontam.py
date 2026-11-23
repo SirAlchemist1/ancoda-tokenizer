@@ -1,4 +1,4 @@
-"""M4 step 5: decontamination against eval sets.
+"""cleaning step 5: decontamination against eval sets.
 
 Match keys use NFC + collapsed whitespace on temporary copies only.
 Stored training text is never normalized.

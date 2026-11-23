@@ -1,4 +1,4 @@
-"""Per-sentence recount of M8 robustness probes. Analysis only; no config changes.
+"""Per-sentence recount of final-build robustness probes. Analysis only; no config changes.
 
 Recomputes on FLORES+ Nepali with each sentence encoded separately:
   - mark-initial (orphan) share for sidskarki-64k and arkios
@@ -6,7 +6,7 @@ Recomputes on FLORES+ Nepali with each sentence encoded separately:
   - misspelled Nepali fertility (and misspell token ratio) for every CLASSES tokenizer
   - Ancoda-250k − Sarvam-30B on Devanagari mean (FLORES+ and sealed), 95% CIs
 
-Old values are read from artifacts/eval/m8/scoreboard.json and robustness.json.
+Old values are read from artifacts/eval/final_build/scoreboard.json and robustness.json.
 """
 
 from __future__ import annotations
@@ -19,11 +19,11 @@ from typing import Any
 
 import ancoda_seg
 
-from ancoda_tok.m8_final import (
+from ancoda_tok.final_build_final import (
     BOOT_N,
     CLASSES,
     DEVA_LANGS,
-    M8,
+    FINAL_BUILD,
     REPO_ROOT,
     SEED,
     Encoder,
@@ -32,8 +32,8 @@ from ancoda_tok.m8_final import (
     panel_paths,
     read_lines,
 )
-from ancoda_tok.m8_followup_report import bootstrap_fert_diff, load_specs
-from ancoda_tok.m8_flores_per_sentence import (
+from ancoda_tok.final_build_followup_report import bootstrap_fert_diff, load_specs
+from ancoda_tok.final_build_flores_per_sentence import (
     corpus_fert,
     flores_path,
     per_sentence_pairs,
@@ -41,10 +41,10 @@ from ancoda_tok.m8_flores_per_sentence import (
 
 OUT_JSON = REPO_ROOT / "artifacts" / "analysis" / "per_sentence_probes.json"
 OUT_MD = REPO_ROOT / "docs" / "ANALYSIS_PER_SENTENCE_PROBES.md"
-SCOREBOARD = M8 / "scoreboard.json"
-ROBUSTNESS = M8 / "robustness.json"
-FLORES_PS = M8 / "followup" / "flores_per_sentence.json"
-SEALED_CI = M8 / "followup" / "sealed_nojjoiners_remeasure.json"
+SCOREBOARD = FINAL_BUILD / "scoreboard.json"
+ROBUSTNESS = FINAL_BUILD / "robustness.json"
+FLORES_PS = FINAL_BUILD / "followup" / "flores_per_sentence.json"
+SEALED_CI = FINAL_BUILD / "followup" / "sealed_nojjoiners_remeasure.json"
 
 
 def log(msg: str) -> None:
@@ -263,7 +263,7 @@ def main() -> None:
         "# Per-sentence recount of robustness probes",
         "",
         "Analysis only. Each FLORES+ Nepali sentence is encoded separately. "
-        "Old values come from `artifacts/eval/m8/scoreboard.json` and `robustness.json` "
+        "Old values come from `artifacts/eval/final_build/scoreboard.json` and `robustness.json` "
         "(many marked `whole-file first-byte`). Reproduction: "
         "`scripts/analysis_per_sentence_probes.py`.",
         "",
@@ -295,7 +295,7 @@ def main() -> None:
         )
     lines += [
         "",
-        "## Misspelled Nepali (10% M8 misspell)",
+        "## Misspelled Nepali (10% final-build misspell)",
         "",
         "Old column is token ratio. New columns: per-sentence ratio and fertility of the "
         "misspelled text (tokens/words).",

@@ -64,7 +64,7 @@ from ancoda_tok.guarantee import (
     _inside,
     configure,
 )
-from ancoda_tok.m7 import M7_DIR, _caffeinate, harness_add
+from ancoda_tok.mix_sweep import MIX_SWEEP_DIR, _caffeinate, harness_add
 from ancoda_tok.storage import REPO_ROOT as _ROOT
 
 assert REPO_ROOT == _ROOT
@@ -72,8 +72,8 @@ assert REPO_ROOT == _ROOT
 SEALED_PATH = REPO_ROOT / "data" / "clean" / "sealed_test_set.json"
 SEALED_BUDGET = 100_000_000  # 100 MB held-out slice (PLAN phrase held-out scale)
 SNAP_DIR = REPO_ROOT / "data" / "snapshots"
-GAPS_OUT = M7_DIR / "prompt2_gaps"
-COVERED_3PCT = M7_DIR / "t1_block1_cap" / "covered_64k_3pct.json"
+GAPS_OUT = MIX_SWEEP_DIR / "prompt2_gaps"
+COVERED_3PCT = MIX_SWEEP_DIR / "t1_block1_cap" / "covered_64k_3pct.json"
 COVERED_128_3PCT = OUT / "covered_128k_3pct.json"
 
 ARKIOS = (
@@ -796,7 +796,7 @@ def main() -> None:
         "yak_v1_128k": hindi_whole_file_tokens(comps["yak_v1_128k"]),
     }
     # Prefer path from combined report if present
-    report = M7_DIR / "combined_frontier_report.json"
+    report = MIX_SWEEP_DIR / "combined_frontier_report.json"
     if report.is_file():
         rep = json.loads(report.read_text(encoding="utf-8"))
         p = (rep.get("f_verify_hindi") or {}).get("anc128_n60", {}).get("path")
@@ -812,7 +812,7 @@ def main() -> None:
         covered = COVERED_3PCT if row.get("vocab") == "64k" else covered_128
         if row.get("block1_cap") == "2pct":
             c2 = (
-                M7_DIR / "t1_block1_cap" / "covered_64k_2pct.json"
+                MIX_SWEEP_DIR / "t1_block1_cap" / "covered_64k_2pct.json"
                 if row.get("vocab") == "64k"
                 else OUT / "covered_128k_2pct.json"
             )
@@ -839,7 +839,7 @@ def main() -> None:
         enriched.append(row)
 
     # Item 6 explanation
-    t2_dir = M7_DIR / "t2_latin_rebalance/bd48000_cm50/combined"
+    t2_dir = MIX_SWEEP_DIR / "t2_latin_rebalance/bd48000_cm50/combined"
     n60 = REPO_ROOT / "data/snapshots/n60_cf8066dbbdd0da93"
     c_n60, _ = held_out_code_math(n60)
     c_j5, _ = held_out_code_math(snap)

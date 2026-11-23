@@ -23,7 +23,7 @@ from ancoda_tok.clean.snapshot import (
     scale_shares,
     write_snapshot,
 )
-from ancoda_tok.m9.common import REPO_ROOT
+from ancoda_tok.model_eval.common import REPO_ROOT
 
 NAME = "n60j5_nojoiner"
 BUDGET = 5_000_000_000
@@ -55,7 +55,7 @@ def main() -> None:
     for row in index_rows:
         by_bucket[row["bucket"]].append(row)
     shares = scale_shares(mix, nepali_share)
-    # Matched no-joiner: full Nepali share is natural (DECISIONS 3.8 / M7 follow-up).
+    # Matched no-joiner: full Nepali share is natural (DECISIONS 3.8 / mix-sweep follow-up).
     targets = {b: int(BUDGET * s) for b, s in shares.items()}
     selected_index = []
     for bucket, target in targets.items():

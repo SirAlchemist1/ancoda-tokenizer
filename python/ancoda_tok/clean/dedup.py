@@ -1,4 +1,4 @@
-"""M4 step 4: exact sha256 then MinHash dedup across Nepali sources."""
+"""cleaning step 4: exact sha256 then MinHash dedup across Nepali sources."""
 
 from __future__ import annotations
 

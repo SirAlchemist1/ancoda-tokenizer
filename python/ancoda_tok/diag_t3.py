@@ -43,10 +43,10 @@ from ancoda_tok.frontier_common import (
 )
 from ancoda_tok.frontier_metrics import attach_extra_metrics
 from ancoda_tok.counts import iter_entries, write_counts
-from ancoda_tok.m7 import _caffeinate
+from ancoda_tok.mix_sweep import _caffeinate
 from ancoda_tok.storage import REPO_ROOT
 
-OUT = REPO_ROOT / "artifacts" / "eval" / "m7" / "t3_10gb_joiner"
+OUT = REPO_ROOT / "artifacts" / "eval" / "mix_sweep" / "t3_10gb_joiner"
 BUDGET = 10_000_000_000
 NEPALI_SHARE = 0.60
 JOINER_SHARE = 0.01
@@ -224,8 +224,8 @@ def main() -> None:
             block0=BLOCK0,
             block1=block1,
             block1_path="artifacts/inventory/covered_64k.json",
-            dewa_counts_rel="artifacts/eval/m7/t3_10gb_joiner/deva_pretoken_counts.bin",
-            latin_counts_rel="artifacts/eval/m7/t3_10gb_joiner/latin_pretoken_counts.bin",
+            dewa_counts_rel="artifacts/eval/mix_sweep/t3_10gb_joiner/deva_pretoken_counts.bin",
+            latin_counts_rel="artifacts/eval/mix_sweep/t3_10gb_joiner/latin_pretoken_counts.bin",
         )
         # RSS check on both sides
         for side in (dewa_dir, latin_dir):
@@ -252,7 +252,7 @@ def main() -> None:
             dest = OUT / tag / "combined"
             combine(dewa_dir, latin_dir, dest, mergeable=MERGEABLE)
             if not args.skip_guarantee:
-                # Diagnostics: all eval texts + 1M snapshot lines (M8 does 10M).
+                # Diagnostics: all eval texts + 1M snapshot lines (final-build does 10M).
                 # Prefer the 10 GB joiner snapshot when present.
                 g = guarantee(
                     dest,

@@ -54,7 +54,7 @@ def _hf(vocab: dict[str, int], merges: list[tuple[str, str]]) -> Tokenizer:
 def _tiktoken(vocab: dict[str, int]) -> tiktoken.Encoding:
     ranks = {token.encode("utf-8"): rank for token, rank in vocab.items()}
     return tiktoken.Encoding(
-        name="ancoda-m3",
+        name="ancoda-pretokenizer",
         pat_str=".+",
         mergeable_ranks=ranks,
         special_tokens={},

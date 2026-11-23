@@ -23,16 +23,16 @@ import sentencepiece as spm
 import zstandard as zstd
 
 from ancoda_tok.export_hf import bytes_to_unicode, load_hf
-from ancoda_tok.m9.arms import ARMS, mac_path
-from ancoda_tok.m9.common import REPO_ROOT
+from ancoda_tok.model_eval.arms import ARMS, mac_path
+from ancoda_tok.model_eval.common import REPO_ROOT
 
 ZWJ = "\u200d"
 ZWNJ = "\u200c"
 OUT = REPO_ROOT / "artifacts" / "analysis" / "sealed_fertility_joiners.json"
 PROGRESS = REPO_ROOT / "artifacts" / "analysis" / "joiner_shards.json"
 SNAP = REPO_ROOT / "data" / "snapshots" / "n60j5_20af1fffbec0fe86"
-STREAM = REPO_ROOT / "data" / "m9" / "text"
-EVAL = REPO_ROOT / "data" / "m9" / "eval"
+STREAM = REPO_ROOT / "data" / "model_eval" / "text"
+EVAL = REPO_ROOT / "data" / "model_eval" / "eval"
 FLORES = (
     REPO_ROOT
     / "third_party"
@@ -50,7 +50,7 @@ ARMS_WANTED = (
     "sidskarki-64k",
     "plain-64k",
 )
-# Per-sentence FLORES Nepali fertility, 3 d.p., from the M8 self-check.
+# Per-sentence FLORES Nepali fertility, 3 d.p., from the final-build self-check.
 FLORES_CHECK = {
     "ancoda-64k": 1.451,
     "yak-64k-v1": 1.457,

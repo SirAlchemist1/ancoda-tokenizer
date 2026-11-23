@@ -37,26 +37,26 @@ train:
 export:
 	uv run python -u -m ancoda_tok.export_cli
 
-m7:
-	caffeinate -dimsu uv run python -u -m ancoda_tok.m7 all
+mix-sweep:
+	caffeinate -dimsu uv run python -u -m ancoda_tok.mix_sweep all
 
 eval:
-	@echo "eval: stub — implemented in M1/M8"
+	@echo "eval: stub — implemented in baselines/final-build"
 
 gate-a:
-	@echo "gate-a: stub — implemented in M8"
+	@echo "gate-a: stub — implemented in final-build"
 
 efficiency:
-	@echo "efficiency: stub — implemented in M8"
+	@echo "efficiency: stub — implemented in final-build"
 
 proxy-pilot:
-	@echo "proxy-pilot: stub — implemented in M9"
+	@echo "proxy-pilot: stub — implemented in model-eval"
 
 proxy-train:
-	@echo "proxy-train: stub — implemented in M9"
+	@echo "proxy-train: stub — implemented in model-eval"
 
 gate-b:
-	@echo "gate-b: stub — implemented in M9"
+	@echo "gate-b: stub — implemented in model-eval"
 
 release:
-	@echo "release: stub — implemented in M10"
+	@echo "release: stub — implemented in release-candidate"

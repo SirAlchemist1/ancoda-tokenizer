@@ -1,4 +1,4 @@
-"""M6 guarantee checks for the 64k build. Prints a report and returns failures."""
+"""trainer guarantee checks for the 64k build. Prints a report and returns failures."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ UNICODE = REPO_ROOT / "third_party" / "unicode" / "16.0.0" / "UnicodeData.txt"
 SEED = 20261104
 MARKS = {"Mn", "Mc", "Me"}
 
-# Mutable paths used by the M6/M7 runners. Defaults match the flagship n50 build.
+# Mutable paths used by the trainer/mix-sweep runners. Defaults match the flagship n50 build.
 OUT = DEFAULT_OUT
 COVERED = DEFAULT_COVERED
 SNAPSHOT: Path | None = None

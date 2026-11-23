@@ -12,12 +12,12 @@ from pathlib import Path
 
 import numpy as np
 
-from ancoda_tok.m9.arms import load_arm
-from ancoda_tok.m9.perm import byte_prefix, bytes_at, fisher_yates, stream_prefix
-from ancoda_tok.m9.tokenize import iter_jsonl_zst
+from ancoda_tok.model_eval.arms import load_arm
+from ancoda_tok.model_eval.perm import byte_prefix, bytes_at, fisher_yates, stream_prefix
+from ancoda_tok.model_eval.tokenize import iter_jsonl_zst
 
 REPO = Path(__file__).resolve().parents[1]
-TEXT = REPO / "data" / "m9" / "text"
+TEXT = REPO / "data" / "model_eval" / "text"
 OUT = REPO / "artifacts" / "analysis" / "byte_counter"
 TOKENS_PER_STEP = 131072
 STEPS = (5400, 7630)

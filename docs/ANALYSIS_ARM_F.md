@@ -2,7 +2,7 @@
 
 Analysis only. The server queue was not changed. Eval JSON and run
 manifests were pulled with rsync. The decision rule is the 16 Nov 2026
-amendment in `docs/M9_PREREG.md`. Difference is BPB(F) − BPB(A). Lower BPB
+amendment in `docs/MODEL_EVAL_PREREG.md`. Difference is BPB(F) − BPB(A). Lower BPB
 is better. **F better** requires every seed difference strictly negative and
 |mean| > sample SD (divisor n−1). **F worse** requires every difference
 strictly positive and the same mean test. Otherwise **no measurable

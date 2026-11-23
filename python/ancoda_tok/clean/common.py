@@ -1,4 +1,4 @@
-"""Shared helpers for the M4 cleaning pipeline."""
+"""Shared helpers for the cleaning pipeline."""
 
 from __future__ import annotations
 

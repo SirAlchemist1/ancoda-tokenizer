@@ -1,6 +1,6 @@
-# Model card notes (M6)
+# Model card notes (trainer)
 
-These notes are for the M10 model card. They record behavior the card must state.
+These notes are for the release-candidate model card. They record behavior the card must state.
 
 ## Ban 1 (human correction, 8 Nov 2026)
 

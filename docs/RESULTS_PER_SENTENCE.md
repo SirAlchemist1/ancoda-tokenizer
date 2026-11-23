@@ -1,6 +1,6 @@
 # FLORES+ per-sentence fertility
 
-Generated from `artifacts/eval/m8/followup/flores_per_sentence.json`. Do not hand-edit the tables.
+Generated from `artifacts/eval/final_build/followup/flores_per_sentence.json`. Do not hand-edit the tables.
 
 Method: each FLORES+ devtest sentence is encoded separately; fertility = total tokens / total whitespace-separated words. Paired line bootstrap, 10000 resamples, seed 20261104. WIN = 95% CI entirely below 0 (ours − competitor). Devanagari mean is the unweighted mean of awa, bho, hin, mag, mai, npi, san.
 
