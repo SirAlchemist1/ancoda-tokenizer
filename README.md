@@ -29,6 +29,7 @@ The write-up is *Fewer Tokens Are Not Enough* (Suryodaya Bikram Shahi, Ancoda La
 - [Builds](#builds)
 - [License](#license)
 - [Comparison arms](#comparison-arms)
+- [Replication](REPLICATION.md)
 
 ## How a string is cut
 
