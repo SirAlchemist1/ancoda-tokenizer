@@ -1,1 +1,1 @@
-"""M9 proxy pretraining. Protocol: docs/M9_PREREG.md."""
+"""model-eval proxy pretraining. Protocol: docs/MODEL_EVAL_PREREG.md."""
