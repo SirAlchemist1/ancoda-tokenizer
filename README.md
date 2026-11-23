@@ -22,6 +22,7 @@ The write-up is *Fewer Tokens Are Not Enough* (Suryodaya Bikram Shahi, Ancoda La
 
 ## Contents
 
+- [Using the tokenizer](#using-the-tokenizer)
 - [How a string is cut](#how-a-string-is-cut)
 - [What the models showed](#what-the-models-showed)
 - [Tokens per word](#tokens-per-word)
@@ -30,6 +31,48 @@ The write-up is *Fewer Tokens Are Not Enough* (Suryodaya Bikram Shahi, Ancoda La
 - [License](#license)
 - [Comparison arms](#comparison-arms)
 - [Replication](REPLICATION.md)
+
+## Using the tokenizer
+
+The five final exports are on the [tokenizers-v1 release](https://github.com/SirAlchemist1/ancoda-tokenizer/releases/tag/tokenizers-v1): one Hugging Face `tokenizer.json` and one tiktoken rank file for each of the five builds. They are trained results, licensed under [CC BY-NC 4.0](LICENSE-DATA), the same licence as the other result files.
+
+```bash
+gh release download tokenizers-v1 --repo SirAlchemist1/ancoda-tokenizer --pattern 'ancoda-64k.*'
+```
+
+```python
+from tokenizers import Tokenizer
+
+tok = Tokenizer.from_file("ancoda-64k.tokenizer.json")
+tok.encode_special_tokens = True
+text = "नेपालको राजधानी काठमाडौं हो।"
+print(len(tok.encode(text, add_special_tokens=False).ids))
+```
+
+The rank file is the same encoder. The pre-tokenizer pattern is `configs/pretokenizer_pattern.txt` in this repository:
+
+```python
+import base64
+from pathlib import Path
+
+import tiktoken
+
+ranks = {}
+for line in Path("ancoda-64k.tiktoken").read_text(encoding="utf-8").splitlines():
+    encoded, rank = line.split(" ")
+    ranks[base64.b64decode(encoded)] = int(rank)
+pattern = Path("configs/pretokenizer_pattern.txt").read_text(encoding="utf-8")
+enc = tiktoken.Encoding(
+    name="ancoda-64k",
+    pat_str=pattern,
+    mergeable_ranks=ranks,
+    special_tokens={},
+)
+text = "नेपालको राजधानी काठमाडौं हो।"
+print(len(enc.encode_ordinary(text)))
+```
+
+`encode_special_tokens = True` and `add_special_tokens=False` are the load used for the fertility tables. On the rank file that call is `encode_ordinary`. The two snippets print the same count for this sentence. The other filenames are `ancoda-32k`, `ancoda-ne-64k`, `ancoda-128k` and `ancoda-250k`.
 
 ## How a string is cut
 
@@ -170,7 +213,7 @@ Llama-3 and GPT-4o have low joiner ratios because they already split Nepali into
 | ancoda-128k | 131,072 | 3,932 | 99.978% | 94,742 | Larger general build |
 | ancoda-250k | 250,000 | 7,500 | 99.981% | 160,000 | Largest build |
 
-Training text is about 5 GB (10 GB for 250k): 60% Nepali, of which 1 point is a joiner copy, 16% English, 8% Hindi, 9.6% other Devanagari, 4% code, 2.4% mathematics. The 250k mix down-weights code and mathematics because no script budget met the rule written in advance. Wikipedia and every evaluation set are excluded. Tokenizer files ship separately from this repository.
+Training text is about 5 GB (10 GB for 250k): 60% Nepali, of which 1 point is a joiner copy, 16% English, 8% Hindi, 9.6% other Devanagari, 4% code, 2.4% mathematics. The 250k mix down-weights code and mathematics because no script budget met the rule written in advance. Wikipedia and every evaluation set are excluded. The five exports are on the [tokenizers-v1 release](https://github.com/SirAlchemist1/ancoda-tokenizer/releases/tag/tokenizers-v1).
 
 Spec: [`docs/SPEC.md`](docs/SPEC.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md). Evidence hashes: [`docs/EVIDENCE_FINAL_BUILD.md`](docs/EVIDENCE_FINAL_BUILD.md). How to re-check the guarantee and the bits-per-byte definition: [`REPLICATION.md`](REPLICATION.md).
 

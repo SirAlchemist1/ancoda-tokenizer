@@ -1,5 +1,7 @@
 # Replication
 
+The five final exports (`tokenizer.json` and the tiktoken rank file) are on the [tokenizers-v1 release](https://github.com/SirAlchemist1/ancoda-tokenizer/releases/tag/tokenizers-v1). The load that prints a token count is in [Using the tokenizer](README.md#using-the-tokenizer).
+
 ## `make verify`
 
 `make verify` runs, on the Mac, with no GPU:
