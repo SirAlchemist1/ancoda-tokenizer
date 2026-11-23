@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 248" role="img" aria-labelledby="splitTitle splitDesc">
+  <title id="splitTitle">स्कूल splits into स्, कू, and ल</title>
+  <desc id="splitDesc">Every Devanagari letter starts a unit. The conjunct क्ष is two units, क् and ष. Byte-pair encoding may merge units later. No boundary falls inside a covered unit.</desc>
+  <style>
+    .card { fill: #fffdf8; }
+    .ink { fill: #1c1917; }
+    .muted { fill: #57534e; }
+    .box { fill: #fff7ed; stroke: #9a3412; stroke-width: 1.5; }
+    .word { opacity: 0; animation: show-word 4.8s ease-in-out infinite; }
+    .units { opacity: 1; animation: show-units 4.8s ease-in-out infinite; }
+    @keyframes show-word {
+      0%, 16% { opacity: 1; }
+      38%, 74% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes show-units {
+      0%, 16% { opacity: 0; }
+      38%, 74% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .word { animation: none; opacity: 0; }
+      .units { animation: none; opacity: 1; }
+    }
+  </style>
+  <rect class="card" x="0" y="0" width="760" height="248" rx="16"/>
+  <text class="muted" x="32" y="36" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Protected unit</text>
+  <text class="ink" x="32" y="62" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="500">स्कूल starts as one word, then three units</text>
+  <text class="word ink" x="380" y="146" text-anchor="middle" font-family="Mukta, Noto Sans Devanagari, Kohinoor Devanagari, sans-serif" font-size="48">स्कूल</text>
+  <g class="units">
+  <g class="u1">
+    <rect class="box" x="48" y="96" width="168" height="72" rx="12"/>
+    <text class="ink" x="132" y="142" text-anchor="middle" font-family="Mukta, Noto Sans Devanagari, Kohinoor Devanagari, sans-serif" font-size="36">स्</text>
+  </g>
+  <g class="u2">
+    <rect class="box" x="296" y="96" width="168" height="72" rx="12"/>
+    <text class="ink" x="380" y="142" text-anchor="middle" font-family="Mukta, Noto Sans Devanagari, Kohinoor Devanagari, sans-serif" font-size="36">कू</text>
+  </g>
+  <g class="u3">
+    <rect class="box" x="544" y="96" width="168" height="72" rx="12"/>
+    <text class="ink" x="628" y="142" text-anchor="middle" font-family="Mukta, Noto Sans Devanagari, Kohinoor Devanagari, sans-serif" font-size="36">ल</text>
+  </g>
+  </g>
+  <text class="muted" x="32" y="206" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">Each Devanagari letter starts a unit. क्ष is क् and ष. BPE may merge units afterward.</text>
+  <text class="muted" x="32" y="228" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">A covered unit never takes a token boundary inside it.</text>
+</svg>

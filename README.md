@@ -1,13 +1,39 @@
 # Ancoda tokenizer
 
-Lossless, Nepali-first byte-level BPE. Devanagari base units are aksharas. The flagship is **ancoda-64k**. Companion builds are **ancoda-32k**, **ancoda-ne-64k**, **ancoda-128k**, and **ancoda-250k**.
+**Whole aksharas. Fewer Nepali tokens. Nothing dropped.**
 
-Each build exports a Hugging Face `tokenizer.json` and a tiktoken rank file. Both exports reproduce the canonical encoder in [PLAN.md §3.5](PLAN.md). Tokenizer files ship separately from this repository.
+ancoda-64k is a lossless, Nepali-first byte-level BPE. On the frozen FLORES+ scoreboard it beats both Yak 64k builds on Nepali, Hindi, and the Devanagari mean. English is a win against Yak v2.0 and a loss against Yak v1.
+
+<p align="center">
+  <img src="docs/images/akshara-split.svg" alt="Animation: the word स्कूल pulls apart into स्, कू, and ल. Each Devanagari letter starts a unit. The conjunct क्ष is क् and ष." width="720">
+</p>
+
+<p align="center">
+  <img src="docs/images/nepali-fertility.svg" alt="Bar chart of FLORES+ Nepali fertility. ancoda-64k 1.4509, yak-64k-v1 1.4568, yak-64k-v2.0 1.4702. Lower is better. The axis is zoomed from 1.44 to 1.48." width="720">
+</p>
+
+Those Nepali gaps are **WIN** −0.0059 against Yak v1 and **WIN** −0.0193 against Yak v2.0. The bars are zoomed so the gap is visible. The full scoreboard, including the losses, is below.
+
+Companion builds: **ancoda-32k**, **ancoda-ne-64k**, **ancoda-128k**, **ancoda-250k**. Each build exports a Hugging Face `tokenizer.json` and a tiktoken rank file. Both exports reproduce the canonical encoder in [PLAN.md §3.5](PLAN.md). Tokenizer files ship separately from this repository.
 
 Frozen M8 results: [`docs/GATE_A.md`](docs/GATE_A.md). Spec: [`PLAN.md`](PLAN.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md). Evidence hashes: [`docs/EVIDENCE_M8.md`](docs/EVIDENCE_M8.md). Sentence-level comparisons: [`docs/RESULTS_PER_SENTENCE.md`](docs/RESULTS_PER_SENTENCE.md).
 
+## From text to tokens
+
+```mermaid
+flowchart LR
+  A["UTF-8 text"] --> B["Pre-tokenizer<br/>ZWJ and ZWNJ stay in the word"]
+  B --> C["Akshara units<br/>a Devanagari letter starts each one"]
+  C --> D["Byte-level BPE<br/>covered units stay intact"]
+  D --> E["tokenizer.json"]
+  D --> F["tiktoken ranks"]
+```
+
+`स्कूल` is `स्` · `कू` · `ल`. A conjunct such as `क्ष` is `क्` · `ष`. Marks stay on their letter. BPE may join those units into a longer token. It may not cut a covered unit in half.
+
 ## Contents
 
+- [From text to tokens](#from-text-to-tokens)
 - [How to read a verdict](#how-to-read-a-verdict)
 - [FLORES+ headline](#flores-headline)
 - [Absolute fertilities](#absolute-fertilities)
@@ -24,6 +50,14 @@ Frozen M8 results: [`docs/GATE_A.md`](docs/GATE_A.md). Spec: [`PLAN.md`](PLAN.md
 Fertility is tokens per whitespace-separated word. **Lower is better.**
 
 Diff = Ancoda − competitor. A negative diff means Ancoda uses fewer tokens.
+
+```mermaid
+flowchart TD
+  D["diff = Ancoda − competitor"] --> Q{"95% interval"}
+  Q -->|"entirely below 0"| W["WIN"]
+  Q -->|"contains 0"| T["TIE"]
+  Q -->|"entirely above 0"| L["LOSE"]
+```
 
 | Verdict | Rule |
 |---|---|
