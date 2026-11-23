@@ -20,5 +20,5 @@ dfff33e69ab88bdd50b26f220376e0e7a48056b2  02fe1ab1bc354b7ec82809cb0b1db61b1a42ff
 e7f14539841d6d8d1419b5b6bf0f0b20c94136d4  be29daf4cff030a2f71dcd8650aca204fd63859c
 ead710ebe301e2a8e7ad07e764aa1bd076990896  31bd6aad888bcdd0c66da444253f3460b1a098f1
 
-# 2026-11-23 message-only rewrite (Cursor Co-authored-by removal); content unchanged:
+# 2026-11-23 message-only rewrite (a commit-message trailer was removed); content unchanged:
 9d213f93631c9156ab9d1ba755d0cae6b20f2019  edb46d736d2ac4556d81243d63b6bf60edba6f42

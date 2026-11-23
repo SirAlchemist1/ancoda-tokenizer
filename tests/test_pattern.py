@@ -1,4 +1,4 @@
-"""PLAN.md 3.1 pattern construction."""
+"""docs/SPEC.md 3.1 pattern construction."""
 
 import regex
 

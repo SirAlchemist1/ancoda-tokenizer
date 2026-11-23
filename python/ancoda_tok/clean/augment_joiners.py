@@ -1,4 +1,4 @@
-"""M4 step 6: synthetic ZWJ/ZWNJ joiner-augmented Nepali copy (PLAN.md 3.8)."""
+"""M4 step 6: synthetic ZWJ/ZWNJ joiner-augmented Nepali copy (docs/SPEC.md 3.8)."""
 
 from __future__ import annotations
 

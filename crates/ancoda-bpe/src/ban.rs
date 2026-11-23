@@ -1,4 +1,4 @@
-//! PLAN.md 3.4 Ban 1, with the 8 Nov 2026 human reading.
+//! docs/SPEC.md 3.4 Ban 1, with the 8 Nov 2026 human reading.
 //!
 //! `merge_allowed` is the character-integrity predicate only. The mark-initial
 //! ban is separate. The 256×256 table is this predicate on every single-byte pair.

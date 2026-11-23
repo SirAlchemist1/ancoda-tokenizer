@@ -1,4 +1,4 @@
-# Training mix (PLAN.md 3.8). Shares are by UTF-8 bytes. Seed is fixed.
+# Training mix (docs/SPEC.md 3.8). Shares are by UTF-8 bytes. Seed is fixed.
 # Under 32 GB RAM the snapshot is 5 GB (sources.yaml snapshot_bytes).
 
 seed: 20261104

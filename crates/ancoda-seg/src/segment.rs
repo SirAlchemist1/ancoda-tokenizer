@@ -1,4 +1,4 @@
-//! Akshara segmentation (PLAN.md 3.3).
+//! Akshara segmentation (docs/SPEC.md 3.3).
 
 use rayon::prelude::*;
 use unicode_segmentation::UnicodeSegmentation;

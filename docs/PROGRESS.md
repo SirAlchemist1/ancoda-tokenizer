@@ -348,7 +348,7 @@ wrote .../manifest.json
 
 ### Human corrections (8 Nov 2026) — recorded before training
 
-The human corrected two readings. Section 3 of PLAN.md is unchanged. The same note is in `docs/DECISIONS.md` and `docs/MODEL_CARD_NOTES.md`. No tokenizer training runs until both are unit-tested.
+The human corrected two readings. Section 3 of docs/SPEC.md is unchanged. The same note is in `docs/DECISIONS.md` and `docs/MODEL_CARD_NOTES.md`. No tokenizer training runs until both are unit-tested.
 
 1. **Ban 1 (PLAN 3.4), second clause.** "A non-empty prefix (proper or complete) of the UTF-8 encoding of exactly one Unicode scalar value, starting at its lead byte" means `M = L+R` lies inside **one** character's encoding: `M` starts with a valid lead byte, every following byte is a valid continuation at that position, and `len(M)` is at most that lead's sequence length. Proper prefixes such as `E6 97` are allowed (`E6+97`, then `E6 97+A5` completes the character). Banned: a merge that joins part of one character to bytes outside it, starts at a continuation byte, or is invalid. The first clause is unchanged: both `L` and `R` may be complete valid UTF-8 strings. This is **not** "exactly one scalar has an encoding that starts with M" (that reading wrongly bans `E6 97`).
 

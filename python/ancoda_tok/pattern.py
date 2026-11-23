@@ -1,4 +1,4 @@
-"""Build the Ancoda pre-tokenizer pattern from o200k (PLAN.md 3.1).
+"""Build the Ancoda pre-tokenizer pattern from o200k (docs/SPEC.md 3.1).
 
 The pattern is read from tiktoken. It is never retyped. Edit 1 inserts ZWNJ and
 ZWJ into each combining-mark class. Edit 2 makes every digit its own pre-token.
@@ -26,9 +26,9 @@ KEPT = (
 
 def repo_root() -> Path:
     for cand in Path(__file__).resolve().parents:
-        if (cand / "PLAN.md").is_file():
+        if (cand / "docs" / "SPEC.md").is_file():
             return cand
-    raise RuntimeError("PLAN.md not found")
+    raise RuntimeError("docs/SPEC.md not found")
 
 
 def pattern_path() -> Path:

@@ -1,4 +1,4 @@
-//! Lowest-rank concatenation (PLAN.md 3.5). Rank equals token id.
+//! Lowest-rank concatenation (docs/SPEC.md 3.5). Rank equals token id.
 
 use ahash::AHashMap;
 use std::sync::Arc;

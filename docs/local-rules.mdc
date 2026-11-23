@@ -5,15 +5,15 @@ alwaysApply: true
 ---
 - Never apply Unicode normalization (NFC, NFD, NFKC, NFKD) to stored training text or inside the tokenizer. Normalized copies may be made only as temporary match keys for decontamination, never written back. The Yak harness may NFC its own inputs.
 - Never commit anything under data/ or artifacts/. Never commit FLORES+ text anywhere, because its terms forbid re-hosting.
-- Never retype the o200k regex. Read it in code and apply the edits in PLAN.md 3.1 with asserted replacement counts. Write the joiners as \u200C and \u200D, never \x{...} and never as invisible literal characters.
-- The canonical encoder is defined in PLAN.md 3.5. Both exports must reproduce it exactly.
+- Never retype the o200k regex. Read it in code and apply the edits in docs/SPEC.md 3.1 with asserted replacement counts. Write the joiners as \u200C and \u200D, never \x{...} and never as invisible literal characters.
+- The canonical encoder is defined in docs/SPEC.md 3.5. Both exports must reproduce it exactly.
 - Every produced artifact (snapshot, count table, tokenizer, eval result, model run) gets a manifest.json with: input file sha256s, config sha256, git commit, library versions, unicode-segmentation version, Unicode data version and file sha256s, seed, start/end time.
 - Determinism: fixed seeds, sorted iteration, documented tie-breaking. The same inputs must give byte-identical outputs.
 - Commit Cargo.lock, uv.lock and rust-toolchain.toml. Never upgrade a pinned dependency without the human's approval.
 - Yak tokenizer files are CC BY-NC 4.0. Use them only as an evaluation or proxy-model comparison arm. Never copy their vocab, merges or regex into our build.
 - sidskarki-64k (community-use-1.0), HimalayaAI and Arkios files are comparison arms only, within their licenses. Never copy their vocab, merges, data or settings into our build.
-- Synthetic joiner-augmented text (PLAN.md 3.8) is generated only from training documents, tagged `synthetic` in every manifest, and stored separately; original text is never modified.
-- No training corpus may contain evaluation text. Decontamination (PLAN.md M4 step 5) must run before any tokenizer is trained.
+- Synthetic joiner-augmented text (docs/SPEC.md 3.8) is generated only from training documents, tagged `synthetic` in every manifest, and stored separately; original text is never modified.
+- No training corpus may contain evaluation text. Decontamination (docs/SPEC.md M4 step 5) must run before any tokenizer is trained.
 - A milestone is done only when its acceptance commands pass, with outputs recorded in docs/PROGRESS.md.
 - Do not change decisions in docs/DECISIONS.md without the human's explicit approval.
 - Rust: cargo fmt, cargo clippy -D warnings, cargo test must pass. Python: ruff and pytest must pass.
