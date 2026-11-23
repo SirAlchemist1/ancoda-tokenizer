@@ -1,4 +1,4 @@
-"""M5: akshara inventory and Block 1 covered-set selection (PLAN.md 3.6).
+"""M5: akshara inventory and Block 1 covered-set selection (docs/SPEC.md 3.6).
 
 Counts every unit containing at least one Devanagari-block code point
 (U+0900–U+097F) over the 50% training snapshot, then runs the exact 3.6
@@ -30,7 +30,7 @@ from ancoda_tok.clean.common import (
 )
 from ancoda_tok.storage import REPO_ROOT
 
-# Caps = 5% of vocab (PLAN.md 3.6 step 6).
+# Caps = 5% of vocab (docs/SPEC.md 3.6 step 6).
 CAPS: dict[str, int] = {
     "32k": 1_638,
     "64k": 3_276,
@@ -227,7 +227,7 @@ def select_block1(
     cap: int,
     letters: frozenset[int],
 ) -> dict[str, Any]:
-    """PLAN.md 3.6 exact selection."""
+    """docs/SPEC.md 3.6 exact selection."""
     n = 0
     n0 = 0
     ineligible_occ = 0

@@ -1,6 +1,6 @@
 //! Pre-tokenizer and akshara segmenter.
 //!
-//! `aksharas(text, gb9c=false)` is PLAN.md 3.3: Unicode 16.0.0 extended grapheme
+//! `aksharas(text, gb9c=false)` is docs/SPEC.md 3.3: Unicode 16.0.0 extended grapheme
 //! clusters, then a boundary before every Devanagari letter that is not the
 //! cluster's first code point. `gb9c=true` returns the raw clusters and is the
 //! ablation mode. The pre-tokenizer is the tokenizers crate Split (onig),
@@ -117,7 +117,7 @@ mod tests {
         assert_eq!(
             unicode_version(),
             (16, 0, 0),
-            "PLAN.md 3.3 requires unicode-segmentation 1.12.0 with Unicode 16.0.0"
+            "docs/SPEC.md 3.3 requires unicode-segmentation 1.12.0 with Unicode 16.0.0"
         );
     }
 }

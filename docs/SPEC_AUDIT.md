@@ -1,6 +1,6 @@
 # Specification audit (M0 step 1)
 
-Audit of PLAN.md sections 1–5 only. Section 3 decisions are not changed.
+Audit of docs/SPEC.md sections 1–5 only. Section 3 decisions are not changed.
 Each item is marked **blocking** or **non-blocking**.
 
 ---
@@ -49,7 +49,7 @@ No **blocking** specification defects were found. Several **non-blocking** ambig
 
 ### U3 — “Languages of Nepal” mean on Yak scoreboard — non-blocking
 - **Where:** 3.10 Yak scoreboard (Yak v2 1.843).
-- **Issue:** Which languages enter the mean is not defined in PLAN.md.
+- **Issue:** Which languages enter the mean is not defined in docs/SPEC.md.
 - **Why non-blocking:** Defined by Yak’s harness output; M1 records whatever the harness reports.
 
 ### U4 — Aya / everyday-Nepali fertility aggregation — non-blocking
@@ -132,7 +132,7 @@ No **blocking** specification defects were found. Several **non-blocking** ambig
 
 ### A1 — SPEC_AUDIT / DECISIONS / rules file not in M0 acceptance commands — non-blocking
 - **Where:** M0 acceptance block.
-- **Issue:** Acceptance does not `test -f` for `docs/SPEC_AUDIT.md`, `docs/DECISIONS.md`, or `.cursor/rules/ancoda-tokenizer.mdc`.
+- **Issue:** Acceptance does not `test -f` for `docs/SPEC_AUDIT.md`, `docs/DECISIONS.md`, or the local rules file.
 - **Mitigation:** Still required by M0 steps 1 and 4; record paths in PROGRESS; `cat docs/MACHINE.md docs/SPEC_AUDIT.md` partially covers audit presence.
 
 ### A2 — `hf auth whoami` vs human login STOP — non-blocking

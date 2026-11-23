@@ -1,14 +1,7 @@
-# Ancoda Nepali Tokenizer — Build Plan for the Cursor Agent (v2.6, 4 Nov 2026)
+# Ancoda Nepali Tokenizer — Design and Build Record (v2.6, 4 Nov 2026)
 
-> **For the human (read this first, 2 minutes)**
-> 1. On your Mac, create an empty folder `ancoda-tokenizer` on a drive with **at least 100 GB free** (your Mac's own disk is fine; an APFS-formatted external drive also works). Run `git init` in it and put this file at its root as `PLAN.md`.
-> 2. Open the folder in Cursor and switch the chat to Agent mode. Milestones M0–M8 and M10 run on the Mac; no GPU is needed. Only M9 (the model check) needs a rented Linux GPU machine, reached over SSH.
-> 3. Keep the Mac plugged in, lid open, on stable internet. Long jobs run under `caffeinate` and resume if interrupted.
-> 4. Paste this into the agent chat:
->    `Read PLAN.md fully. Execute milestone M0 only, starting with the specification audit in M0 step 1. Follow every rule in section 2. Do not change any decision in section 3. Stop when M0's acceptance checks pass or at a STOP.`
-> 5. After each milestone: read `docs/PROGRESS.md`, tell the agent `Commit this milestone.`, start a **new** chat, and paste:
->    `Read PLAN.md and docs/PROGRESS.md. Execute milestone M<n> only. Follow section 2. Stop when the acceptance checks pass or at a STOP.`
-> 6. A **STOP** means the agent needs something only you can do. Do it, then tell it to continue.
+> **Record**
+> This file is the design and build record. It lives at `docs/SPEC.md`. The work needs a drive with **at least 100 GB free** (the Mac's own disk is fine; an APFS-formatted external drive also works). Milestones M0–M8 and M10 run on the Mac; no GPU is needed. Only M9 (the model check) needs a rented Linux GPU machine, reached over SSH. The Mac stays plugged in, lid open, on stable internet. Long jobs run under `caffeinate` and resume if interrupted. A **STOP** means the step needs a person before the work continues. One milestone runs at a time. The specification audit is M0 step 1. Section 2 is followed, and no decision in section 3 is changed. A milestone is finished when its acceptance checks pass, and the result is recorded in `docs/PROGRESS.md`.
 >
 > **What changed in v2.6 (4 Nov 2026): after a third external review (targeted fixes, no redesign)**
 > - **Segmentation rule made exact (3.3):** start from Unicode 16.0.0 grapheme clusters, then apply one override: **every Devanagari letter begins a new unit.** This is described as an override, not as "undoing GB9c". It covers every virama pattern (including Extend characters between virama and consonant) and Prepend characters.
@@ -58,7 +51,7 @@
 
 ---
 
-## 1. Mission and how you (the agent) work
+## 1. Mission and how the work is organized
 
 **Mission.** Build a lossless, Nepali-first byte-level BPE tokenizer whose Devanagari base units are whole **aksharas** (3.3). It ships as a standard `tokenizer.json` and tiktoken file, and **no token boundary may ever fall inside a covered akshara**. Then measure, with small trained models, whether it beats Yak, Arkios and sidskarki-64k.
 
@@ -68,20 +61,20 @@
 
 **Hard dates.** The release candidate is due **22 Dec 2026**. The paper goes to ARR on **4 Jan 2027**.
 
-**How you work.**
+**How the work is organized.**
 
-- Do **one milestone at a time**, in order. Never start a milestone until the previous one's acceptance checks pass.
-- Before writing code for a milestone, write its task list in `docs/PROGRESS.md`, and tick items as you finish them.
-- Every acceptance check is a command. Run it, paste the exact result into `docs/PROGRESS.md`, and only then mark the milestone done.
-- If a check fails and two fix attempts do not solve it, **STOP** and report: what failed, the exact error, and what you tried.
-- Never change a decision in section 3. If evidence says one is wrong, **STOP** and explain.
-- Report numbers exactly as computed. Never round to make a target look met.
+- Do **one milestone at a time**, in order. A milestone does not start until the previous one's acceptance checks pass.
+- Before code for a milestone, its task list is written in `docs/PROGRESS.md`, and items are ticked as they are finished.
+- Every acceptance check is a command. It is run, the exact result is recorded in `docs/PROGRESS.md`, and only then is the milestone marked done.
+- If a check fails and two fix attempts do not solve it, **STOP** and record: what failed, the exact error, and what was tried.
+- A decision in section 3 is not changed. If evidence says one is wrong, **STOP** and explain.
+- Numbers are reported exactly as computed. They are never rounded to make a target look met.
 
 ---
 
 ## 2. Non-negotiable rules
 
-In M0, create `.cursor/rules/ancoda-tokenizer.mdc` with exactly this content:
+In M0, write the local rules file `docs/local-rules.mdc` with exactly this content:
 
 ```markdown
 ---
@@ -91,15 +84,15 @@ alwaysApply: true
 ---
 - Never apply Unicode normalization (NFC, NFD, NFKC, NFKD) to stored training text or inside the tokenizer. Normalized copies may be made only as temporary match keys for decontamination, never written back. The Yak harness may NFC its own inputs.
 - Never commit anything under data/ or artifacts/. Never commit FLORES+ text anywhere, because its terms forbid re-hosting.
-- Never retype the o200k regex. Read it in code and apply the edits in PLAN.md 3.1 with asserted replacement counts. Write the joiners as \u200C and \u200D, never \x{...} and never as invisible literal characters.
-- The canonical encoder is defined in PLAN.md 3.5. Both exports must reproduce it exactly.
+- Never retype the o200k regex. Read it in code and apply the edits in docs/SPEC.md 3.1 with asserted replacement counts. Write the joiners as \u200C and \u200D, never \x{...} and never as invisible literal characters.
+- The canonical encoder is defined in docs/SPEC.md 3.5. Both exports must reproduce it exactly.
 - Every produced artifact (snapshot, count table, tokenizer, eval result, model run) gets a manifest.json with: input file sha256s, config sha256, git commit, library versions, unicode-segmentation version, Unicode data version and file sha256s, seed, start/end time.
 - Determinism: fixed seeds, sorted iteration, documented tie-breaking. The same inputs must give byte-identical outputs.
 - Commit Cargo.lock, uv.lock and rust-toolchain.toml. Never upgrade a pinned dependency without the human's approval.
 - Yak tokenizer files are CC BY-NC 4.0. Use them only as an evaluation or proxy-model comparison arm. Never copy their vocab, merges or regex into our build.
 - sidskarki-64k (community-use-1.0), HimalayaAI and Arkios files are comparison arms only, within their licenses. Never copy their vocab, merges, data or settings into our build.
-- Synthetic joiner-augmented text (PLAN.md 3.8) is generated only from training documents, tagged `synthetic` in every manifest, and stored separately; original text is never modified.
-- No training corpus may contain evaluation text. Decontamination (PLAN.md M4 step 5) must run before any tokenizer is trained.
+- Synthetic joiner-augmented text (docs/SPEC.md 3.8) is generated only from training documents, tagged `synthetic` in every manifest, and stored separately; original text is never modified.
+- No training corpus may contain evaluation text. Decontamination (docs/SPEC.md M4 step 5) must run before any tokenizer is trained.
 - A milestone is done only when its acceptance commands pass, with outputs recorded in docs/PROGRESS.md.
 - Do not change decisions in docs/DECISIONS.md without the human's explicit approval.
 - Rust: cargo fmt, cargo clippy -D warnings, cargo test must pass. Python: ruff and pytest must pass.
@@ -228,7 +221,7 @@ Proof:
 4. No other merge can happen inside U first. A Block 1 token cannot start at U's second or later character, because those are marks. Pieces of a character cannot join other material (C5).
 5. Once U is one symbol, later merges only join whole symbols, so U stays whole inside any larger token.
 
-Both exports reproduce this encoder exactly (tested), so the claim holds for tokenizer.json and tiktoken alike. **The M6 tests check it independently on each export**; if a test ever fails, the proof's conditions are wrong and the agent **STOPS**.
+Both exports reproduce this encoder exactly (tested), so the claim holds for tokenizer.json and tiktoken alike. **The M6 tests check it independently on each export**; if a test ever fails, the proof's conditions are wrong and the work **STOPS**.
 
 **Hugging Face export:**
 
@@ -402,11 +395,11 @@ A two-stage curriculum, after SuperBPE (arXiv 2503.13423): word-level merges fir
 
 ```
 ancoda-tokenizer/
-  PLAN.md  README.md  Makefile
+  README.md  Makefile
   pyproject.toml  uv.lock            # uv, Python 3.11
   Cargo.toml  Cargo.lock  rust-toolchain.toml
   .gitignore                         # data/, artifacts/, third_party/, .venv/, target/
-  .cursor/rules/ancoda-tokenizer.mdc
+  docs/local-rules.mdc
   configs/
     sources.yaml  mix.yaml  eval.yaml  proxy.yaml
     build_{32k,64k,128k}.yaml  phrase_{64k,128k}.yaml
@@ -423,7 +416,7 @@ ancoda-tokenizer/
     proxy/{prepare.py,train.py,bpb.py,gate_b.py}
   tests/
     data/{akshara_cases.tsv,pretok_adversarial.tsv}
-  docs/{DECISIONS.md,PROGRESS.md,LICENSES.md,RESULTS.md,SPEC_AUDIT.md,MACHINE.md,STORAGE.md}
+  docs/{SPEC.md,DECISIONS.md,PROGRESS.md,LICENSES.md,RESULTS.md,SPEC_AUDIT.md,MACHINE.md,STORAGE.md}
   data/        # gitignored: raw/, clean/, snapshots/, eval/, hf_cache/
   artifacts/   # gitignored: counts/, inventory/, tokenizers/, eval/, runs/
   third_party/ # gitignored: yak-tokenizer clone, unicode/16.0.0/
@@ -827,7 +820,7 @@ The budget is set **after the pilot** (step 3). Planning figures only: Arkios's 
 
 **Setup on the GPU box:**
 
-- In Cursor, use Remote-SSH and clone the repo.
+- Over SSH, clone the repo on the GPU machine.
 - `rsync` across only:
   - `artifacts/tokenizers/`
   - the cleaned training parquet for fw2_npi, iriis, sangraha_nep, indiccorp_npi and fwedu_en

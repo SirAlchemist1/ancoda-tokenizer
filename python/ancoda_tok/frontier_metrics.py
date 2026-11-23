@@ -1,4 +1,4 @@
-"""Extra frontier metrics for T1–T4 diagnostics (PLAN.md 3.9 + held-out fertilities)."""
+"""Extra frontier metrics for T1–T4 diagnostics (docs/SPEC.md 3.9 + held-out fertilities)."""
 
 from __future__ import annotations
 

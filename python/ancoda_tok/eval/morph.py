@@ -1,4 +1,4 @@
-"""Morphology alignment and whole-word preservation (PLAN.md 3.9)."""
+"""Morphology alignment and whole-word preservation (docs/SPEC.md 3.9)."""
 
 from __future__ import annotations
 

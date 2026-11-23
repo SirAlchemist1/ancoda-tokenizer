@@ -1,11 +1,11 @@
 # Storage plan (M2 step 1)
 
-File sizes are Hub `list_repo_tree` sizes (exact). A bracketed PLAN.md budget is a UTF-8 cap, and 1 GB = 10^9 bytes. Stored parquet of a capped source is at most that cap. Git commit `be29daf4cff030a2f71dcd8650aca204fd63859c`.
+File sizes are Hub `list_repo_tree` sizes (exact). A bracketed docs/SPEC.md budget is a UTF-8 cap, and 1 GB = 10^9 bytes. Stored parquet of a capped source is at most that cap. Git commit `be29daf4cff030a2f71dcd8650aca204fd63859c`.
 
 ## Machine now
 
 - RAM: 18.0 GiB (`sysctl -n hw.memsize` = 19327352832).
-- Under 32 GB RAM, PLAN.md 3.8 sets each snapshot to 5 GB, not 10 GB.
+- Under 32 GB RAM, docs/SPEC.md 3.8 sets each snapshot to 5 GB, not 10 GB.
 - Free space: 162.796 GB (151.616 GiB, 162796093440 bytes).
 
 ```

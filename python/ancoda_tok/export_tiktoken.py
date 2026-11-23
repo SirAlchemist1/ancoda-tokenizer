@@ -1,4 +1,4 @@
-"""Tiktoken export (PLAN.md 3.5). Ranks are the token bytes, not the byte-level unicode."""
+"""Tiktoken export (docs/SPEC.md 3.5). Ranks are the token bytes, not the byte-level unicode."""
 
 from __future__ import annotations
 

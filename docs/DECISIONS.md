@@ -1,6 +1,6 @@
 # Fixed decisions (the spec)
 
-Source of truth copied from PLAN.md section 3 (v2.6). Do not change without the human's explicit approval.
+Source of truth copied from docs/SPEC.md section 3 (v2.6). Do not change without the human's explicit approval.
 
 ### 3.1 Pre-tokenizer
 
@@ -116,7 +116,7 @@ Proof:
 4. No other merge can happen inside U first. A Block 1 token cannot start at U's second or later character, because those are marks. Pieces of a character cannot join other material (C5).
 5. Once U is one symbol, later merges only join whole symbols, so U stays whole inside any larger token.
 
-Both exports reproduce this encoder exactly (tested), so the claim holds for tokenizer.json and tiktoken alike. **The M6 tests check it independently on each export**; if a test ever fails, the proof's conditions are wrong and the agent **STOPS**.
+Both exports reproduce this encoder exactly (tested), so the claim holds for tokenizer.json and tiktoken alike. **The M6 tests check it independently on each export**; if a test ever fails, the proof's conditions are wrong and the work **STOPS**.
 
 **Hugging Face export:**
 
@@ -394,7 +394,7 @@ Recorded at the human's instruction during M6. The section 3 text above is uncha
 
 ## M7 follow-up (8 Nov 2026) — Joiner copy only on n50 (deviation from 3.8)
 
-PLAN.md 3.8 says the 1% joiner copy is on by default for the mix. The M4 snapshot builder applied joiners **only when Nepali share = 50%**, so only `n50` has the synthetic copy (`joiner_share=0.01`, 21348 docs / ~50 MB). `n45` and `n60` have `joiner_share=0.0`. The M7 ladder "final" rung forced onto n60 therefore has **no** joiner copy; `final_nojoiner` remains the n50_nojoiner arm.
+docs/SPEC.md 3.8 says the 1% joiner copy is on by default for the mix. The M4 snapshot builder applied joiners **only when Nepali share = 50%**, so only `n50` has the synthetic copy (`joiner_share=0.01`, 21348 docs / ~50 MB). `n45` and `n60` have `joiner_share=0.0`. The M7 ladder "final" rung forced onto n60 therefore has **no** joiner copy; `final_nojoiner` remains the n50_nojoiner arm.
 
 **Recommendation:** keep the joiner copy in every future snapshot (not only n50). Evidence: n50 ZWJ/ZWNJ probes 1.368 / 1.369 vs n60 1.614 / 1.633. Nepali fertility cost on the matched n50 pair is about 0.002 (`mix_anc64_n50` 1.515748 vs `lad_final_nojoiner` on `n50_nojoiner` 1.513823).
 

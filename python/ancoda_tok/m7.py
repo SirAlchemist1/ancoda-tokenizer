@@ -522,7 +522,7 @@ def _write_joiner_decision(keep: bool, final: dict, noj: dict, fert_cost: float)
         f"cost {fert_cost:.6f} (bar ≤ 0.005).\n"
         f"- ZWJ {final['zwj']:.6f} vs {noj['zwj']:.6f}; "
         f"ZWNJ {final['zwnj']:.6f} vs {noj['zwnj']:.6f}.\n"
-        "Rule (PLAN.md M7): keep only if both joiner probes are lower and Nepali "
+        "Rule (docs/SPEC.md M7): keep only if both joiner probes are lower and Nepali "
         "fertility cost is at most 0.005.\n"
     )
     marker = "## M7 — Joiner copy"

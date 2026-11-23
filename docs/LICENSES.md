@@ -49,7 +49,7 @@ The human approved option 2, the ten FineWeb-2 `nepal_pool` configs, Romanized N
 
 ### nepal_pool and Romanized Nepali
 
-Approved 4 Nov 2026. `nepal_pool` is the ten FineWeb-2 train splits named above, ODC-By, with no upsampling. Unused pool share goes to Nepali (PLAN.md 3.8). `ilprl-docse/NepTam-A-Nepali-Tamang-Parallel-Corpus` is CC BY-NC 4.0 and is excluded. `eduhk-compling/GurungJasmika` is CC BY 4.0 English audio and is excluded. No separate Magar corpus with a training license was found.
+Approved 4 Nov 2026. `nepal_pool` is the ten FineWeb-2 train splits named above, ODC-By, with no upsampling. Unused pool share goes to Nepali (docs/SPEC.md 3.8). `ilprl-docse/NepTam-A-Nepali-Tamang-Parallel-Corpus` is CC BY-NC 4.0 and is excluded. `eduhk-compling/GurungJasmika` is CC BY 4.0 English audio and is excluded. No separate Magar corpus with a training license was found.
 
 Romanized Nepali is out of scope for training in v1. FineWeb-2 `npi_Latn` has a test split (`data/npi_Latn/test/000_00000.parquet`, 54981 bytes at the size query); that split is eval-only. The train split is not downloaded. `dipeshch71/nepaliflow-romanized-nepali-to-devanagari-dataset` and `sabin1234/NEPALI_TO_ROMANIZED_WIKIPEDIA` are not used.
 

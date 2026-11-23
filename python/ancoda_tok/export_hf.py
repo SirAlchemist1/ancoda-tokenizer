@@ -1,4 +1,4 @@
-"""Hugging Face tokenizer.json export (PLAN.md 3.5).
+"""Hugging Face tokenizer.json export (docs/SPEC.md 3.5).
 
 Ordinary-text callers must use :func:`load_hf`. ``encode_special_tokens`` is not
 written into ``tokenizer.json``; the file reloads with the library default
@@ -55,7 +55,7 @@ def all_splits(tokens: list[bytes]) -> list[tuple[int, int, int]]:
     """Every ``(rank(T), rank(A), rank(B))`` where ``T = A + B`` and all three are tokens.
 
     Sorted by that triple so Hugging Face's merge-list order matches lowest-rank
-    concatenation (PLAN.md 3.5).
+    concatenation (docs/SPEC.md 3.5).
     """
     index = {raw: rank for rank, raw in enumerate(tokens)}
     splits: list[tuple[int, int, int]] = []
