@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 292" role="img" aria-labelledby="fertTitle fertDesc">
+  <title id="fertTitle">FLORES+ Nepali fertility, whole file</title>
+  <desc id="fertDesc">Tokens per word. Lower is better. Axis runs from 1.44 to 1.48. ancoda-64k is 1.4509, yak-64k-v1 is 1.4568, yak-64k-v2.0 is 1.4702. Diffs are minus 0.0059 and minus 0.0193, both wins.</desc>
+  <style>
+    .card { fill: #fffdf8; }
+    .ink { fill: #1c1917; }
+    .muted { fill: #57534e; }
+    .track { fill: #e7e5e4; }
+    .ours { fill: #9a3412; }
+    .theirs { fill: #44403c; }
+    .bar { transform-box: fill-box; transform-origin: left center; animation: grow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .d2 { animation-delay: 0.12s; }
+    .d3 { animation-delay: 0.24s; }
+    @keyframes grow {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bar { animation: none; }
+    }
+  </style>
+  <rect class="card" x="0" y="0" width="760" height="292" rx="16"/>
+  <text class="muted" x="32" y="36" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">FLORES+ Nepali · whole file · first byte</text>
+  <text class="ink" x="32" y="64" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="500">Lower fertility is better</text>
+  <text class="muted" x="32" y="88" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Axis zoomed from 1.44 to 1.48 tokens per word</text>
+
+  <text class="ink" x="32" y="132" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="500">ancoda-64k</text>
+  <rect class="track" x="168" y="116" width="400" height="22" rx="4"/>
+  <rect class="ours bar" x="168" y="116" width="109" height="22" rx="4"/>
+  <text class="ink" x="584" y="132" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="500">1.4509</text>
+
+  <text class="muted" x="32" y="178" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">yak-64k-v1</text>
+  <rect class="track" x="168" y="162" width="400" height="22" rx="4"/>
+  <rect class="theirs bar d2" x="168" y="162" width="168" height="22" rx="4"/>
+  <text class="ink" x="584" y="178" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">1.4568</text>
+
+  <text class="muted" x="32" y="224" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">yak-64k-v2.0</text>
+  <rect class="track" x="168" y="208" width="400" height="22" rx="4"/>
+  <rect class="theirs bar d3" x="168" y="208" width="302" height="22" rx="4"/>
+  <text class="ink" x="584" y="224" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">1.4702</text>
+
+  <line x1="168" y1="248" x2="568" y2="248" stroke="#a8a29e" stroke-width="1"/>
+  <text class="muted" x="168" y="270" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">1.44</text>
+  <text class="muted" x="352" y="270" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">1.46</text>
+  <text class="muted" x="548" y="270" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">1.48</text>
+</svg>
