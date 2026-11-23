@@ -2,6 +2,7 @@
 # (so tests/data/ stays trackable).
 /data/
 /artifacts/
+artifacts/m9/
 /third_party/
 
 # Python / uv

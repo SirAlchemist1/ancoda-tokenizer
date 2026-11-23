@@ -1,6 +1,6 @@
 {
   "arm": "yak-64k-v1",
-  "checkpoint": "/home/ancoda/m9/runs/yak-64k-v1-s2/checkpoint-bstar-005413.pt",
+  "checkpoint": "$M9_ROOT/m9/runs/yak-64k-v1-s2/checkpoint-bstar-005413.pt",
   "completed_steps": 5413,
   "config_sha256": {
     "mix.yaml": "54d78fce8cfaf0836e7a466934cbd2093c72eeb2ae7ccd3ad4a5f68f13c71ee9",

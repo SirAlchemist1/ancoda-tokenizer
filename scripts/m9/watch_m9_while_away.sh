@@ -1,22 +1,23 @@
 #!/bin/bash
 # Mac-side M9 watcher: poll every 30 minutes. Never restart/kill/edit the server.
-# Safe across sleep — simply resumes on wake.
+# Safe across sleep — simply resumes on wake. Set M9_HOST and M9_ROOT.
 set -uo pipefail
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-DEST="$ROOT/artifacts/m9/server_copy"
-PROG="$ROOT/docs/PROGRESS.md"
-HOST=ancoda-server
+REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
+: "${M9_HOST:?set M9_HOST to the M9 SSH host alias}"
+: "${M9_ROOT:?set M9_ROOT to the remote account home directory on the M9 server}"
+DEST="$REPO_ROOT/artifacts/m9/server_copy"
+PROG="$REPO_ROOT/docs/PROGRESS.md"
 INTERVAL=1800
 mkdir -p "$DEST/runs" "$DEST/results" "$DEST/evals"
-cd "$ROOT"
+cd "$REPO_ROOT"
 
 rsync_once() {
   local ok=0
   local i
   for i in 1 2 3; do
     if rsync -az --timeout=60 \
-      "$HOST:/home/ancoda/m9/queue.log" \
-      "$HOST:/home/ancoda/m9/bstar.json" \
+      "$M9_HOST:$M9_ROOT/m9/queue.log" \
+      "$M9_HOST:$M9_ROOT/m9/bstar.json" \
       "$DEST/" 2>/dev/null
     then
       ok=1
@@ -25,30 +26,33 @@ rsync_once() {
     sleep 20
   done
   rsync -az --timeout=60 --ignore-missing-args \
-    "$HOST:/home/ancoda/m9/results/" "$DEST/results/" 2>/dev/null || true
+    "$M9_HOST:$M9_ROOT/m9/results/" "$DEST/results/" 2>/dev/null || true
   rsync -az --timeout=60 --ignore-missing-args \
-    "$HOST:/home/ancoda/m9/evals/" "$DEST/evals/" 2>/dev/null || true
+    "$M9_HOST:$M9_ROOT/m9/evals/" "$DEST/evals/" 2>/dev/null || true
   rsync -az --timeout=120 \
     --include='*/' --include='train.log' --include='log.jsonl' --include='DONE' --exclude='*' \
-    "$HOST:/home/ancoda/m9/runs/" "$DEST/runs/" 2>/dev/null || true
+    "$M9_HOST:$M9_ROOT/m9/runs/" "$DEST/runs/" 2>/dev/null || true
   return $((1 - ok))
 }
 
 commit_as_author() {
   local msg="$1"
   shift
+  local author_name author_email
+  author_name=$(git config user.name)
+  author_email=$(git config user.email)
   git add -- "$@"
   if git diff --cached --quiet; then
     return 0
   fi
-  # commit-tree so Cursor cannot inject Co-authored-by.
+  # commit-tree so hooks cannot inject Co-authored-by.
   local tree parent new
   tree=$(git write-tree)
   parent=$(git rev-parse HEAD)
-  new=$(GIT_AUTHOR_NAME='Suryodaya Bikram Shahi' \
-    GIT_AUTHOR_EMAIL='shahisuryodaya@gmail.com' \
-    GIT_COMMITTER_NAME='Suryodaya Bikram Shahi' \
-    GIT_COMMITTER_EMAIL='shahisuryodaya@gmail.com' \
+  new=$(GIT_AUTHOR_NAME="$author_name" \
+    GIT_AUTHOR_EMAIL="$author_email" \
+    GIT_COMMITTER_NAME="$author_name" \
+    GIT_COMMITTER_EMAIL="$author_email" \
     git commit-tree "$tree" -p "$parent" -m "$msg")
   git update-ref HEAD "$new"
   git reset --mixed HEAD >/dev/null
@@ -62,10 +66,10 @@ append_done_progress() {
   fi
   {
     echo ""
-    echo "- [x] ${mark} at ${done_ts} UTC (watcher). Queue continues on ancoda-server."
+    echo "- [x] ${mark} at ${done_ts} UTC (watcher). Queue continues on $M9_HOST."
   } >> "$PROG"
   # Mirror small DONE marker + logs into docs snapshot when under 5 MB
-  local snap="$ROOT/docs/m9_server_copy/runs/${arm}-s${seed}"
+  local snap="$REPO_ROOT/docs/m9_server_copy/runs/${arm}-s${seed}"
   mkdir -p "$snap"
   local src="$DEST/runs/${arm}-s${seed}"
   cp "$src/DONE" "$snap/DONE" 2>/dev/null || true
@@ -77,7 +81,7 @@ append_done_progress() {
       fi
     fi
   done
-  rsync -az "$DEST/queue.log" "$DEST/bstar.json" "$ROOT/docs/m9_server_copy/" 2>/dev/null || true
+  rsync -az "$DEST/queue.log" "$DEST/bstar.json" "$REPO_ROOT/docs/m9_server_copy/" 2>/dev/null || true
   commit_as_author \
     "Record ${arm} seed ${seed} finished on the M9 server queue." \
     "$PROG" \
@@ -86,9 +90,9 @@ append_done_progress() {
     "docs/m9_server_copy/runs/${arm}-s${seed}"
 }
 
-echo "M9 watcher start $(date -u +%Y-%m-%dT%H:%M:%SZ) root=$ROOT"
+echo "M9 watcher start $(date -u +%Y-%m-%dT%H:%M:%SZ) root=$REPO_ROOT"
 while true; do
-  ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  ts=$(date -u +%Y-%m-%dT%H:%M:%S)
   if rsync_once; then
     echo "[$ts] rsync ok"
     # Detect newly finished runs

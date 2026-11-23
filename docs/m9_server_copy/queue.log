@@ -285,7 +285,7 @@ scored 56000 cpu_temp_c=57.0
 scored 56200 cpu_temp_c=54.0
 scored 56400 cpu_temp_c=54.0
 scored 56600 cpu_temp_c=60.0
-wrote /home/ancoda/m9/evals/ancoda-64k-s1-final.json
+wrote $M9_ROOT/m9/evals/ancoda-64k-s1-final.json
 scored 200 cpu_temp_c=59.0
 scored 400 cpu_temp_c=60.0
 scored 600 cpu_temp_c=59.0
@@ -569,7 +569,7 @@ scored 56000 cpu_temp_c=56.0
 scored 56200 cpu_temp_c=52.0
 scored 56400 cpu_temp_c=54.0
 scored 56600 cpu_temp_c=56.0
-wrote /home/ancoda/m9/evals/ancoda-64k-s1-bstar.json
+wrote $M9_ROOT/m9/evals/ancoda-64k-s1-bstar.json
 DONE ancoda-64k seed=1 2026-11-11T04:15:39Z
 DONE ancoda-64k seed=1 2026-11-11T04:15:39Z
 START yak-64k-v1 seed=1 bstar=4813230411 2026-11-11T04:15:39Z
@@ -857,7 +857,7 @@ scored 56000 cpu_temp_c=58.0
 scored 56200 cpu_temp_c=54.0
 scored 56400 cpu_temp_c=56.0
 scored 56600 cpu_temp_c=62.0
-wrote /home/ancoda/m9/evals/yak-64k-v1-s1-final.json
+wrote $M9_ROOT/m9/evals/yak-64k-v1-s1-final.json
 scored 200 cpu_temp_c=59.0
 scored 400 cpu_temp_c=61.0
 scored 600 cpu_temp_c=61.0
@@ -1141,7 +1141,7 @@ scored 56000 cpu_temp_c=56.0
 scored 56200 cpu_temp_c=58.0
 scored 56400 cpu_temp_c=55.0
 scored 56600 cpu_temp_c=58.0
-wrote /home/ancoda/m9/evals/yak-64k-v1-s1-bstar.json
+wrote $M9_ROOT/m9/evals/yak-64k-v1-s1-bstar.json
 DONE yak-64k-v1 seed=1 2026-11-11T14:32:22Z
 DONE yak-64k-v1 seed=1 2026-11-11T14:32:22Z
 START sidskarki-64k seed=1 bstar=4813230411 2026-11-11T14:32:22Z
@@ -1429,7 +1429,7 @@ scored 56000 cpu_temp_c=56.0
 scored 56200 cpu_temp_c=54.0
 scored 56400 cpu_temp_c=54.0
 scored 56600 cpu_temp_c=59.0
-wrote /home/ancoda/m9/evals/sidskarki-64k-s1-final.json
+wrote $M9_ROOT/m9/evals/sidskarki-64k-s1-final.json
 scored 200 cpu_temp_c=60.0
 scored 400 cpu_temp_c=60.0
 scored 600 cpu_temp_c=59.0
@@ -1713,7 +1713,7 @@ scored 56000 cpu_temp_c=55.0
 scored 56200 cpu_temp_c=56.0
 scored 56400 cpu_temp_c=55.0
 scored 56600 cpu_temp_c=56.0
-wrote /home/ancoda/m9/evals/sidskarki-64k-s1-bstar.json
+wrote $M9_ROOT/m9/evals/sidskarki-64k-s1-bstar.json
 DONE sidskarki-64k seed=1 2026-11-12T00:49:51Z
 DONE sidskarki-64k seed=1 2026-11-12T00:49:51Z
 START ancoda-64k seed=2 bstar=4795818967 2026-11-12T00:49:51Z
@@ -2001,7 +2001,7 @@ scored 56000 cpu_temp_c=56.0
 scored 56200 cpu_temp_c=59.0
 scored 56400 cpu_temp_c=58.0
 scored 56600 cpu_temp_c=54.0
-wrote /home/ancoda/m9/evals/ancoda-64k-s2-final.json
+wrote $M9_ROOT/m9/evals/ancoda-64k-s2-final.json
 scored 200 cpu_temp_c=57.0
 scored 400 cpu_temp_c=57.0
 scored 600 cpu_temp_c=57.0
@@ -2285,7 +2285,7 @@ scored 56000 cpu_temp_c=56.0
 scored 56200 cpu_temp_c=58.0
 scored 56400 cpu_temp_c=56.0
 scored 56600 cpu_temp_c=53.0
-wrote /home/ancoda/m9/evals/ancoda-64k-s2-bstar.json
+wrote $M9_ROOT/m9/evals/ancoda-64k-s2-bstar.json
 DONE ancoda-64k seed=2 2026-11-12T11:06:08Z
 DONE ancoda-64k seed=2 2026-11-12T11:06:08Z
 START yak-64k-v1 seed=2 bstar=4795818967 2026-11-12T11:06:08Z
@@ -2573,7 +2573,7 @@ scored 56000 cpu_temp_c=56.0
 scored 56200 cpu_temp_c=57.0
 scored 56400 cpu_temp_c=55.0
 scored 56600 cpu_temp_c=58.0
-wrote /home/ancoda/m9/evals/yak-64k-v1-s2-final.json
+wrote $M9_ROOT/m9/evals/yak-64k-v1-s2-final.json
 scored 200 cpu_temp_c=60.0
 scored 400 cpu_temp_c=57.0
 scored 600 cpu_temp_c=58.0
@@ -2857,7 +2857,7 @@ scored 56000 cpu_temp_c=57.0
 scored 56200 cpu_temp_c=53.0
 scored 56400 cpu_temp_c=54.0
 scored 56600 cpu_temp_c=56.0
-wrote /home/ancoda/m9/evals/yak-64k-v1-s2-bstar.json
+wrote $M9_ROOT/m9/evals/yak-64k-v1-s2-bstar.json
 DONE yak-64k-v1 seed=2 2026-11-12T21:23:07Z
 DONE yak-64k-v1 seed=2 2026-11-12T21:23:07Z
 START sidskarki-64k seed=2 bstar=4795818967 2026-11-12T21:23:07Z
@@ -3145,7 +3145,7 @@ scored 56000 cpu_temp_c=55.0
 scored 56200 cpu_temp_c=54.0
 scored 56400 cpu_temp_c=54.0
 scored 56600 cpu_temp_c=51.0
-wrote /home/ancoda/m9/evals/sidskarki-64k-s2-final.json
+wrote $M9_ROOT/m9/evals/sidskarki-64k-s2-final.json
 scored 200 cpu_temp_c=57.0
 scored 400 cpu_temp_c=59.0
 scored 600 cpu_temp_c=58.0
@@ -3429,7 +3429,7 @@ scored 56000 cpu_temp_c=54.0
 scored 56200 cpu_temp_c=57.0
 scored 56400 cpu_temp_c=55.0
 scored 56600 cpu_temp_c=55.0
-wrote /home/ancoda/m9/evals/sidskarki-64k-s2-bstar.json
+wrote $M9_ROOT/m9/evals/sidskarki-64k-s2-bstar.json
 DONE sidskarki-64k seed=2 2026-11-13T07:40:06Z
 DONE sidskarki-64k seed=2 2026-11-13T07:40:06Z
 START ancoda-64k seed=3 bstar=4805817305 2026-11-13T07:40:06Z

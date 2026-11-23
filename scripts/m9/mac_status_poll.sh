@@ -1,18 +1,18 @@
 #!/bin/bash
-# Mac-side read-only status poll. Never restarts training.
-# First success: write a full snapshot. Then every 30 minutes.
+# Mac-side read-only status poll. Never restarts training. Set M9_HOST.
 set -u
+: "${M9_HOST:?set M9_HOST to the M9 SSH host alias}"
 LOG="${HOME}/.cursor/m9_status_poll.log"
 STATUS="${HOME}/.cursor/m9_last_status.txt"
 mkdir -p "$(dirname "$LOG")"
 exec >>"$LOG" 2>&1
 
 ssh_ok() {
-  ssh -o BatchMode=yes -o ConnectTimeout=20 ancoda-server 'echo up' >/dev/null 2>&1
+  ssh -o BatchMode=yes -o ConnectTimeout=20 "$M9_HOST" 'echo up' >/dev/null 2>&1
 }
 
 snapshot() {
-  ssh -o BatchMode=yes -o ConnectTimeout=40 ancoda-server 'bash -s' <<'REMOTE'
+  ssh -o BatchMode=yes -o ConnectTimeout=40 "$M9_HOST" 'bash -s' <<'REMOTE'
 set -u
 echo "===UPTIME==="
 uptime

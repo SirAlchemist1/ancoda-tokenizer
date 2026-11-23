@@ -2,9 +2,11 @@
 # Run on the Mac once SSH works. Syncs code, finishes pilot, then starts full runs.
 # Writes a Mac-side report to data/m9/report_step100.txt when A-s1 passes step 100.
 set -euo pipefail
-ROOT="/Users/jarvis/Downloads/ancoda-tokenizer"
-cd "$ROOT"
-SSH=(ssh -o BatchMode=yes -o ConnectTimeout=30 ancoda-server)
+REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
+: "${M9_HOST:?set M9_HOST to the M9 SSH host alias}"
+: "${M9_ROOT:?set M9_ROOT to the remote account home directory on the M9 server}"
+cd "$REPO_ROOT"
+SSH=(ssh -o BatchMode=yes -o ConnectTimeout=30 "$M9_HOST")
 
 echo "=== STATE ==="
 "${SSH[@]}" 'echo up; uptime; echo ---; screen -ls || true; echo ---; free -h; echo ---; df -h ~; echo ---; echo PILOT_A_TAIL; tail -20 ~/m9/pilot-a.log 2>/dev/null || echo no-pilot-a; echo ---; ls -la ~/m9/runs/ancoda-64k-s1/ 2>/dev/null || echo no-a-s1-run'
@@ -13,13 +15,13 @@ echo "=== SYNC CODE ==="
 # Refresh BUILD from current HEAD (prereg amendment already at 49a0437).
 uv run python -m ancoda_tok.m9 build-record --out data/m9/BUILD.json
 rsync -a --exclude __pycache__ \
-  "$ROOT/python/ancoda_tok/__init__.py" \
-  "$ROOT/python/ancoda_tok/m9" \
-  ancoda-server:~/m9/code/python/ancoda_tok/
-rsync -a "$ROOT/data/m9/BUILD.json" ancoda-server:~/m9/code/BUILD.json
-rsync -a "$ROOT/data/m9/run_pilot.sh" "$ROOT/data/m9/run_full.sh" "$ROOT/data/m9/install_reboot_driver.sh" \
-  ancoda-server:~/m9/
-"${SSH[@]}" 'chmod +x ~/m9/run_pilot.sh ~/m9/run_full.sh ~/m9/install_reboot_driver.sh; python3 -c "import json; print(json.load(open(\"/home/ancoda/m9/code/BUILD.json\"))[\"git_commit\"])"'
+  "$REPO_ROOT/python/ancoda_tok/__init__.py" \
+  "$REPO_ROOT/python/ancoda_tok/m9" \
+  "$M9_HOST:~/m9/code/python/ancoda_tok/"
+rsync -a "$REPO_ROOT/data/m9/BUILD.json" "$M9_HOST:~/m9/code/BUILD.json"
+rsync -a "$REPO_ROOT/data/m9/run_pilot.sh" "$REPO_ROOT/data/m9/run_full.sh" "$REPO_ROOT/data/m9/install_reboot_driver.sh" \
+  "$M9_HOST:~/m9/"
+"${SSH[@]}" "chmod +x ~/m9/run_pilot.sh ~/m9/run_full.sh ~/m9/install_reboot_driver.sh; python3 -c \"import json; print(json.load(open('$M9_ROOT/m9/code/BUILD.json'))['git_commit'])\""
 
 echo "=== START PILOT ==="
 "${SSH[@]}" 'screen -S m9pilot -X quit 2>/dev/null || true; screen -S m9full -X quit 2>/dev/null || true; rm -f ~/m9/driver.lock 2>/dev/null || true; rmdir ~/m9/driver.lock 2>/dev/null || true; : > ~/m9/pilot-finish.log; screen -dmS m9pilot bash -lc "bash ~/m9/run_pilot.sh"; sleep 3; screen -ls; tail -30 ~/m9/pilot-finish.log'
@@ -228,10 +230,10 @@ report={
   "free_gb": avail,
   "build_git": build.get("git_commit"),
   "queue_tail": queue,
-  "mac_progress_cmd": "ssh -o BatchMode=yes ancoda-server '\''tail -20 ~/m9/queue.log; python3 -c \"import json;from pathlib import Path;p=Path.home()/\\\"m9/runs/ancoda-64k-s1/log.jsonl\\\";rows=[json.loads(l) for l in p.read_text().splitlines() if l.strip()];print(rows[-1] if rows else None)\"'\''",
+  "mac_progress_cmd": "ssh -o BatchMode=yes $M9_HOST 'tail -20 ~/m9/queue.log; python3 -c \"import json;from pathlib import Path;p=Path.home()/\\\"m9/runs/ancoda-64k-s1/log.jsonl\\\";rows=[json.loads(l) for l in p.read_text().splitlines() if l.strip()];print(rows[-1] if rows else None)\"'",
 }
 (home/"report_step100.json").write_text(json.dumps(report, indent=2)+"\n")
 print(json.dumps(report, indent=2))
-PY' | tee "$ROOT/data/m9/report_step100.json"
+PY' | tee "$REPO_ROOT/data/m9/report_step100.json"
 
 echo "BOOTSTRAP_ALL_OK $(date -u +%Y-%m-%dT%H:%M:%SZ)"

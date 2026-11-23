@@ -47,7 +47,7 @@ Acceptance:
 - `make storage-plan` → exit 0.
 
 ```
-wrote /Users/jarvis/Downloads/ancoda-tokenizer/docs/STORAGE.md
+wrote $REPO_ROOT/docs/STORAGE.md
 free_bytes=162796093440
 approved_peak=97376647800
 download_peak=84240596096
@@ -155,7 +155,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 ```
 ============================= test session starts ==============================
 platform darwin -- Python 3.11.18, pytest-9.2.0, pluggy-1.7.0
-rootdir: /Users/jarvis/Downloads/ancoda-tokenizer
+rootdir: $REPO_ROOT
 configfile: pyproject.toml
 plugins: hypothesis-6.170.14, anyio-4.16.0
 collected 14 items
@@ -480,7 +480,7 @@ Needs the human:
 
 ## M9 — Proxy pretraining — core A/B/C done (E-s1 still running)
 
-Protocol: `docs/M9_PREREG.md` (amended 10 Nov 2026 in commit `49a0437`). This does not change `docs/DECISIONS.md`. Primary decision rule applied on seeds 1–3; secondary arm E (yak-64k-v2.0 seed 1) is still training on ancoda-server.
+Protocol: `docs/M9_PREREG.md` (amended 10 Nov 2026 in commit `49a0437`). This does not change `docs/DECISIONS.md`. Primary decision rule applied on seeds 1–3; secondary arm E (yak-64k-v2.0 seed 1) is still training on $M9_HOST.
 
 - [x] Licence. Human confirmed Ancoda Labs' total annual revenue is at most USD $100,000. Yak (CC BY-NC 4.0) and sidskarki (community-use-1.0) allow a non-released research proxy and a private copy of the tokenizer file on the compute server. M9 weights and third-party tokenizer files are not released.
 - [x] `docs/M9_PREREG.md` written before any training run; amendment records sidskarki 640/1000 round-trip, secondary lossless A vs C, Arm D skipped, eager training.

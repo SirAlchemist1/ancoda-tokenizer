@@ -3,7 +3,7 @@ name = "ancoda-tokenizer"
 version = "0.1.0"
 description = "Lossless Nepali-first byte-level BPE tokenizer (akshara base units)"
 authors = [
-    { name = "SirAlchemist1", email = "shahisuryo@gmail.com" }
+    { name = "SirAlchemist1", email = "shahisuryodaya@gmail.com" }
 ]
 requires-python = ">=3.11"
 dependencies = [

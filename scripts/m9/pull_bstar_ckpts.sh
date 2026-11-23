@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# B* checkpoints only. Run with: bash pull_bstar_ckpts.sh
+# B* checkpoints only. Set M9_HOST, M9_ROOT; optional REPO_ROOT (defaults to repo root).
 set -u
-LOG=/Users/jarvis/Downloads/ancoda-tokenizer/artifacts/m9/server_copy/ckpt_rsync.log
-CKPT=/Users/jarvis/Downloads/ancoda-tokenizer/artifacts/m9/checkpoints
+REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
+: "${M9_HOST:?set M9_HOST to the M9 SSH host alias}"
+: "${M9_ROOT:?set M9_ROOT to the remote account home directory on the M9 server}"
+LOG="$REPO_ROOT/artifacts/m9/server_copy/ckpt_rsync.log"
+CKPT="$REPO_ROOT/artifacts/m9/checkpoints"
 # Array so bash word-splits correctly; do not use a single-string RSH under zsh.
 SSH=(ssh -o BatchMode=yes -o ServerAliveInterval=20 -o ServerAliveCountMax=30
      -o ConnectTimeout=30 -o TCPKeepAlive=yes)
@@ -36,19 +39,20 @@ for run in ancoda-64k-s1 ancoda-64k-s2 ancoda-64k-s3 \
     echo "SKIP_BSTAR $run" | tee -a "$LOG"
     continue
   fi
-  remote=$("${SSH[@]}" ancoda-server "ls /home/ancoda/m9/runs/$run/checkpoint-bstar-*.pt" | head -1) || remote=""
+  remote=$("${SSH[@]}" "$M9_HOST" "ls $M9_ROOT/m9/runs/$run/checkpoint-bstar-*.pt" | head -1) || remote=""
   if [ -z "$remote" ]; then
     echo "FAIL_LIST BSTAR:$run" | tee -a "$LOG"
     continue
   fi
   echo "BSTAR $run $(basename "$remote") $(date -u +%H:%M:%S)" | tee -a "$LOG"
-  pull "ancoda-server:$remote" "$CKPT/$run/" "BSTAR:$run" || true
+  pull "$M9_HOST:$remote" "$CKPT/$run/" "BSTAR:$run" || true
 done
 
 echo BSTAR_CKPTS_DONE $(date -u +%Y-%m-%dT%H:%M:%SZ) | tee -a "$LOG"
-python3 - <<'PY'
+REPO_ROOT="$REPO_ROOT" python3 - <<'PY'
+import os
 from pathlib import Path
-root = Path("/Users/jarvis/Downloads/ancoda-tokenizer/artifacts/m9/checkpoints")
+root = Path(os.environ["REPO_ROOT"]) / "artifacts/m9/checkpoints"
 n = 0
 for p in sorted(root.rglob("checkpoint-bstar-*.pt")):
     if p.name.startswith("."):
