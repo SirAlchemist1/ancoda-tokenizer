@@ -1,4 +1,4 @@
-"""M4 steps 7–8: mix sampling, four snapshots, independent decontam audit.
+"""cleaning steps 7–8: mix sampling, four snapshots, independent decontam audit.
 
 Sampling is two-pass and does not hold corpus text in RAM: an index of
 (doc_id, bytes, shard, row) is shuffled with the fixed seed, then only the
@@ -476,7 +476,7 @@ def build_snapshots() -> dict[str, Any]:
             "shares": shares,
             "joiner_share": 0.0,
             "budget": budget,
-            "note": "50% snapshot without joiner copy for the M7 ladder",
+            "note": "50% snapshot without joiner copy for the mix-sweep ladder",
         },
     )
     man = load_json(path / "manifest.json")

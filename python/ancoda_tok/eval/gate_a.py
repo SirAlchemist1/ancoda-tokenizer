@@ -1,11 +1,11 @@
-"""Gate A printer (M1).
+"""Gate A printer (baselines).
 
 Reads Yak harness artifact JSON for a named panel tokenizer and prints:
-- docs/SPEC.md 3.10 rows with PASS/FAIL (harness-backed rows only in M1)
+- docs/SPEC.md 3.10 rows with PASS/FAIL (harness-backed rows only in baselines)
 - Yak scoreboard for yak-64k-v1 and yak-64k-v2.0 (WIN/TIE/LOSE)
 
 Ancoda-only metrics (covered violations, mark-initial vocab, equality, segmenter
-agreement, encoding-variant cost, etc.) are filled in M8.
+agreement, encoding-variant cost, etc.) are filled in final-build.
 """
 
 from __future__ import annotations
@@ -100,7 +100,7 @@ def print_gate_a(name: str, eval_yaml: Path, artifacts_dir: Path) -> int:
     aya = "npi_everyday_aya"
 
     print(f"# Gate A — tokenizer={name}")
-    print("## 3.10 rows (harness-backed; Ancoda-only rows PENDING until M8)")
+    print("## 3.10 rows (harness-backed; Ancoda-only rows PENDING until final-build)")
     rows = [
         _cmp(
             "Nepali fertility, whole-file",
@@ -157,13 +157,13 @@ def print_gate_a(name: str, eval_yaml: Path, artifacts_dir: Path) -> int:
             float(bars["zwnj_probe_below"]),
             "below",
         ),
-        "PENDING\tCovered-akshara violations\t(M6/M8)",
-        "PENDING\tMark-initial vocab entries\t(M6/M8)",
-        "PENDING\tCovered-unit integrity per export\t(M6/M8)",
-        "PENDING\tNewline gap\t(M8)",
-        "PENDING\tHugging Face IDs == tiktoken IDs\t(M6/M8)",
-        "PENDING\tSegmenter agreement\t(M3/M8)",
-        "PENDING\tUnknown tokens == 0\t(M8)",
+        "PENDING\tCovered-akshara violations\t(trainer/final-build)",
+        "PENDING\tMark-initial vocab entries\t(trainer/final-build)",
+        "PENDING\tCovered-unit integrity per export\t(trainer/final-build)",
+        "PENDING\tNewline gap\t(final-build)",
+        "PENDING\tHugging Face IDs == tiktoken IDs\t(trainer/final-build)",
+        "PENDING\tSegmenter agreement\t(pretokenizer/final-build)",
+        "PENDING\tUnknown tokens == 0\t(final-build)",
     ]
     for line in rows:
         print(line)
@@ -223,7 +223,7 @@ def print_gate_a(name: str, eval_yaml: Path, artifacts_dir: Path) -> int:
         )
     print(
         "Languages of Nepal mean\tnot comparable\t"
-        "(Yak private 14-set; see configs/eval.yaml m1.languages_of_nepal_note)"
+        "(Yak private 14-set; see configs/eval.yaml baselines.languages_of_nepal_note)"
     )
     print(
         "Phrase builds\tseparate Gate P category\t"

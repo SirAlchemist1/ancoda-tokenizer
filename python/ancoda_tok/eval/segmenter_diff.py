@@ -1,6 +1,6 @@
-"""M3 corpus checks: cross-engine pre-tokens and the segmenter differential.
+"""pretokenizer corpus checks: cross-engine pre-tokens and the segmenter differential.
 
-The M4 training snapshot does not exist yet. The 1,000,000-word sample is the
+The cleaning training snapshot does not exist yet. The 1,000,000-word sample is the
 first distinct whitespace-separated words from training-role parquet, after the
 shard list is shuffled with ``random.Random(20261104)``. Eval words are every
 distinct word in role=eval sources plus the harness FLORES+ dev and devtest

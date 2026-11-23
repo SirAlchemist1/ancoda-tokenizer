@@ -1,4 +1,4 @@
-# M2 source inventory. Paths and dataset IDs were read from the Hub API and
+# data-plan source inventory. Paths and dataset IDs were read from the Hub API and
 # dataset cards on 4 Nov 2026. Byte budgets use 1 GB = 10^9 bytes, as written
 # in docs/SPEC.md. `amount: all` downloads every file under `paths`. A number is a
 # UTF-8 text cap. `download: false` rows are listed for the human and are not
@@ -10,9 +10,9 @@ gb_bytes: 1000000000
 free_floor_bytes: 50000000000
 # 3.8: under 32 GB RAM the snapshot is 5 GB, not 10 GB.
 snapshot_bytes: 5000000000
-# M2 step 1 says "the 3 snapshots". M4 writes four (45%, 50%, 60%, 50% no joiner).
-snapshot_count_m2_wording: 3
-snapshot_count_m4: 4
+# data-plan step 1 says "the 3 snapshots". cleaning writes four (45%, 50%, 60%, 50% no joiner).
+snapshot_count_data_plan_wording: 3
+snapshot_count_cleaning: 4
 # Count tables, tokenizers and eval artifacts. Not an API measurement.
 counts_allowance_bytes: 10000000000
 
@@ -279,7 +279,7 @@ sources:
       HPLT v2 cleaned Devanagari folders found by list_repo_tree: awa, bho, hin,
       hne, kas, mag, mai, mar, npi, san. hin, mar, san and npi are not pool
       members (npi is hplt_npi; hin, mar and san are not in the HPLT rows of the
-      M2 table). No anp, brx, doi, dty or gom folder exists in this repo.
+      data-plan table). No anp, brx, doi, dty or gom folder exists in this repo.
 
   - id: owm
     bucket: Math

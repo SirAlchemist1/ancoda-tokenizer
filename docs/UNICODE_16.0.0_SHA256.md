@@ -1,4 +1,4 @@
-# Unicode 16.0.0 UCD file hashes (M0 step 8)
+# Unicode 16.0.0 UCD file hashes (setup step 8)
 
 Downloaded from `https://www.unicode.org/Public/16.0.0/ucd/` into `third_party/unicode/16.0.0/` (gitignored).
 
@@ -11,6 +11,6 @@ Downloaded from `https://www.unicode.org/Public/16.0.0/ucd/` into `third_party/u
 | auxiliary/GraphemeBreakProperty.txt | c29360bd6f7132811d701d29069541e827eb44bfc4c8fbde8c370d6982689dc1 |
 | emoji/emoji-data.txt | f1365a5173eee18e1f98b240cdc492e84a25f1ce7e0c9d1094eb29c41a22696a |
 
-M3 added `GraphemeBreakProperty.txt` and `emoji/emoji-data.txt` for the independent Python segmenter (UAX #29). `emoji-data.txt` is the Unicode 16.0.0 file dated 2024-05-01; only the `Extended_Pictographic` property is read.
+pretokenizer added `GraphemeBreakProperty.txt` and `emoji/emoji-data.txt` for the independent Python segmenter (UAX #29). `emoji-data.txt` is the Unicode 16.0.0 file dated 2024-05-01; only the `Extended_Pictographic` property is read.
 
 `unicode-segmentation` 1.12.0 `UNICODE_VERSION` assert: **(16, 0, 0)** — `cargo test -p ancoda-seg unicode_version_is_16_0_0` passed.

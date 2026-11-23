@@ -314,7 +314,7 @@ def main() -> None:
     args = parser.parse_args()
     result = score_tokenizer(args.tokenizer_dir)
     out = args.out or (
-        REPO_ROOT / "artifacts" / "eval" / "m7" / f"morph_{args.tokenizer_dir.name}.json"
+        REPO_ROOT / "artifacts" / "eval" / "mix_sweep" / f"morph_{args.tokenizer_dir.name}.json"
     )
     out.parent.mkdir(parents=True, exist_ok=True)
     payload = {

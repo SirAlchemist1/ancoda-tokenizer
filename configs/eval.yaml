@@ -1,9 +1,9 @@
-m1:
+baselines:
   yak_harness_commit: 9fe03a991dd7c44e078d574e4ffcd51a7606dd6a
   eval_panel_config: third_party/yak-tokenizer/configs/eval_panel.yaml
   artifacts_dir: third_party/yak-tokenizer/artifacts/eval
   baseline_results: artifacts/eval/baseline_RESULTS.md
-  reproduction_tsv: artifacts/eval/m1_reproduction.tsv
+  reproduction_tsv: artifacts/eval/baselines_reproduction.tsv
   validity_gate: 5/5
   panel_name_mapping:
     Yak v1 64k: yak-64k-v1

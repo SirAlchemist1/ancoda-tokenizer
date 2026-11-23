@@ -13,7 +13,7 @@ alwaysApply: true
 - Yak tokenizer files are CC BY-NC 4.0. Use them only as an evaluation or proxy-model comparison arm. Never copy their vocab, merges or regex into our build.
 - sidskarki-64k (community-use-1.0), HimalayaAI and Arkios files are comparison arms only, within their licenses. Never copy their vocab, merges, data or settings into our build.
 - Synthetic joiner-augmented text (docs/SPEC.md 3.8) is generated only from training documents, tagged `synthetic` in every manifest, and stored separately; original text is never modified.
-- No training corpus may contain evaluation text. Decontamination (docs/SPEC.md M4 step 5) must run before any tokenizer is trained.
+- No training corpus may contain evaluation text. Decontamination (docs/SPEC.md cleaning step 5) must run before any tokenizer is trained.
 - A milestone is done only when its acceptance commands pass, with outputs recorded in docs/PROGRESS.md.
 - Do not change decisions in docs/DECISIONS.md without the human's explicit approval.
 - Rust: cargo fmt, cargo clippy -D warnings, cargo test must pass. Python: ruff and pytest must pass.

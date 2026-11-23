@@ -4,7 +4,7 @@ The training byte counter is the bytes of the documents whose tokens were fed. I
 
 ## Where the counter is computed
 
-`TokenStream.bytes_covered` in `python/ancoda_tok/m9/reader.py` (lines 51–52) calls `bytes_at` in `python/ancoda_tok/m9/perm.py` (lines 38–67). Training logs and checkpoints store that value at `completed_steps * 131072` (`python/ancoda_tok/m9/train.py` lines 110 and 195).
+`TokenStream.bytes_covered` in `python/ancoda_tok/model_eval/reader.py` (lines 51–52) calls `bytes_at` in `python/ancoda_tok/model_eval/perm.py` (lines 38–67). Training logs and checkpoints store that value at `completed_steps * 131072` (`python/ancoda_tok/model_eval/train.py` lines 110 and 195).
 
 `bytes_at` charges a document's original UTF-8 length across its content tokens only:
 
@@ -51,4 +51,4 @@ A's B* checkpoint is the first completed step whose counter reaches that mark: s
 
 ## Plot
 
-`scripts/m9/plot_training_stream_bpb.py` now places each logged step at that row's `bytes_seen`. The approximate training-stream BPB on the y-axis is unchanged (`loss * tokens_per_byte / ln 2`).
+`scripts/model_eval/plot_training_stream_bpb.py` now places each logged step at that row's `bytes_seen`. The approximate training-stream BPB on the y-axis is unchanged (`loss * tokens_per_byte / ln 2`).

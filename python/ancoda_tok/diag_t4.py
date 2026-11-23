@@ -22,7 +22,7 @@ from ancoda_tok.frontier_metrics import attach_extra_metrics
 from ancoda_tok.storage import REPO_ROOT
 N60_SNAP = REPO_ROOT / "data" / "snapshots" / "n60_cf8066dbbdd0da93"
 
-OUT = REPO_ROOT / "artifacts" / "eval" / "m7" / "script_budget_128k"
+OUT = REPO_ROOT / "artifacts" / "eval" / "mix_sweep" / "script_budget_128k"
 COVERED = REPO_ROOT / "artifacts" / "inventory" / "covered_128k.json"
 ANC128 = REPO_ROOT / "artifacts" / "tokenizers" / "ancoda-128k-n60"
 YAK = (
@@ -64,8 +64,8 @@ def main() -> None:
             block0=BLOCK0,
             block1=block1,
             block1_path="artifacts/inventory/covered_128k.json",
-            dewa_counts_rel="artifacts/eval/m7/script_budget_128k/deva_pretoken_counts.bin",
-            latin_counts_rel="artifacts/eval/m7/script_budget_128k/latin_pretoken_counts.bin",
+            dewa_counts_rel="artifacts/eval/mix_sweep/script_budget_128k/deva_pretoken_counts.bin",
+            latin_counts_rel="artifacts/eval/mix_sweep/script_budget_128k/latin_pretoken_counts.bin",
         )
         dest = OUT / tag / "combined"
         combine(dewa_dir, latin_dir, dest, mergeable=MERGEABLE)
@@ -139,7 +139,7 @@ def main() -> None:
     # F verify: Hindi equality with fingerprint
     f_verify = {}
     for name in ("anc128_n60", "yak_v1_128k"):
-        raw = REPO_ROOT / "artifacts" / "eval" / "m7" / f"t4_128k_{name}.json"
+        raw = REPO_ROOT / "artifacts" / "eval" / "mix_sweep" / f"t4_128k_{name}.json"
         rec = json.loads(raw.read_text(encoding="utf-8"))
         hin = rec["results"]["flores_devtest/hin_Deva"]["fertility"]
         path = (

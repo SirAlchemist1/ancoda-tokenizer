@@ -1,4 +1,4 @@
-"""Independent decontam audit over the four M4 snapshots.
+"""Independent decontam audit over the four cleaning snapshots.
 
 Every audit count written to snapshots.json is taken from an on-disk audit
 result file (never typed). Each run also writes

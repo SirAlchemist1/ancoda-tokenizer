@@ -42,7 +42,7 @@ None, in the tokenizer or the stored corpus.
 | Devanagari letter followed by a non-Devanagari mark (for example U+0301 or a Vedic sign) | one unit, but **not eligible** for protection (3.6) | |
 | digits, danda, double danda | one unit each | |
 
-**Checked on 4 Nov 2026 with `unicode-segmentation` 1.12.0 (Unicode 16.0.0):** the only Devanagari-block characters that join a letter's cluster are marks (Mn/Mc) and ZWJ/ZWNJ; no Devanagari-block character acts as Prepend; क्ष, क्+ZWJ+ष, क्+nukta+ष and क्+्+ष are each one raw cluster (so the override is needed for all of them); क्+ZWNJ+ष is already two raw clusters; र+ZWJ+्+य is one raw cluster. M3 repeats these as unit tests.
+**Checked on 4 Nov 2026 with `unicode-segmentation` 1.12.0 (Unicode 16.0.0):** the only Devanagari-block characters that join a letter's cluster are marks (Mn/Mc) and ZWJ/ZWNJ; no Devanagari-block character acts as Prepend; क्ष, क्+ZWJ+ष, क्+nukta+ष and क्+्+ष are each one raw cluster (so the override is needed for all of them); क्+ZWNJ+ष is already two raw clusters; र+ZWJ+्+य is one raw cluster. pretokenizer repeats these as unit tests.
 
 **Implementation.**
 
@@ -53,7 +53,7 @@ None, in the tokenizer or the stored corpus.
 2. Compute extended grapheme clusters.
 3. **Override:** inside every cluster, insert a boundary before each Devanagari letter that is not the cluster's first code point. Everything between the virama and that letter (ZWJ, ZWNJ, nukta or any other Extend character) stays with the unit on the left. This removes every conjunct join GB9c makes, and any join made by a Prepend character before a Devanagari letter.
 4. The Devanagari letter set = `General_Category=Lo ∩ Script=Devanagari`, read from Unicode **16.0.0** `UnicodeData.txt` and `Scripts.txt`. Never hand-code it.
-5. **Mode `gb9c=true`:** return the raw clusters from step 2 (conjuncts joined). This is used only for the M7 and M9 ablation. **The 3.5 guarantee does not hold in this mode** (a unit can hold two letters); its violations are measured and reported, never gated.
+5. **Mode `gb9c=true`:** return the raw clusters from step 2 (conjuncts joined). This is used only for the mix-sweep and model-eval ablation. **The 3.5 guarantee does not hold in this mode** (a unit can hold two letters); its violations are measured and reported, never gated.
 
 **Required unit tests (default mode):**
 
@@ -91,7 +91,7 @@ None, in the tokenizer or the stored corpus.
 
 **Rank order = ID order:** bytes < Block 0 < Block 1 < Block 2 < reserved.
 
-**Mechanism (stated so it is never confused):** the vocabulary is an ordinary byte-level BPE rank table. There are no special atom symbols outside it. Every input, valid or not, encodes from bytes, so nothing ever fails to encode and decoding is byte-exact. A covered unit stays whole only because its own merges (Blocks 0 and 1) all rank below every Block 2 merge (3.5). Both exports carry this rank table unchanged, and M6 tests integrity on each export separately.
+**Mechanism (stated so it is never confused):** the vocabulary is an ordinary byte-level BPE rank table. There are no special atom symbols outside it. Every input, valid or not, encodes from bytes, so nothing ever fails to encode and decoding is byte-exact. A covered unit stays whole only because its own merges (Blocks 0 and 1) all rank below every Block 2 merge (3.5). Both exports carry this rank table unchanged, and trainer tests integrity on each export separately.
 
 ### 3.5 Canonical encoder and exports
 
@@ -116,7 +116,7 @@ Proof:
 4. No other merge can happen inside U first. A Block 1 token cannot start at U's second or later character, because those are marks. Pieces of a character cannot join other material (C5).
 5. Once U is one symbol, later merges only join whole symbols, so U stays whole inside any larger token.
 
-Both exports reproduce this encoder exactly (tested), so the claim holds for tokenizer.json and tiktoken alike. **The M6 tests check it independently on each export**; if a test ever fails, the proof's conditions are wrong and the work **STOPS**.
+Both exports reproduce this encoder exactly (tested), so the claim holds for tokenizer.json and tiktoken alike. **The trainer tests check it independently on each export**; if a test ever fails, the proof's conditions are wrong and the work **STOPS**.
 
 **Hugging Face export:**
 
@@ -126,7 +126,7 @@ Both exports reproduce this encoder exactly (tested), so the claim holds for tok
 - Decoder `decoders.ByteLevel()`. Post-processor `TemplateProcessing(single="<|bos|> $A", pair="<|bos|> $A <|bos|> $B")`.
 - Also write `tokenizer_config.json` and `special_tokens_map.json`.
 
-Verified 4 Nov 2026 with tokenizers 0.23.3 and tiktoken 0.14.0: **0 mismatches in 200,000 random words over 1,000 random vocabularies**. Exporting only the training merges, or only splits with lower-ranked parts, produced mismatches. M3 repeats this test; M6 repeats it on the real vocabulary.
+Verified 4 Nov 2026 with tokenizers 0.23.3 and tiktoken 0.14.0: **0 mismatches in 200,000 random words over 1,000 random vocabularies**. Exporting only the training merges, or only splits with lower-ranked parts, produced mismatches. pretokenizer repeats this test; trainer repeats it on the real vocabulary.
 
 **tiktoken export:** a `.tiktoken` rank file (base64 token bytes, a space, the rank, one per line), plus `tiktoken.json` with the pattern and special tokens.
 
@@ -162,23 +162,23 @@ Verified 4 Nov 2026 with tokenizers 0.23.3 and tiktoken 0.14.0: **0 mismatches i
 
 ### 3.8 Training mix (by UTF-8 bytes)
 
-| Bucket | Share | Sources (M2) |
+| Bucket | Share | Sources (data-plan) |
 |---|---|---|
 | Nepali | 50% | fw2_npi, iriis, sangraha_nep, indiccorp_npi, hplt_npi |
 | English | 20% | fwedu_en |
 | Hindi | 10% | fw2_hin, sangraha_hin |
 | Marathi | 3% | fw2_mar, sangraha_mar |
 | Sanskrit | 3% | fw2_san, sangraha_san |
-| Smaller Devanagari languages (pool) | 4% | Maithili, Bhojpuri, Awadhi, Magahi, Konkani, Bodo, Dogri, Doteli, Chhattisgarhi, Angika: every `*_Deva` config that exists in FineWeb-2, Sangraha verified and HPLT v2 (M2) |
-| Languages of Nepal (pool) | 2% | only sources found and licence-checked in M2 (for example Newar, Tharu, Tamang, Magar, Gurung, Limbu). If none are found, this share goes to Nepali |
+| Smaller Devanagari languages (pool) | 4% | Maithili, Bhojpuri, Awadhi, Magahi, Konkani, Bodo, Dogri, Doteli, Chhattisgarhi, Angika: every `*_Deva` config that exists in FineWeb-2, Sangraha verified and HPLT v2 (data-plan) |
+| Languages of Nepal (pool) | 2% | only sources found and licence-checked in data-plan (for example Newar, Tharu, Tamang, Magar, Gurung, Limbu). If none are found, this share goes to Nepali |
 | Code | 5% | code |
 | Math | 3% | owm |
 
 - **This is a language-balanced training mixture, not a vocabulary budget:** shares set how much text each language contributes; BPE then decides which merges each language gets.
 - **Inside each pool,** sample languages with temperature τ = 0.3 on their available bytes: share ∝ bytes^0.3. A language with less data than its share contributes everything it has; the remainder is redistributed inside the pool. **No document is ever repeated (no upsampling).** A language's support is claimed only from its own measured results.
-- **Joiner augmentation (on by default, removed if the M7 ladder says so):** 1% of the snapshot's bytes, **taken out of Nepali's share** (so Nepali is 49% natural + 1% synthetic, and the total stays 100%), made from Nepali training documents not otherwise sampled. In the ladder's no-joiner snapshot that 1% is natural Nepali. Half the documents get U+200D (ZWJ) after every virama that precedes a consonant; the other half get U+200C (ZWNJ) at the same sites. Exactly the sites Yak's probe uses (3.9). Tagged `synthetic`.
+- **Joiner augmentation (on by default, removed if the mix-sweep ladder says so):** 1% of the snapshot's bytes, **taken out of Nepali's share** (so Nepali is 49% natural + 1% synthetic, and the total stays 100%), made from Nepali training documents not otherwise sampled. In the ladder's no-joiner snapshot that 1% is natural Nepali. Half the documents get U+200D (ZWJ) after every virama that precedes a consonant; the other half get U+200C (ZWNJ) at the same sites. Exactly the sites Yak's probe uses (3.9). Tagged `synthetic`.
 - **Size:** 10 GB total. If the Mac has less than 32 GB of RAM, use 5 GB with the same shares. Never mix sizes within a sweep.
-- **Sweep (M7):** Nepali at 45%, 50% and 60%, others scaled pro rata. **Pick rule:** the point that meets every Gate A fertility row with the lowest Nepali fertility; on a tie, the lower English fertility.
+- **Sweep (mix-sweep):** Nepali at 45%, 50% and 60%, others scaled pro rata. **Pick rule:** the point that meets every Gate A fertility row with the lowest Nepali fertility; on a tie, the lower English fertility.
 - **Excluded from training:**
   - Wikipedia: its CC BY-SA share-alike license complicates releasing the vocabulary, and it is about 0.5% of public Nepali text.
   - All evaluation sets, including FLORES+ dev and devtest for every language.
@@ -203,7 +203,7 @@ All counts use `add_special_tokens=False`.
 | Byte pieces | tokens that are not whole UTF-8 characters or character sequences ÷ all tokens |
 | ZWJ / ZWNJ probe | tokens of the devtest rewritten with a ZWJ (or ZWNJ) after every virama that precedes a consonant ÷ tokens of the original. Yak's `robustness.py`. |
 | Round-trip | share of segments with `decode(encode(x)) == x` byte-exactly |
-| Segmenter agreement | share of words on which `aksharas()` equals the independent Python reference (M3 step 6) on 1M distinct training-snapshot words plus all eval words |
+| Segmenter agreement | share of words on which `aksharas()` equals the independent Python reference (pretokenizer step 6) on 1M distinct training-snapshot words plus all eval words |
 | Byte-level representability | share of eval segments that encode and decode byte-exactly (always 100% by construction; reported, not claimed as coverage) |
 | Whole-character coverage | of the 128 code points U+0900–U+097F, how many are single tokens |
 | Extended-block coverage (reported) | for Devanagari Extended (U+A8E0–U+A8FF), Vedic Extensions (U+1CD0–U+1CFF) and Devanagari Extended-A (U+11B00–U+11B5F): assigned code points that are single tokens, and their frequency in the training snapshot |
@@ -215,7 +215,7 @@ All counts use `add_special_tokens=False`.
 
 ### 3.10 Gate A targets (65,536 build, FLORES+ devtest via Yak's harness, unless noted)
 
-**What "beat Yak" means here.** Better than Yak v2 64k (the newest Yak build on its 3 Nov 2026 leaderboard) on every word-level row below, and a lower Nepali count than every 64k tokenizer on Yak's leaderboard. References are from Yak's public `docs/RESULTS.md` (generated 3 Nov 2026) and its blog, both read 4 Nov 2026. M1 re-measures them; the M1 values are the ones the gate uses.
+**What "beat Yak" means here.** Better than Yak v2 64k (the newest Yak build on its 3 Nov 2026 leaderboard) on every word-level row below, and a lower Nepali count than every 64k tokenizer on Yak's leaderboard. References are from Yak's public `docs/RESULTS.md` (generated 3 Nov 2026) and its blog, both read 4 Nov 2026. baselines re-measures them; the baselines values are the ones the gate uses.
 
 | Check | Pass bar | Reference (64k) |
 |---|---|---|
@@ -224,7 +224,7 @@ All counts use `add_special_tokens=False`.
 | Hindi fertility | below 1.385 | Yak v2 1.385; Yak v1 1.376 |
 | Covered-akshara violations (all eval texts plus 10M snapshot lines) | 0 | Yak measures but does not guarantee this |
 | Mark-initial vocab entries | 0 | — |
-| Orphan-mark share, Nepali FLORES+ | below Yak v2 64k's exact value measured in M1 (reported as 0.2%), and every occurrence inside an uncovered akshara or malformed sequence | Yak v2 0.2%; Yak v1 9.2%; sidskarki-64k 1.7% |
+| Orphan-mark share, Nepali FLORES+ | below Yak v2 64k's exact value measured in baselines (reported as 0.2%), and every occurrence inside an uncovered akshara or malformed sequence | Yak v2 0.2%; Yak v1 9.2%; sidskarki-64k 1.7% |
 | Orphan-mark share, everyday Nepali (Aya) | reported; same explanation rule | — |
 | Exact round-trip; unknown tokens | 100%; 0 | Yak 100%; 0. sidskarki-64k 99.1% |
 | Whole-character coverage, U+0900–U+097F | 128 of 128 | Yak 128; sidskarki-64k 102 |
@@ -232,8 +232,8 @@ All counts use `add_special_tokens=False`.
 | Nepali byte pieces | ≤ 0.05% | Yak v2 0.02%; Yak v1 0.07% |
 | Newline gap | ≤ 0.010 | Yak 0.000; sidskarki-64k 0.075 |
 | Hugging Face IDs == tiktoken IDs | 100% of eval texts plus 1M lines | — |
-| ZWJ and ZWNJ probes | below Yak v2 64k's exact values measured in M1 (reported as 1.504 and 1.691). If missed, **STOP (human)** with the numbers | Yak v1 1.661 and 1.965; sidskarki-64k 2.560 and 2.560 |
-| Segmenter agreement (M3 step 6) | 100% | — |
+| ZWJ and ZWNJ probes | below Yak v2 64k's exact values measured in baselines (reported as 1.504 and 1.691). If missed, **STOP (human)** with the numbers | Yak v1 1.661 and 1.965; sidskarki-64k 2.560 and 2.560 |
+| Segmenter agreement (pretokenizer step 6) | 100% | — |
 
 - **Stretch (beat both Yak 64k builds):** English below 1.388 and Hindi below 1.376.
 - **Yak scoreboard** (in `docs/GATE_A.md`): for every metric the harness reports for `yak-64k-v1` and `yak-64k-v2.0`, print ours, both Yak values and WIN, TIE or LOSE. This includes everyday Nepali on Aya (Yak v1 1.446, Yak v2 1.455) and the mean over the languages of Nepal (Yak v2 1.843). No row is hidden or dropped.
@@ -255,7 +255,7 @@ If the schedule slips, cut in this order:
 
 1. The 128k build.
 2. The 32k build.
-3. Ancoda-Phrase-128k (keep the 64k phrase result from the M8b sweep as the phrase entry).
+3. Ancoda-Phrase-128k (keep the 64k phrase result from the phrase-build sweep as the phrase entry).
 4. The full GPU tier, falling back to reduced.
 5. The model-level conjunct ablation arm; it stays at the tokenizer level.
 6. The efficiency extras.
@@ -270,9 +270,9 @@ A two-stage curriculum, after SuperBPE (arXiv 2503.13423): word-level merges fir
 2. **Stage 2:** continue learning merges with the **phrase pattern**, built in code from `configs/pretokenizer_pattern.txt` (never retyped): its first two branches (the letter branches) are wrapped as one group repeated `{1,4}`, so up to 4 consecutive words become one pre-token. All other branches (digits, punctuation, newlines, whitespace runs) are unchanged, so numbers and line breaks still split. Assert that on the 3.1 examples, splitting each phrase pre-token with the 3.1 pattern gives back exactly the 3.1 pre-tokens.
 3. **Stage-2 bans,** on top of all 3.4 bans: a token holds at most 4 words; it never ends in a space; it never contains a newline, digit or punctuation character.
 4. **Ranks:** stage-2 merges rank above every stage-1 merge, so the 3.5 guarantee and both exports carry over unchanged. Only the exported pre-tokenizer pattern changes, to the phrase pattern.
-5. **Phrase metrics (reported, M8b):** tokens per word, bytes per token, share of tokens that cross a space, the frequency distribution of stage-2 tokens, and the share of vocabulary entries used fewer than 10 times on a held-out 100 MB slice.
+5. **Phrase metrics (reported, phrase-build):** tokens per word, bytes per token, share of tokens that cross a space, the frequency distribution of stage-2 tokens, and the share of vocabulary entries used fewer than 10 times on a held-out 100 MB slice.
 6. **Word-level consistency (reported):** on FLORES+ npi, the share of phrase-build tokens that are either stage-2 tokens or identical to the stage-1 build's tokens over the same byte span. Covered-akshara violations must still be 0.
-7. **Sweep (M8b), at 64k:** `t` = 10%, 25% and 50% of Block 2. **Pick rule:** the lowest Nepali fertility whose English fertility is within 2% of the 64k word-level build's English fertility. Then build 128k with the chosen fraction.
+7. **Sweep (phrase-build), at 64k:** `t` = 10%, 25% and 50% of Block 2. **Pick rule:** the lowest Nepali fertility whose English fertility is within 2% of the 64k word-level build's English fertility. Then build 128k with the chosen fraction.
 
 **Gate P (phrase builds, FLORES+ devtest via Yak's harness):**
 
@@ -284,15 +284,15 @@ A two-stage curriculum, after SuperBPE (arXiv 2503.13423): word-level merges fir
 | Nepali, Phrase-64k (sweep pick) | below 1.374 | Yak 64k-phrase 1.374 |
 | All Gate A integrity rows (violations, mark-initial, round-trip, coverage, equality) | as Gate A | — |
 
-## M2 approvals (4 Nov 2026)
+## data-plan approvals (4 Nov 2026)
 
-The human approved the following for milestone M2. Sections 3.1–3.13 are unchanged.
+The human approved the following for milestone data-plan. Sections 3.1–3.13 are unchanged.
 
 ### Storage
 
 Option 2 is approved. For each training source, delete its raw parquet only after its cleaned parquet is written and verified against the manifest, and only after the exact Hugging Face revision (commit hash) is recorded in that manifest so the text can be re-downloaded. Never delete eval-only or decontamination-only sources. The 50 GB rule from section 2 still applies at every step.
 
-The storage-plan peak that is gated is one copy of each training source (the raw parquet until M4 replaces it with the cleaned parquet), plus eval, decontamination and tool files, plus the snapshots, plus the counts, tokenizers and eval allowance. Raw and cleaned training text are not kept together.
+The storage-plan peak that is gated is one copy of each training source (the raw parquet until cleaning replaces it with the cleaned parquet), plus eval, decontamination and tool files, plus the snapshots, plus the counts, tokenizers and eval allowance. Raw and cleaned training text are not kept together.
 
 ### Languages of Nepal
 
@@ -306,13 +306,13 @@ Out of scope for training in v1. FineWeb-2 `npi_Latn` has a test split; download
 
 Approved for evaluation only under CC BY 4.0, at commit `b3498528daa3435f091792e0b44bb222a2f8cb68`. Attribution: the affix dataset is re-derived from Balaram Prasain, "A Computational Analysis of Nepali Morphology: A Model for Natural Language Processing", PhD dissertation, Tribhuvan University, 2011. Cite that work. The files stay under `data/` and are not committed. Do not copy the repository's tokenizer vocab, merges or stem lexicons.
 
-## M4 legacy-font detector (5 Nov 2026)
+## cleaning legacy-font detector (5 Nov 2026)
 
 The logistic-regression Preeti classifier failed the 99% precision spot-check (precision 0.05 after one retrain). The human replaced it with a **dictionary-based Preeti detector**:
 
 1. Take the 50,000 most frequent Devanagari words from Nepali training sources after UTF-8 cleanup and GlotLID keep (`npi_Deva`). Convert each with the MIT `globalpolicy/UnicodeToPreeti` converter. Keep converted forms of length ≥ 2. Write `artifacts/clean/preeti_lexicon.tsv` with sha256.
 2. A Latin-script line in a Nepali document is flagged if it has ≥ 3 whitespace tokens in that lexicon and those tokens are ≥ 50% of the line's tokens. Drop a document only if more than 20% of its lines are flagged.
-3. Spot-check: 100 flagged + 100 unflagged → `artifacts/clean/preeti_spotcheck_v2.tsv`. If precision ≥ 99%, keep the filter. If below 99%, do not retry: disable the filter, record that here, count would-have-flagged lines per source as a limitation, and continue M4.
+3. Spot-check: 100 flagged + 100 unflagged → `artifacts/clean/preeti_spotcheck_v2.tsv`. If precision ≥ 99%, keep the filter. If below 99%, do not retry: disable the filter, record that here, count would-have-flagged lines per source as a limitation, and continue cleaning.
 
 ### Legacy-font filter status (after dictionary spot-check)
 
@@ -331,7 +331,7 @@ Dictionary detector spot-check (`artifacts/clean/preeti_spotcheck_v2.tsv`): prec
 | hplt_npi | 426 |
 | **total** | **565** |
 
-## M4 decontamination n-gram scope (6 Nov 2026; human-approved 7 Nov 2026)
+## cleaning decontamination n-gram scope (6 Nov 2026; human-approved 7 Nov 2026)
 
 **Approved:** for the large same-distribution web test sets (`fw2_npi_test`, `fw2_hin_test`, `c4_val`), apply **exact-match only**. Their 6–12-word segment and 13-word n-gram rules produced ~40–60% false-overlap drops on Nepali training (ordinary n-gram overlap with the same web distribution, not eval-passage leakage) and the merged indexes (~339M segment hashes) were too heavy for an 18 GB Mac.
 
@@ -377,7 +377,7 @@ On the 50k `fw2_npi` probe after the change (`decontam_run8.log`): 98/50,000 = *
 
 ### MinHash near-dup vs large test sets (7 Nov 2026)
 
-In place of the disabled large-set n-gram rules: drop any training document whose MinHash signature (same settings as M4 step 4: 5-gram word shingles, 14 buckets × 8 hashes, seed `20261104`) collides in any band with a document in `fw2_npi_test`, `fw2_hin_test` or `c4_val`. Prior MinHash signature workdir was not on disk; eval bands are rebuilt. Counts go to `artifacts/clean/minhash_eval_near_dup.json`. The independent snapshot audit also checks this rule (`minhash_eval` must be 0).
+In place of the disabled large-set n-gram rules: drop any training document whose MinHash signature (same settings as cleaning step 4: 5-gram word shingles, 14 buckets × 8 hashes, seed `20261104`) collides in any band with a document in `fw2_npi_test`, `fw2_hin_test` or `c4_val`. Prior MinHash signature workdir was not on disk; eval bands are rebuilt. Counts go to `artifacts/clean/minhash_eval_near_dup.json`. The independent snapshot audit also checks this rule (`minhash_eval` must be 0).
 
 **Result:** dropped **20,132** training documents (**122,711,282** bytes) across clean sources + `_reroute/`. Top sources by docs: sangraha_nep 11,692; iriis 4,631; hplt_npi 2,331; fw2_npi 1,020; indiccorp_npi 236; fw2_hin 183.
 
@@ -387,22 +387,22 @@ The first n45 independent audit reported `{'exact': 0, 'segment': 200, '13gram':
 
 ## Human correction (8 Nov 2026) — Ban 1 reading and special-token encoding
 
-Recorded at the human's instruction during M6. The section 3 text above is unchanged; this note is only the corrected reading.
+Recorded at the human's instruction during trainer. The section 3 text above is unchanged; this note is only the corrected reading.
 
 1. **Ban 1, second clause.** `M` lies within one character's UTF-8 encoding: valid lead byte, valid continuation bytes for each later position, and `len(M)` no greater than that lead's width. Proper prefixes such as `E6 97` are allowed. The clause does not mean "exactly one scalar value has an encoding that starts with M". The first clause (both sides complete valid UTF-8) is unchanged.
 2. **Ordinary-text encoding.** Tests set `Tokenizer.encode_special_tokens = True` (tokenizers 0.23.3) so literal special-token strings are plain text, like tiktoken `encode_ordinary`. See `docs/MODEL_CARD_NOTES.md`.
 
-## M7 follow-up (8 Nov 2026) — Joiner copy only on n50 (deviation from 3.8)
+## mix-sweep follow-up (8 Nov 2026) — Joiner copy only on n50 (deviation from 3.8)
 
-docs/SPEC.md 3.8 says the 1% joiner copy is on by default for the mix. The M4 snapshot builder applied joiners **only when Nepali share = 50%**, so only `n50` has the synthetic copy (`joiner_share=0.01`, 21348 docs / ~50 MB). `n45` and `n60` have `joiner_share=0.0`. The M7 ladder "final" rung forced onto n60 therefore has **no** joiner copy; `final_nojoiner` remains the n50_nojoiner arm.
+docs/SPEC.md 3.8 says the 1% joiner copy is on by default for the mix. The cleaning snapshot builder applied joiners **only when Nepali share = 50%**, so only `n50` has the synthetic copy (`joiner_share=0.01`, 21348 docs / ~50 MB). `n45` and `n60` have `joiner_share=0.0`. The mix-sweep ladder "final" rung forced onto n60 therefore has **no** joiner copy; `final_nojoiner` remains the n50_nojoiner arm.
 
 **Recommendation:** keep the joiner copy in every future snapshot (not only n50). Evidence: n50 ZWJ/ZWNJ probes 1.368 / 1.369 vs n60 1.614 / 1.633. Nepali fertility cost on the matched n50 pair is about 0.002 (`mix_anc64_n50` 1.515748 vs `lad_final_nojoiner` on `n50_nojoiner` 1.513823).
 
-## M7 follow-up (8 Nov 2026) — Danda stays a separate token
+## mix-sweep follow-up (8 Nov 2026) — Danda stays a separate token
 
 Danda (purna biram, U+0964) and double danda (U+0965) stay separate tokens, like "." in English. This is a product decision for the paper and shipping builds; pre-tokenizer / merge behaviour that keeps `।` as its own piece is intentional.
 
-## Sealed test set (locked 9 Nov 2026, before M8)
+## Sealed test set (locked 9 Nov 2026, before final-build)
 
 Hash-selected held-out docs from cleaned training data that appear in no snapshot built so far (including n60j5 and the 10GB joiner snapshot), near-dup filtered against all snapshots, and excluded from future snapshot sampling via `sha256(doc_id)`.
 
@@ -411,7 +411,7 @@ Hash-selected held-out docs from cleaned training data that appear in no snapsho
 - **list_sha256** = `71f744cea9e958351494fea6d70e35597daa833b4875bf00878caf64951c3da0`
 - **Canonical copy (hashes + seed only, no document text):** `docs/sealed_test_set.json`
 
-## M8 selection (lookup applied 9 Nov 2026)
+## final-build selection (lookup applied 9 Nov 2026)
 
 Selection rules written in the research log at 12:45 on 9 Nov, before the 13:40 results; lookup applied mechanically.
 
@@ -423,7 +423,7 @@ Inputs:
 Outputs:
 
 - Snapshot **n60j5**, joiner copy on, code+math scale **1.0**
-- Block 1 for every size = that size's M5 inventory ranking truncated to a **3%** cap. The 250k inventory is built the same way and saved as `artifacts/inventory/covered_250k.json`.
+- Block 1 for every size = that size's akshara-inventory inventory ranking truncated to a **3%** cap. The 250k inventory is built the same way and saved as `artifacts/inventory/covered_250k.json`.
 - **Ancoda-64k:** vocab 65,536, B_d 48,000
 - **Ancoda-128k:** vocab 131,072, B_d 94,742
 - **Ancoda-32k:** vocab 32,768, B_d 23,522 (same Devanagari share, 48,000/64,256, of non-byte non-reserved slots)
@@ -432,18 +432,18 @@ Outputs:
 
 ## Tokenizer path naming (16 Nov 2026)
 
-The paper numbers and the anonymous release use **`artifacts/tokenizers/m8/ancoda-64k`** (`tokenizer.json` sha256 `c9ee0986bcb249109371b696f7004e8b664a6533539150bc92f9babe2435013e`). The anonymous release ranks table matches that build’s `tokens_hex` and layout (only path strings inside `stats` are anonymized).
+The paper numbers and the anonymous release use **`artifacts/tokenizers/final_build/ancoda-64k`** (`tokenizer.json` sha256 `c9ee0986bcb249109371b696f7004e8b664a6533539150bc92f9babe2435013e`). The anonymous release ranks table matches that build’s `tokens_hex` and layout (only path strings inside `stats` are anonymized).
 
-The older directory **`artifacts/tokenizers/ancoda-64k`** (sha256 `db6bd43e0e09ee221037d7d59642a6843179a5b45304c22ce191bb3a1f6781ed`) is **superseded**. It is an earlier n50-era build: the Figure 2a sentence `नमस्ते, तपाईंलाई कस्तो छ?` is 7 tokens there and 6 tokens under `m8/ancoda-64k`. Keep the directory on disk for provenance; do not use it for paper numbers, M9, or release.
+The older directory **`artifacts/tokenizers/ancoda-64k`** (sha256 `db6bd43e0e09ee221037d7d59642a6843179a5b45304c22ce191bb3a1f6781ed`) is **superseded**. It is an earlier n50-era build: the Figure 2a sentence `नमस्ते, तपाईंलाई कस्तो छ?` is 7 tokens there and 6 tokens under `final_build/ancoda-64k`. Keep the directory on disk for provenance; do not use it for paper numbers, model-eval, or release.
 
 ## Ancoda-250k snapshot provenance (18 Nov 2026)
 
 Provenance correction only. No decision changes and no tokenizer changes.
 
-`artifacts/tokenizers/m8/ancoda-250k/m8_manifest.json` lists `snapshot: data/snapshots/n60j5_20af1fffbec0fe86`. That is wrong. The adopted 250k build is the n60j10 re-run (`data/snapshots/n60j10_502301959d423052`), as the M8 selection above allows:
+`artifacts/tokenizers/final_build/ancoda-250k/final_build_manifest.json` lists `snapshot: data/snapshots/n60j5_20af1fffbec0fe86`. That is wrong. The adopted 250k build is the n60j10 re-run (`data/snapshots/n60j10_502301959d423052`), as the final-build selection above allows:
 
-- `artifacts/eval/m8/j10_decision.json`: `use_j10` true, reason "Hindi or English improved with CI excluding 0", adopted dir `artifacts/eval/m8/j10/ancoda-250k-bd160000-cm50-j10`. `artifacts/eval/m8/chosen.json` has `source: n60j10`.
-- The manifest's `dewa_counts_sha256` `551b0a96b252c130f2891ac787437729bcba78dd50b4a325446505e20ba0e0ec` and `latin_counts_sha256` `a6eeeb998f041cc0f6f8f1af332d62a5e264cc7a7b49a73de9001a0fe4f223ad` equal the sha256 of `artifacts/eval/m8/n60j10_counts/deva_pretoken_counts.bin` and `latin_cm50_pretoken_counts.bin`. The n60j5 frontier point `bd160000-cm50` has different counts (`bfda24fc…b4b8a6`, `b32235a2…b8a749`).
-- Cause: `train_budget` in `python/ancoda_tok/m8_final.py` writes `SNAP_J5` into every manifest, whatever counts it is given.
+- `artifacts/eval/final_build/j10_decision.json`: `use_j10` true, reason "Hindi or English improved with CI excluding 0", adopted dir `artifacts/eval/final_build/j10/ancoda-250k-bd160000-cm50-j10`. `artifacts/eval/final_build/chosen.json` has `source: n60j10`.
+- The manifest's `dewa_counts_sha256` `551b0a96b252c130f2891ac787437729bcba78dd50b4a325446505e20ba0e0ec` and `latin_counts_sha256` `a6eeeb998f041cc0f6f8f1af332d62a5e264cc7a7b49a73de9001a0fe4f223ad` equal the sha256 of `artifacts/eval/final_build/n60j10_counts/deva_pretoken_counts.bin` and `latin_cm50_pretoken_counts.bin`. The n60j5 frontier point `bd160000-cm50` has different counts (`bfda24fc…b4b8a6`, `b32235a2…b8a749`).
+- Cause: `train_budget` in `python/ancoda_tok/final_build_final.py` writes `SNAP_J5` into every manifest, whatever counts it is given.
 
-The manifest's existing fields are unchanged. A `snapshot_correction` field was added with the true snapshot and this evidence. The file is under `artifacts/` and is not committed; the identical original copy at `artifacts/eval/m8/j10/ancoda-250k-bd160000-cm50-j10/m8_manifest.json` keeps the sha256 `3f8ceeb2…e559a2` recorded in `docs/EVIDENCE_M8.md`.
+The manifest's existing fields are unchanged. A `snapshot_correction` field was added with the true snapshot and this evidence. The file is under `artifacts/` and is not committed; the identical original copy at `artifacts/eval/final_build/j10/ancoda-250k-bd160000-cm50-j10/final_build_manifest.json` keeps the sha256 `3f8ceeb2…e559a2` recorded in `docs/EVIDENCE_FINAL_BUILD.md`.

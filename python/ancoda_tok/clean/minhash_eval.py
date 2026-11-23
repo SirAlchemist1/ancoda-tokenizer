@@ -1,6 +1,6 @@
 """MinHash near-duplicate check of training docs against large web eval sets.
 
-Same MinHash settings as M4 step 4 (mix.yaml minhash + seed 20261104).
+Same MinHash settings as cleaning step 4 (mix.yaml minhash + seed 20261104).
 Drops a training document if any of its 14 band signatures collides with a
 band from fw2_npi_test, fw2_hin_test or c4_val.
 """
@@ -330,7 +330,7 @@ def run_minhash_eval_near_dup() -> dict[str, Any]:
         "eval_sources": list(_EXACT_ONLY_EVAL_SOURCES),
         "band_sizes": [len(b) for b in bands],
         "note": (
-            "Prior M4 MinHash signature workdir was not on disk; "
+            "Prior cleaning MinHash signature workdir was not on disk; "
             "eval bands rebuilt with the same MinHash config as step 4."
         ),
         "sources": {},

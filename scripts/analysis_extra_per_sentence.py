@@ -1,6 +1,6 @@
 """Measure-only per-sentence rows for o200k and HimalayaAI.
 
-Same fertility definition as artifacts/eval/m8/followup/flores_per_sentence.json:
+Same fertility definition as artifacts/eval/final_build/followup/flores_per_sentence.json:
 each sentence or document is encoded alone, fertility = tokens / whitespace words,
 paired bootstrap 10,000 resamples, seed 20261104.
 
@@ -22,7 +22,7 @@ import numpy as np
 import tokenizers
 import zstandard as zstd
 
-from ancoda_tok.m8_final import (
+from ancoda_tok.final_build_final import (
     BOOT_N,
     REPO_ROOT,
     SEED,
@@ -30,7 +30,7 @@ from ancoda_tok.m8_final import (
     _joiner_text,
     verdict,
 )
-from ancoda_tok.m8_flores_per_sentence import (
+from ancoda_tok.final_build_flores_per_sentence import (
     DEVA7,
     LANGS,
     bootstrap_deva_mean,
@@ -40,11 +40,11 @@ from ancoda_tok.m8_flores_per_sentence import (
     per_sentence_pairs,
     read_sentences,
 )
-from ancoda_tok.m8_followup_report import bootstrap_fert_diff, load_specs
+from ancoda_tok.final_build_followup_report import bootstrap_fert_diff, load_specs
 
 OUT_JSON = REPO_ROOT / "artifacts" / "analysis" / "extra_per_sentence.json"
 MD_OUT = REPO_ROOT / "docs" / "RESULTS_PER_SENTENCE.md"
-SEALED = REPO_ROOT / "data" / "m9" / "eval" / "sealed.jsonl.zst"
+SEALED = REPO_ROOT / "data" / "model_eval" / "eval" / "sealed.jsonl.zst"
 SECTION = "## Additional measure-only tokenizers"
 HF = REPO_ROOT / "data" / "hf_cache" / "hub"
 
@@ -110,7 +110,7 @@ DEVA_SHORT = {
     "new_Deva": "new",
 }
 SEALED_REMEASURE = (
-    REPO_ROOT / "artifacts" / "eval" / "m8" / "followup" / "sealed_nojjoiners_remeasure.json"
+    REPO_ROOT / "artifacts" / "eval" / "final_build" / "followup" / "sealed_nojjoiners_remeasure.json"
 )
 # Reported per-sentence FLORES+ Nepali fertilities. Confirmed before new rows.
 BASELINE_NPI = {"ancoda-64k": "1.4508", "yak-64k-v1": "1.4566"}
@@ -304,7 +304,7 @@ def bootstrap_sealed_deva_mean(
 ) -> dict[str, Any]:
     """Doc bootstrap of the unweighted 11-group mean.
 
-    Same rule as ``ancoda_tok.m8_sid_sealed_fix.bootstrap_mean_deva``: each
+    Same rule as ``ancoda_tok.final_build_sid_sealed_fix.bootstrap_mean_deva``: each
     resample redraws documents inside each group, recomputes the 11 fertilities,
     then takes their unweighted mean. The interval is on mean(left) − mean(right).
     Percentile indexes match ``bootstrap_fert_diff``.
@@ -687,7 +687,7 @@ def main() -> None:
 
     # Harness check against the published per-sentence table.
     published = json.loads(
-        (REPO_ROOT / "artifacts/eval/m8/followup/flores_per_sentence.json").read_text(
+        (REPO_ROOT / "artifacts/eval/final_build/followup/flores_per_sentence.json").read_text(
             encoding="utf-8"
         )
     )

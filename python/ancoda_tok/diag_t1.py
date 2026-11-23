@@ -21,7 +21,7 @@ from ancoda_tok.frontier_metrics import attach_extra_metrics
 from ancoda_tok.storage import REPO_ROOT
 N60_SNAP = REPO_ROOT / "data" / "snapshots" / "n60_cf8066dbbdd0da93"
 
-OUT = REPO_ROOT / "artifacts" / "eval" / "m7" / "t1_block1_cap"
+OUT = REPO_ROOT / "artifacts" / "eval" / "mix_sweep" / "t1_block1_cap"
 MERGEABLE = 64512
 BLOCK0 = 133
 BDS = (46000, 48000)
@@ -56,8 +56,8 @@ def main() -> None:
                 block0=BLOCK0,
                 block1=block1,
                 block1_path=str(covered_path.relative_to(REPO_ROOT)),
-                dewa_counts_rel="artifacts/eval/m7/t1_block1_cap/deva_pretoken_counts.bin",
-                latin_counts_rel="artifacts/eval/m7/t1_block1_cap/latin_pretoken_counts.bin",
+                dewa_counts_rel="artifacts/eval/mix_sweep/t1_block1_cap/deva_pretoken_counts.bin",
+                latin_counts_rel="artifacts/eval/mix_sweep/t1_block1_cap/latin_pretoken_counts.bin",
             )
             dest = OUT / tag / "combined"
             combine(dewa_dir, latin_dir, dest, mergeable=MERGEABLE)

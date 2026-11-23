@@ -1,4 +1,4 @@
-"""M4 step 2: GlotLID v3 document-level language ID."""
+"""cleaning step 2: GlotLID v3 document-level language ID."""
 
 from __future__ import annotations
 

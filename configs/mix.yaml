@@ -91,7 +91,7 @@ nepali_dedup_preference:
   - fw2_npi
   - hplt_npi
 
-# Sweep Nepali shares for M7; others scale pro rata. Flagship is 0.50.
+# Sweep Nepali shares for mix-sweep; others scale pro rata. Flagship is 0.50.
 nepali_sweep: [0.45, 0.50, 0.60]
 
 minhash:

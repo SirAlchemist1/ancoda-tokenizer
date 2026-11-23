@@ -1,4 +1,4 @@
-# Storage plan (M2 step 1)
+# Storage plan (data-plan step 1)
 
 File sizes are Hub `list_repo_tree` sizes (exact). A bracketed docs/SPEC.md budget is a UTF-8 cap, and 1 GB = 10^9 bytes. Stored parquet of a capped source is at most that cap. Git commit `be29daf4cff030a2f71dcd8650aca204fd63859c`.
 
@@ -53,7 +53,7 @@ Upstream is the sum of the files under the paths in `configs/sources.yaml`. Stor
 | raw parquet (stored upper bound) | 67376647800 | 67.377 GB (62.749 GiB, 67376647800 bytes) |
 | transient Hugging Face cache | 16863948296 | largest single source, deleted before the next source. 16.864 GB (15.706 GiB, 16863948296 bytes) |
 | cleaned parquet | 65339468800 | replaces training raw after it is verified. Not a second resident copy. 65.339 GB (60.852 GiB, 65339468800 bytes) |
-| snapshots | 20000000000 | M4 writes 4 × 5000000000 bytes (5 GB because RAM < 32 GB). M2's wording of 3 snapshots would be 15000000000. |
+| snapshots | 20000000000 | cleaning writes 4 × 5000000000 bytes (5 GB because RAM < 32 GB). data-plan's wording of 3 snapshots would be 15000000000. |
 | counts, tokenizers, eval | 10000000000 | planning allowance, not an API figure. 10.000 GB (9.313 GiB, 10000000000 bytes) |
 
 ## Approved retention (4 Nov 2026)
@@ -65,7 +65,7 @@ Option 2 is approved. For each training source, delete its raw parquet only afte
 The floor is 50 × 10^9 bytes. The gated peak is one copy of the stored files (training raw until the cleaned parquet replaces it), plus four snapshots, plus the counts allowance. Download peak is every raw output plus one source's Hub cache. The cache is deleted after that source's shards are verified.
 
 - Approved peak (stored files + 4 snapshots + counts): 97.377 GB (90.689 GiB, 97376647800 bytes).
-- Same peak with the 3 snapshots in the M2 wording: 92.377 GB (86.032 GiB, 92376647800 bytes).
+- Same peak with the 3 snapshots in the data-plan wording: 92.377 GB (86.032 GiB, 92376647800 bytes).
 - Download peak (raw + one cache): 84.241 GB (78.455 GiB, 84240596096 bytes).
 - Free now minus approved peak: 65.419 GB (60.927 GiB, 65419445640 bytes).
 - Free now minus download peak: 78.555 GB (73.161 GiB, 78555497344 bytes).
@@ -97,7 +97,7 @@ None. Every row in `configs/sources.yaml` is in the total above.
 
 ## Notes that are not size estimates
 
-- `und_Deva` is a real FineWeb-2 config. The card calls it undetermined language and says it was uploaded without deduplication or filtering. It is inside `deva_pool_fw2` because M2 says every other `*_Deva` config. Its file size is exact; the decision to train on it is the plan's.
+- `und_Deva` is a real FineWeb-2 config. The card calls it undetermined language and says it was uploaded without deduplication or filtering. It is inside `deva_pool_fw2` because data-plan says every other `*_Deva` config. Its file size is exact; the decision to train on it is the plan's.
 - Sangraha `verified/kas` and `verified/snd` have no script tag on the card. They are in the pool because FineWeb-2 has `kas_Deva` and `snd_Deva`. The first rows should be checked for Devanagari before those shards are kept.
 - IndicCorp v2 `npi_Deva` is the file `data/ne.txt` (the README data_files map). It is plain text. Blank-line versus one-line documents is decided while reading the file, not guessed here.
 - GlotLID `model.bin` is v3. The model card says `model.bin` stays at stable v3 while `model_v4_alpha.bin` is a pre-release.

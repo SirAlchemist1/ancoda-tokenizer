@@ -1,6 +1,6 @@
 # Sealed sample, fertility spread, joiner units
 
-Analysis only. No training run, and the server queue was not touched. Counts are from the local sealed eval files, the n60j5 snapshot, and the M9 text stream. Reproduction: `scripts/analysis_sealed_fertility.py`.
+Analysis only. No training run, and the server queue was not touched. Counts are from the local sealed eval files, the n60j5 snapshot, and the model-eval text stream. Reproduction: `scripts/analysis_sealed_fertility.py`.
 
 Percentiles are Hyndman–Fan type 7 (position `q * (n − 1)`, linear interpolation).
 
@@ -8,11 +8,11 @@ Percentiles are Hyndman–Fan type 7 (position `q * (n − 1)`, linear interpola
 
 The 2,000-document file is a prefix of the no-joiner sealed list. Recovered rows are sorted by `doc_id`, Nepali rows are kept, and the first 2,000 are written:
 
-```99:99:python/ancoda_tok/m9/evalprep.py
+```99:99:python/ancoda_tok/model_eval/evalprep.py
     rows.sort(key=lambda row: row["doc_id"])
 ```
 
-```126:130:python/ancoda_tok/m9/evalprep.py
+```126:130:python/ancoda_tok/model_eval/evalprep.py
     nepali = [row for row in sealed if row["lang"] == "Nepali"]
     if len(nepali) < 2000:
         raise SystemExit(f"STOP: sealed Nepali has {len(nepali)} docs, need 2000")
@@ -20,7 +20,7 @@ The 2,000-document file is a prefix of the no-joiner sealed list. Recovered rows
     _write_jsonl(EVAL / "sealed_npi_2000.jsonl.zst", sample)
 ```
 
-The same rule is in `docs/M9_PREREG.md` (Nepali rows of the no-joiner sealed list, `doc_id` ascending, first 2,000). The file on disk matches that prefix: 2,000 ids, all Nepali, equal to the first 2,000 Nepali `doc_id`s in `sealed.jsonl.zst`.
+The same rule is in `docs/MODEL_EVAL_PREREG.md` (Nepali rows of the no-joiner sealed list, `doc_id` ascending, first 2,000). The file on disk matches that prefix: 2,000 ids, all Nepali, equal to the first 2,000 Nepali `doc_id`s in `sealed.jsonl.zst`.
 
 That cut does not test sidskarki round-trip and does not apply a length minimum or maximum. The only check on length is that the recovered UTF-8 size equals the index `text_bytes` (`evalprep.py` lines 87–89); a mismatch stops the build.
 
@@ -29,7 +29,7 @@ The list those rows are drawn from was built earlier, still without a round-trip
 - Drop cleaned documents whose `doc_id` is already in any snapshot (`diag_prompt2_gaps.py` lines 169–170).
 - Within each mix bucket, keep the lowest `sha256(f"{seed}:{doc_id}")` values and take them in that order until the bucket's byte budget is met (`diag_prompt2_gaps.py` lines 155–158 and 199–207). The budget is 100 MB with Nepali scaled to 60%. The `2_000` in `keep_n` is an assumed average document size in bytes, used only to size the candidate heap.
 - Drop MinHash near-duplicates of snapshot text (`diag_prompt2_gaps.py` line 256).
-- Drop 65 documents whose `doc_id` was a synthetic joiner source (`m8_sid_sealed_fix.py` lines 374–378).
+- Drop 65 documents whose `doc_id` was a synthetic joiner source (`final_build_sid_sealed_fix.py` lines 374–378).
 
 ### Length in bytes
 
@@ -76,7 +76,7 @@ Of 65,536 entries, 644 contain ZWJ or ZWNJ: 325 contain ZWJ and 319 contain ZWNJ
 | Sealed Nepali 2,000, ZWJ rewrite | 1,053,750 | 229,382 | 217,681.61 | 217,681.61 | 0 |
 | Sealed Nepali 2,000, ZWNJ rewrite | 1,052,622 | 229,108 | 217,654.58 | 0 | 217,654.58 |
 
-The tokenizer training text is the n60j5 snapshot (2,314,323 documents, 5,000,811,952 bytes), including its synthetic joiner copy (22,102 documents). The model stream is the M9 text stream (2,477,651 documents, 7,189,336,358 bytes, 1,085,350,393 Ancoda-64k content tokens). It contains no `synthetic\x1f` documents. The small ZWNJ count on the FLORES ZWJ rewrite, and the small ZWJ count on the FLORES ZWNJ rewrite, are joiners already present in the original lines.
+The tokenizer training text is the n60j5 snapshot (2,314,323 documents, 5,000,811,952 bytes), including its synthetic joiner copy (22,102 documents). The model stream is the model-eval text stream (2,477,651 documents, 7,189,336,358 bytes, 1,085,350,393 Ancoda-64k content tokens). It contains no `synthetic\x1f` documents. The small ZWNJ count on the FLORES ZWJ rewrite, and the small ZWJ count on the FLORES ZWNJ rewrite, are joiners already present in the original lines.
 
 ## 4. Anonymous release
 

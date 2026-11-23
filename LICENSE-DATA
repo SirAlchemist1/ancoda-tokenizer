@@ -10,7 +10,7 @@ https://creativecommons.org/licenses/by-nc/4.0/legalcode:
     tokenizer.json and tiktoken rank files for ancoda-32k, ancoda-64k,
     ancoda-ne-64k, ancoda-128k and ancoda-250k), wherever they are
     distributed.
-  - The pre-registration: docs/M9_PREREG.md.
+  - The pre-registration: docs/MODEL_EVAL_PREREG.md.
   - The sealed document-ID lists: docs/sealed_test_set.json and
     docs/sealed_test_set_no_joiners.json.
 
